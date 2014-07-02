@@ -1,0 +1,35 @@
+{
+  "name": "lacona-phrase-datetime",
+  "version": "0.0.1",
+  "description": "Enable Lacona to parse natural language dates, times, and both together ",
+  "main": "lib/datetime.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brandonhorst/lacona-phrase-datetime.git"
+  },
+  "keywords": [
+    "lacona",
+    "date",
+    "time",
+    "datetime",
+    "phrase"
+  ],
+  "author": "@brandonhorst",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brandonhorst/lacona-phrase-datetime/issues"
+  },
+  "homepage": "https://github.com/brandonhorst/lacona-phrase-datetime",
+  "devDependencies": {
+    "async": "^0.9.0",
+    "chai": "^1.9.1",
+    "chai-datetime": "^1.2.0",
+    "mocha": "^1.20.1",
+    "moment": "^2.7.0",
+    "sinon": "^1.10.2",
+    "sinon-chai": "^2.5.0"
+  }
+}
