@@ -1,0 +1,33 @@
+{
+	"lang": ["en_US"],
+	"evaluate": "getDate",
+	"root": {
+		"type": "choice",
+		"children": [
+			{
+				"type": "literal",
+				"id": "relativeDay",
+				"display": "today",
+				"value": 0
+			}, {
+				"type": "literal",
+				"id": "relativeDay",
+				"display": "tomorrow",
+				"value": 1
+			}, {
+				"type": "literal",
+				"id": "relativeDay",
+				"display": "the day after tomorrow",
+				"value": 2
+			}, [
+				"in",
+				{
+					"type": "integer",
+					"id": "relativeDay",
+					"min": 1
+				},
+				"days"
+			]
+		]
+	}
+}

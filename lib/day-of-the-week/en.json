@@ -1,0 +1,31 @@
+{
+	"lang": ["en"],
+	"root": {
+		"type": "choice",
+		"id": "value",
+		"children": [
+			{
+				"type": "Sunday",
+				"value": 0
+			}, {
+				"type": "Monday",
+				"value": 1
+			}, {
+				"type": "Tuesday",
+				"value": 2
+			}, {
+				"type": "Wednesday",
+				"value": 3
+			}, {
+				"type": "Thursday",
+				"value": 4
+			}, {
+				"type": "Friday",
+				"value": 5
+			}, {
+				"type": "Saturday",
+				"value": 6
+			}
+		]
+	}
+}
