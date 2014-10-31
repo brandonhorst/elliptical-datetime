@@ -1,5 +1,6 @@
 var async = require('async');
 var chai = require('chai');
+var datetime = require('../lib/datetime')
 var expect = chai.expect;
 var moment = require('moment');
 var sinon = require('sinon');
@@ -9,52 +10,99 @@ chai.use(require('sinon-chai'));
 chai.use(require('chai-datetime'));
 
 describe('datetime', function () {
-	it('handles a named relative date (en_US)', function (done) {
-		var schema = {
-			root: {
-				type: 'date',
-				id: 'test'
-			},
-			run: ''
+	var parser;
+
+	beforeEach(function () {
+		parser = new Parser({sentences: ['test']});
+	});
+
+	describe('relative dates (en_US)', function () {
+
+		var grammar = {
+			phrases: [{
+				name: 'test',
+				root: {
+					type: 'date',
+					id: 'test'
+				}
+			}],
+			dependencies: [datetime]
 		};
 
-		var testCases = [
-			{
-				input: 'today',
-				desc: 'today',
-				relativeDays: 0
-			}, {
-				input: 'tomorrow',
-				desc: 'tomorrow',
-				relativeDays: 1
-			}, {
-				input: 'the day after tomorrow',
-				desc: 'the day after tomorrow',
-				relativeDays: 2
-			}, {
-				input: 'in 5 days',
-				desc: 'in n days',
-				relativeDays: 5
-			}
-		]
+		it('handles today', function (done) {
 
-		async.each(testCases, function (testCase, done) {
 			var handleData = sinon.spy(function (data) {
-				expect(data.result.test, testCase.desc).to.equalDate(
-					moment({hour: 0}).add(testCase.relativeDays, 'd').toDate()
-				);
+				expect(data.result.test).to.equalDate(new Date());
 			});
 
 			var handleEnd = function () {
-				expect(handleData, testCase.desc).to.have.been.called.once;
+				expect(handleData).to.have.been.called.once;
 				done();
 			};
 
-			new Parser()
-			.understand(schema)
+			parser
+			.understand(grammar)
 			.on('data', handleData)
 			.on('end', handleEnd)
-			.parse(testCase.input);
-		} , done);
+			.parse('today');
+		});
+
+		it('handles tomorrow', function (done) {
+
+			var handleData = sinon.spy(function (data) {
+				var expectedDate = moment({hour: 0}).add(1, 'd').toDate();
+				expect(data.result.test).to.equalDate(expectedDate);
+			});
+
+			var handleEnd = function () {
+				expect(handleData).to.have.been.called.once;
+				done();
+			};
+
+			parser
+			.understand(grammar)
+			.on('data', handleData)
+			.on('end', handleEnd)
+			.parse('tomorrow');
+		});
+
+		it('handles the day after tomorrow', function (done) {
+
+			var handleData = sinon.spy(function (data) {
+				var expectedDate = moment({hour: 0}).add(2, 'd').toDate();
+				expect(data.result.test).to.equalDate(expectedDate);
+			});
+
+			var handleEnd = function () {
+				expect(handleData).to.have.been.called.once;
+				done();
+			};
+
+			parser
+			.understand(grammar)
+			.on('data', handleData)
+			.on('end', handleEnd)
+			.parse('the day after tomorrow');
+		});
+
+		it('handles in n days', function (done) {
+
+			var handleData = sinon.spy(function (data) {
+				var expectedDate = moment({hour: 0}).add(5, 'd').toDate();
+				expect(data.result.test).to.equalDate(expectedDate);
+			});
+
+			var handleEnd = function () {
+				expect(handleData).to.have.been.called.once;
+				done();
+			};
+
+			parser
+			.understand(grammar)
+			.on('data', handleData)
+			.on('end', handleEnd)
+			.parse('in 5 days');
+		});
+
 	});
 });
