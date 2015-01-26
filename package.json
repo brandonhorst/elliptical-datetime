@@ -1,6 +1,6 @@
 {
   "name": "lacona-phrase-datetime",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Enable Lacona to parse natural language dates, times, and both together ",
   "main": "lib/index.js",
   "scripts": {
