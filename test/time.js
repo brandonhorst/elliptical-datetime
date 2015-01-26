@@ -2,7 +2,6 @@ var chai = require('chai');
 var expect = chai.expect;
 var lacona = require('lacona');
 var moment = require('moment');
-var stream = require('stream');
 
 var datetime = require('..');
 var u = require('./util');
