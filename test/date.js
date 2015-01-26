@@ -1,12 +1,8 @@
-var chai = require('chai');
-var expect = chai.expect;
 var lacona = require('lacona');
 var moment = require('moment');
 
 var datetime = require('..');
 var u = require('./util');
-
-chai.use(require('chai-datetime'));
 
 describe('date', function () {
 
@@ -23,48 +19,28 @@ describe('date', function () {
 		});
 
 		it('handles today', function (done) {
-			u.parse(test, ['en_US'], 'today', function (err, data) {
-				var expectedDate = moment({hour:0}).toDate();
-				expect(data.result.test).to.equalDate(expectedDate);
-        expect(data.result.test).to.equalTime(expectedDate);
-				done();
-			});
+			var expectedDate = moment({hour:0}).toDate();
+			u.parse(test, ['en_US'], 'today', expectedDate, done);
 		});
 
 		it('handles tomorrow', function (done) {
-			u.parse(test, ['en_US'], 'tomorrow', function (err, data) {
-				var expectedDate = moment({hour:0}).add(1, 'd').toDate();
-				expect(data.result.test).to.equalDate(expectedDate);
-        expect(data.result.test).to.equalTime(expectedDate);
-				done();
-			});
+			var expectedDate = moment({hour:0}).add(1, 'd').toDate();
+			u.parse(test, ['en_US'], 'tomorrow', expectedDate, done);
 		});
 
 		it('handles yesterday', function (done) {
-			u.parse(test, ['en_US'], 'yesterday', function (err, data) {
-				var expectedDate = moment({hour:0}).add(-1, 'd').toDate();
-				expect(data.result.test).to.equalDate(expectedDate);
-        expect(data.result.test).to.equalTime(expectedDate);
-				done();
-			});
+			var expectedDate = moment({hour:0}).add(-1, 'd').toDate();
+			u.parse(test, ['en_US'], 'yesterday', expectedDate, done);
 		});
 
 		it('handles the day before', function (done) {
-			u.parse(test, ['en_US'], 'the day before yesterday', function (err, data) {
-				var expectedDate = moment({hour:0}).add(-2, 'd').toDate();
-				expect(data.result.test).to.equalDate(expectedDate);
-        expect(data.result.test).to.equalTime(expectedDate);
-				done();
-			});
+			var expectedDate = moment({hour:0}).add(-2, 'd').toDate();
+			u.parse(test, ['en_US'], 'the day before yesterday', expectedDate, done);
 		});
 
 		it('handles the day after', function (done) {
-			u.parse(test, ['en_US'], 'the day after tomorrow', function (err, data) {
-				var expectedDate = moment({hour:0}).add(2, 'd').toDate();
-				expect(data.result.test).to.equalDate(expectedDate);
-        expect(data.result.test).to.equalTime(expectedDate);
-				done();
-			});
+			var expectedDate = moment({hour:0}).add(2, 'd').toDate();
+			u.parse(test, ['en_US'], 'the day after tomorrow', expectedDate, done);
 		});
 	});
 });

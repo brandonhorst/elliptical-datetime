@@ -43,6 +43,6 @@
   },
   "dependencies": {
     "lacona": "^0.16.0",
-    "lacona-phrase-freetext": "^0.5.2"
+    "lacona-phrase-list": "^0.2.0"
   }
 }
