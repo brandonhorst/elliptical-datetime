@@ -43,5 +43,5 @@
     "test": "mocha tmp",
     "validate": "npm run build && npm test"
   },
-  "version": "0.3.1"
+  "version": "0.3.2"
 }
