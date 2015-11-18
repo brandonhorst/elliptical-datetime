@@ -1,48 +1,47 @@
 {
-  "name": "lacona-phrase-datetime",
-  "version": "0.3.1",
-  "description": "Enable Lacona to parse natural language dates, times, and both together ",
-  "main": "lib/index.js",
-  "scripts": {
-    "lint": "npm run lint:lib && npm run lint:test",
-    "lint:lib": "jshint --config node_modules/lacona-util-jshint/lib.json lib",
-    "lint:test": "jshint --config node_modules/lacona-util-jshint/test.json test",
-    "test": "mocha test",
-    "validate": "npm run lint && npm test",
-    "cover": "istanbul cover _mocha test -- -R dot && istanbul report text",
-    "coveralls": "istanbul cover _mocha test --report lcovonly -- -R dot && cat coverage/lcov.info | coveralls && rimraf ./coverage",
-    "prepublish": "npm run validate"
+  "author": {
+    "name": "@brandonhorst"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/brandonhorst/lacona-phrase-datetime.git"
-  },
-  "keywords": [
-    "lacona",
-    "date",
-    "time",
-    "datetime",
-    "phrase"
-  ],
-  "author": "@brandonhorst",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/brandonhorst/lacona-phrase-datetime/issues"
   },
-  "homepage": "https://github.com/brandonhorst/lacona-phrase-datetime",
-  "devDependencies": {
-    "chai": "^1.10.0",
-    "chai-datetime": "^1.3.1",
-    "coveralls": "^2.11.2",
-    "event-stream": "^3.2.1",
-    "istanbul": "^0.3.5",
-    "jshint": "^2.6.0",
-    "lacona-util-jshint": "^0.2.0",
-    "mocha": "^2.1.0",
-    "moment": "^2.9.0"
-  },
   "dependencies": {
-    "lacona": "^0.16.0",
-    "lacona-phrase-list": "^0.2.0"
-  }
+    "lacona-phrase": "^0.7.0",
+    "lodash": "^3.10.1",
+    "moment": "^2.10.6"
+  },
+  "description": "Enable Lacona to parse natural language dates, times, and both together ",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^3.2.0",
+    "chai-datetime": "^1.4.0",
+    "lacona": "^0.27.0",
+    "mocha": "^2.3.2",
+    "rimraf": "^2.4.3"
+  },
+  "gitHead": "8dcaa0e47d8e2e829f2f85c70323d2348923134f",
+  "homepage": "https://github.com/brandonhorst/lacona-phrase-datetime",
+  "keywords": [
+    "date",
+    "datetime",
+    "lacona",
+    "phrase",
+    "time"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "name": "lacona-phrase-datetime",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brandonhorst/lacona-phrase-datetime.git"
+  },
+  "scripts": {
+    "build": "babel src --out-dir lib",
+    "clean": "rimraf lib tmp",
+    "prepublish": "npm run build",
+    "pretest": "babel test --out-dir tmp",
+    "test": "mocha tmp",
+    "validate": "npm run build && npm test"
+  },
+  "version": "0.3.1"
 }
