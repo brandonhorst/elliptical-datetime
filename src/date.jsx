@@ -61,6 +61,31 @@ DatePhrase.defaultProps = {
   allowPast: true
 }
 
+class ExtraDateDuration extends Phrase {
+  getValue ({type, multiplier = 1}) {
+    return {[type]: multiplier}
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <placeholder text='number'>
+          <literal text='the ' />
+        </placeholder>
+        <placeholder text='time period' merge={true}>
+          <choice>
+            <literal text='day' value={{type: 'days'}}  />,
+            <literal text='fortnight' value={{type: 'days', multiplier: 14}} />,
+            <literal text='week' value={{type: 'days', multiplier: 7}} />,
+            <literal text='month' value={{type: 'months'}} />,
+            <literal text='year' value={{type: 'years'}} />
+          </choice>
+        </placeholder>
+      </sequence>
+    )
+  }
+}
+
 class RecursiveDay extends Phrase {
   getValue (result) {
     if (!result || !result.date) return
@@ -75,9 +100,13 @@ class RecursiveDay extends Phrase {
 
     if (result.years) {
       date.setFullYear((result.years * result.direction) + result.date.getFullYear())
-    } else if (result.months) {
+    }
+
+    if (result.months) {
       date.setMonth((result.months * result.direction) + result.date.getMonth())
-    } else if (result.days) {
+    }
+
+    if (result.days) {
       date.setDate((result.days * result.direction) + result.date.getDate())
     }
 
@@ -89,7 +118,10 @@ class RecursiveDay extends Phrase {
       <sequence>
         <argument text='offset' showForEmpty={true} merge={true}>
           <sequence>
-            <DateDuration includeThe={true} merge={true} />
+            <choice merge={true}>
+              <ExtraDateDuration />
+              <DateDuration />
+            </choice>
             <list merge={true} id='direction' items={[
                 {text: ' before ', value: -1},
                 {text: ' after ', value: 1},

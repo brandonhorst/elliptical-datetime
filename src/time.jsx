@@ -3,7 +3,7 @@
 import _ from 'lodash'
 import {createElement, Phrase} from 'lacona-phrase'
 import {DigitString, Integer} from 'lacona-phrase-number'
-import TimeDuration from './time-duration'
+import {TimeDuration} from './duration'
 
 export default class Time extends Phrase {
   getValue (result) {
@@ -17,9 +17,9 @@ export default class Time extends Phrase {
       if (!_.isUndefined(result.relative.minutes)) date.setMinutes(date.getMinutes() + result.relative.minutes)
 
       return date
-    } else if (result.fancy) {
+    } else if (result.absolute) {
       const date = new Date()
-      date.setHours(result.fancy.hour, result.fancy.minute || 0, 0, 0)
+      date.setHours(result.absolute.hour, result.absolute.minute || 0, 0, 0)
       return date
     }
   }
@@ -32,10 +32,10 @@ Time.translations = [{
         {this.props.includeAt ? <literal text='at ' optional={true} preferred={true} limited={true} /> : null}
         <argument text='time' showForEmpty={true} merge={true}>
           <choice>
-            <literal text='midnight' id='hour' value={0} />
-            <literal text='noon' id='hour' value={12} />
-            <AbsTime minutes={true}  />
-            <AbsTimeFancy id='fancy' />
+            <literal text='midnight' id='absolute' value={{hour: 0}} />
+            <literal text='noon' id='absolute' value={{hour: 12}} />
+            <AbsTime minutes={true} id='absolute'  />
+            <AbsTimeFancy />
             <RelativeTime id='relative' />
           </choice>
         </argument>
@@ -119,7 +119,7 @@ class AbsTimeFancy extends Phrase {
             <literal text=' from '/>
           </choice>
         </choice>
-        <placeholder text='some hour' merge={true}>
+        <placeholder text='hour' merge={true}>
           <choice>
             <AbsTime minutes={false} />
             <literal text='midnight' value={{hour: 0, minute: 0}} />

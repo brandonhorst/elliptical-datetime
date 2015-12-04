@@ -10,7 +10,7 @@ import {Parser} from 'lacona'
 
 chai.use(chaiDateTime)
 
-describe('DateTime', () => {
+describe('datetime', () => {
   let parser
 
   beforeEach(() => {
@@ -24,6 +24,16 @@ describe('DateTime', () => {
     const data = parser.parseArray('2:00 pm tomorrow')
     expect(data).to.have.length(1)
     expect(text(data[0])).to.equal('2:00 pm tomorrow')
+    expect(data[0].result).to.equalDate(expectedDate)
+    expect(data[0].result).to.equalTime(expectedDate)
+  })
+
+  it('handles "time date"', () => {
+    const expectedDate = moment({hours: 14}).add({days: 1}).toDate();
+
+    const data = parser.parseArray('2:00 pm two weeks from today')
+    expect(data).to.have.length(1)
+    expect(text(data[0])).to.equal('2:00 pm two weeks from today')
     expect(data[0].result).to.equalDate(expectedDate)
     expect(data[0].result).to.equalTime(expectedDate)
   })
