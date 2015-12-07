@@ -15,6 +15,12 @@ export default class Time extends Phrase {
       const date = new Date()
       if (!_.isUndefined(result.relative.hours)) date.setHours(date.getHours() + result.relative.hours)
       if (!_.isUndefined(result.relative.minutes)) date.setMinutes(date.getMinutes() + result.relative.minutes)
+      if (this.props.seconds && !_.isUndefined(result.relative.seconds)) {
+        date.setSeconds(date.getSeconds() + result.relative.seconds)
+      } else {
+        date.setSeconds(0)
+      }
+      date.setMilliseconds(0)
 
       return date
     } else if (result.absolute) {
@@ -24,19 +30,20 @@ export default class Time extends Phrase {
     }
   }
 }
+
 Time.translations = [{
   langs: ['en_US', 'default'],
   describe () {
     return (
       <sequence>
-        {this.props.includeAt ? <literal text='at ' optional={true} preferred={true} limited={true} /> : null}
         <argument text='time' showForEmpty={true} merge={true}>
           <choice>
             <literal text='midnight' id='absolute' value={{hour: 0}} />
             <literal text='noon' id='absolute' value={{hour: 12}} />
             <AbsTime minutes={true} id='absolute'  />
             <AbsTimeFancy />
-            <RelativeTime id='relative' />
+            {this.props.relative ? <RelativeTime id='relative' /> : null}
+            {this.props.recurse ? <RecursiveTime /> : null}
           </choice>
         </argument>
       </sequence>
@@ -45,8 +52,11 @@ Time.translations = [{
 }]
 
 Time.defaultProps = {
-  includeAt: false
+  recurse: true,
+  relative: true,
+  seconds: false
 }
+
 class RelativeTime extends Phrase {
   getValue (result) {
     if (!result) return
@@ -63,18 +73,16 @@ class RelativeTime extends Phrase {
       <choice>
         <sequence>
           <literal text='in ' id='direction' value={1} />
-          <TimeDuration id='duration' />
+          <TimeDuration id='duration' seconds={this.props.seconds} />
         </sequence>
         <sequence>
-          <TimeDuration id='duration' />
+          <TimeDuration id='duration' seconds={this.props.seconds} />
           <literal text=' from now' id='direction' value={1} />
         </sequence>
-        {this.props.allowPast ? (
-          <sequence>
-            <TimeDuration id='duration' />
-            <literal text=' ago' id='direction' value={-1} />
-          </sequence>
-        ) : null}
+        <sequence>
+          <TimeDuration id='duration' seconds={this.props.seconds} />
+          <literal text=' ago' id='direction' value={-1} />
+        </sequence>
       </choice>
     )
   }
@@ -116,6 +124,7 @@ class AbsTimeFancy extends Phrase {
             <literal text=' to ' />
             <literal text=' of ' />
             <literal text=' til ' />
+            <literal text=' before ' />
             <literal text=' from '/>
           </choice>
         </choice>
@@ -165,6 +174,46 @@ class AbsTime extends Phrase {
   }
 }
 AbsTime.defaultProps = {minutes: true}
+
+class RecursiveTime extends Phrase {
+  getValue (result) {
+    if (!result || !result.time) return
+
+    const date = new Date(result.time.getTime()) //clone date
+
+    if (result.hours) {
+      date.setHours((result.hours * result.direction) + result.time.getHours())
+    }
+
+    if (result.minutes) {
+      date.setMinutes((result.minutes * result.direction) + result.time.getMinutes())
+    }
+
+    if (result.seconds) {
+      date.setSeconds((result.seconds * result.direction) + result.time.getSeconds())
+    }
+
+    return date
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <argument text='offset' showForEmpty={true} merge={true}>
+          <sequence>
+            <TimeDuration merge={true} />
+            <list merge={true} id='direction' items={[
+                {text: ' before ', value: -1},
+                {text: ' after ', value: 1},
+                {text: ' from ', value: 1}
+              ]} limit={2} />
+          </sequence>
+        </argument>
+        <Time recurse={false} relative={false} id='time' />
+      </sequence>
+    )
+  }
+}
 
 class Minutes extends Phrase {
   describe () {

@@ -83,11 +83,40 @@ describe('time', () => {
 		expect(data[0].result).to.equalTime(expectedDate)
   })
 
-  it('10 til hpm', () => {
+  it('n til hpm', () => {
     const expectedDate = moment({hours: 15, minutes: 50}).toDate()
 		const data = parser.parseArray('10 til 4pm')
 		expect(data).to.have.length(1)
     expect(text(data[0])).to.equal('10 til 4pm')
 		expect(data[0].result).to.equalTime(expectedDate)
+  })
+
+  it('n hours before noon', () => {
+    const expectedDate = moment({hours: 10}).toDate()
+		const data = parser.parseArray('2 hours before noon')
+		expect(data).to.have.length(1)
+    expect(text(data[0])).to.equal('2 hours before noon')
+		expect(data[0].result).to.equalTime(expectedDate)
+  })
+
+  it('in n hours', () => {
+    const expectedDate = moment().seconds(0).milliseconds(0).add({hours: 3}).toDate()
+		const data = parser.parseArray('in 3 hours')
+		expect(data).to.have.length(2)
+    expect(text(data[0])).to.equal('in 3 hours')
+		expect(data[0].result).to.equalTime(expectedDate)
+  })
+
+  it('n minutes ago', () => {
+    const expectedDate = moment().seconds(0).milliseconds(0).subtract({minutes: 3}).toDate()
+		const data = parser.parseArray('3 minutes ago')
+		expect(data).to.have.length(1)
+    expect(text(data[0])).to.equal('3 minutes ago')
+		expect(data[0].result).to.equalTime(expectedDate)
+  })
+
+  it('n minutes before n minutes ago', () => {
+		const data = parser.parseArray('2 minutes before 3 minutes ago')
+		expect(data).to.have.length(0)
   })
 })
