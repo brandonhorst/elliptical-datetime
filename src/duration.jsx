@@ -52,7 +52,7 @@ class InternalDuration extends Phrase {
               {this.props.type !== 'date' ? [
                 <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
                 <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
-                <literal text='second' value={{id: 'seconds', type: 'seconds'}} />
+                this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
               ] : null}
             </choice>
           </placeholder>
@@ -72,7 +72,7 @@ class InternalDuration extends Phrase {
               {this.props.type !== 'date' ? [
                 <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
                 <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
-                <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} />
+                this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
               ] : null}
             </choice>
           </placeholder>
@@ -91,12 +91,20 @@ export class DateDuration extends BaseDuration {
 
 export class TimeDuration extends BaseDuration {
   childDescribe () {
-    return <InternalDuration type='time' />
+    return <InternalDuration type='time' seconds={this.props.seconds} />
   }
+}
+
+TimeDuration.defaultProps = {
+  seconds: true
 }
 
 export class Duration extends BaseDuration {
   childDescribe () {
-    return <InternalDuration />
+    return <InternalDuration seconds={this.props.seconds} />
   }
+}
+
+Duration.defaultProps = {
+  seconds: true
 }
