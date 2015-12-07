@@ -13,11 +13,11 @@
   "description": "Enable Lacona to parse natural language dates, times, and both together ",
   "devDependencies": {
     "babel": "^5.8.23",
-    "chai": "^3.2.0",
+    "chai": "^3.4.1",
     "chai-datetime": "^1.4.0",
     "lacona": "^0.27.0",
-    "mocha": "^2.3.2",
-    "rimraf": "^2.4.3"
+    "mocha": "^2.3.4",
+    "rimraf": "^2.4.4"
   },
   "gitHead": "8dcaa0e47d8e2e829f2f85c70323d2348923134f",
   "homepage": "https://github.com/brandonhorst/lacona-phrase-datetime",
