@@ -1,12 +1,12 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {createElement, Phrase} from 'lacona-phrase'
-import {DigitString, Integer} from 'lacona-phrase-number'
-import {TimeDuration} from './duration'
+import { createElement, Phrase } from 'lacona-phrase'
+import { DigitString, Integer } from 'lacona-phrase-number'
+import { TimeDuration } from './duration'
 
 export default class Time extends Phrase {
-  getValue (result) {
+  getValue(result) {
     if (!result) return
 
     if (_.isDate(result)) {
@@ -39,9 +39,9 @@ export default class Time extends Phrase {
 
 Time.translations = [{
   langs: ['en_US', 'default'],
-  describe () {
+  describe() {
     return (
-      <argument text='time' showForEmpty={true} merge={true}>
+    <argument text='time' showForEmpty={true} merge={true}>
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
@@ -63,7 +63,7 @@ Time.defaultProps = {
 }
 
 class RelativeTime extends Phrase {
-  getValue (result) {
+  getValue(result) {
     if (!result) return
 
     if (result.direction < 0) {
@@ -73,9 +73,9 @@ class RelativeTime extends Phrase {
     }
   }
 
-  describe () {
+  describe() {
     return (
-      <choice>
+    <choice>
         <sequence>
           <literal text='in ' id='direction' value={1} />
           <TimeDuration id='duration' seconds={this.props.seconds} />
@@ -94,7 +94,7 @@ class RelativeTime extends Phrase {
 }
 
 class AbsoluteRelativeHour extends Phrase {
-  getValue (result) {
+  getValue(result) {
     if (!result) return
 
     if (result.direction > 0) {
@@ -106,9 +106,9 @@ class AbsoluteRelativeHour extends Phrase {
     }
   }
 
-  describe () {
+  describe() {
     return (
-      <sequence>
+    <sequence>
         <placeholder text='number' showForEmpty={true} id='minutes'>
           <choice>
             <literal text='quarter' value={15} />
@@ -143,9 +143,9 @@ class AbsoluteRelativeHour extends Phrase {
 }
 
 class Absolute extends Phrase {
-  describe () {
+  describe() {
     return (
-      <choice>
+    <choice>
         <AbsoluteNumeric />
         <AbsoluteRelativeHour />
         <AbsoluteNamed />
@@ -155,11 +155,11 @@ class Absolute extends Phrase {
 }
 
 class AbsoluteNamed extends Phrase {
-  getValue (result) {
+  getValue(result) {
     return {hour: result, minutes: 0}
   }
 
-  describe () {
+  describe() {
     return <list items={[
       {text: 'midnight', value: 0},
       {text: 'noon', value: 12}
@@ -168,21 +168,21 @@ class AbsoluteNamed extends Phrase {
 }
 
 class AbsoluteNumeric extends Phrase {
-  getValue (result) {
+  getValue(result) {
     return {hour: parseInt(result.hour, 10), minutes: result.minutes, ampm: result.ampm}
   }
 
-  describe () {
+  describe() {
     return (
-      <sequence>
+    <sequence>
         <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} id='hour' />
         {this.props.minutes ?
-          <sequence id='minutes' optional={true} preffered={false}>
+      <sequence id='minutes' optional={true} preffered={false}>
             <literal text=':' />
             <Minutes merge={true} />
           </sequence> :
-          null
-        }
+      null
+    }
         <choice id='ampm'>
           <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
           <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
@@ -195,10 +195,10 @@ class AbsoluteNumeric extends Phrase {
 AbsoluteNumeric.defaultProps = {minutes: true}
 
 class RecursiveTime extends Phrase {
-  getValue (result) {
+  getValue(result) {
     if (!result || !result.time) return
 
-    const date = new Date(result.time.getTime()) //clone date
+    const date = new Date(result.time.getTime()) // clone date
 
     if (result.hours) {
       date.setHours((result.hours * result.direction) + result.time.getHours())
@@ -215,17 +215,17 @@ class RecursiveTime extends Phrase {
     return date
   }
 
-  describe () {
+  describe() {
     return (
-      <sequence>
+    <sequence>
         <argument text='offset' showForEmpty={true} merge={true}>
           <sequence>
             <TimeDuration merge={true} />
             <list merge={true} id='direction' items={[
-                {text: ' before ', value: -1},
-                {text: ' after ', value: 1},
-                {text: ' from ', value: 1}
-              ]} limit={2} />
+      {text: ' before ', value: -1},
+      {text: ' after ', value: 1},
+      {text: ' from ', value: 1}
+    ]} limit={2} />
           </sequence>
         </argument>
         <Time recurse={false} relative={false} id='time' />
@@ -235,11 +235,11 @@ class RecursiveTime extends Phrase {
 }
 
 class Minutes extends Phrase {
-  getValue (result) {
+  getValue(result) {
     return parseInt(result, 10)
   }
 
-  describe () {
+  describe() {
     return <DigitString descriptor='minutes' max={59} minLength={2} maxLength={2} />
   }
 }

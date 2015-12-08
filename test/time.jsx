@@ -1,13 +1,13 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {text} from './_util'
-import {createElement, Phrase} from 'lacona-phrase'
-import chai, {expect} from 'chai'
+import { text } from './_util'
+import { createElement, Phrase } from 'lacona-phrase'
+import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
-import {Time} from '..'
+import { Time } from '..'
 import moment from 'moment'
-import {Parser} from 'lacona'
+import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 chai.config.includeStack = true
@@ -33,10 +33,10 @@ describe('time', () => {
     {output: moment({hours: 10}).toDate(), input: '2 hours before noon'},
     {output: moment().seconds(0).milliseconds(0).add({hours: 3}).toDate(), input: 'in 3 hours'},
     {output: moment().seconds(0).milliseconds(0).subtract({minutes: 3}).toDate(), input: '3 minutes ago'},
-		{input: '2 minutes before 3 minutes ago', length: 0}
+    {input: '2 minutes before 3 minutes ago', length: 0}
   ]
 
-  _.forEach(testCases, ({input, output, length = 1}) => {
+  _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)

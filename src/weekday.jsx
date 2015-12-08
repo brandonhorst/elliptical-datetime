@@ -1,9 +1,9 @@
 /** @jsx createElement */
 
-import {createElement, Phrase} from 'lacona-phrase'
+import { createElement, Phrase } from 'lacona-phrase'
 
 export default class Weekday extends Phrase {
-  describe () {
+  describe() {
     return <list items={[
       {text: 'Sunday', value: 0},
       {text: 'Monday', value: 1},

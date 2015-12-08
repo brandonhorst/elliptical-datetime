@@ -1,11 +1,11 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import {createElement, Phrase} from 'lacona-phrase'
+import { createElement, Phrase } from 'lacona-phrase'
 import Time from './time'
-import {DateWithTimeOfDay, DatePhrase} from './date'
+import { DateWithTimeOfDay, DatePhrase } from './date'
 
 export default class DateTime extends Phrase {
-  getValue (result) {
+  getValue(result) {
     if (!result) return
 
     if (result.date) {
@@ -23,16 +23,16 @@ export default class DateTime extends Phrase {
     }
   }
 
-  filter (result) {
+  filter(result) {
     if (result && result.time && result.impliedTime) {
       return _.inRange(result.time.getHours(), ...result.impliedTime.range)
     }
     return true
   }
 
-  describe () {
+  describe() {
     return (
-      <placeholder text='date and time'>
+    <placeholder text='date and time'>
         <choice>
           <DatePhrase id='date' />
           <DateWithTimeOfDay merge={true} />

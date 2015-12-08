@@ -1,13 +1,13 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import {text} from './_util'
-import {createElement, Phrase} from 'lacona-phrase'
-import chai, {expect} from 'chai'
+import { text } from './_util'
+import { createElement, Phrase } from 'lacona-phrase'
+import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
-import {DateTime} from '..'
+import { DateTime } from '..'
 import moment from 'moment'
-import {Parser} from 'lacona'
+import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
@@ -37,7 +37,7 @@ describe('datetime', () => {
     {input: 'the afternoon of 2/3/2003', output: moment({years: 2003, months: 1, days: 3, hours: 12}).toDate()}
   ]
 
-  _.forEach(testCases, ({input, output, length = 1}) => {
+  _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       // console.log(data)
