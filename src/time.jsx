@@ -24,8 +24,14 @@ export default class Time extends Phrase {
 
       return date
     } else if (result.absolute) {
+      let hour = result.absolute.hour
+
+      if (result.absolute.ampm) {
+        hour = result.absolute.ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
+      }
+
       const date = new Date()
-      date.setHours(result.absolute.hour, result.absolute.minute || 0, 0, 0)
+      date.setHours(hour, result.absolute.minutes || 0, 0, 0)
       return date
     }
   }
@@ -35,18 +41,16 @@ Time.translations = [{
   langs: ['en_US', 'default'],
   describe () {
     return (
-      <sequence>
-        <argument text='time' showForEmpty={true} merge={true}>
-          <choice>
-            <literal text='midnight' id='absolute' value={{hour: 0}} />
-            <literal text='noon' id='absolute' value={{hour: 12}} />
-            <AbsTime minutes={true} id='absolute'  />
-            <AbsTimeFancy />
-            {this.props.relative ? <RelativeTime id='relative' /> : null}
-            {this.props.recurse ? <RecursiveTime /> : null}
-          </choice>
-        </argument>
-      </sequence>
+      <argument text='time' showForEmpty={true} merge={true}>
+        <choice>
+          <sequence>
+            {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
+            <Absolute id='absolute'  />
+          </sequence>
+          {this.props.relative ? <RelativeTime id='relative' /> : null}
+          {this.props.recurse ? <RecursiveTime /> : null}
+        </choice>
+      </argument>
     )
   }
 }]
@@ -54,6 +58,7 @@ Time.translations = [{
 Time.defaultProps = {
   recurse: true,
   relative: true,
+  prepositions: false,
   seconds: false
 }
 
@@ -88,19 +93,17 @@ class RelativeTime extends Phrase {
   }
 }
 
-class AbsTimeFancy extends Phrase {
+class AbsoluteRelativeHour extends Phrase {
   getValue (result) {
     if (!result) return
-    const date = new Date()
 
     if (result.direction > 0) {
-      date.setHours(result.hour, result.minutes, 0, 0)
+      return {hour: result.hour, minutes: result.minutes}
     } else {
       const hour = result.hour === 0 ? 23 : result.hour - 1
       const minutes = 60 - result.minutes
-      date.setHours(hour, minutes, 0, 0)
+      return {hour, minutes}
     }
-    return date
   }
 
   describe () {
@@ -130,9 +133,8 @@ class AbsTimeFancy extends Phrase {
         </choice>
         <placeholder text='hour' merge={true}>
           <choice>
-            <AbsTime minutes={false} />
-            <literal text='midnight' value={{hour: 0, minute: 0}} />
-            <literal text='noon' value={{hour :12, minute: 0}} />
+            <AbsoluteNumeric minutes={false} />
+            <AbsoluteNamed />
           </choice>
         </placeholder>
       </sequence>
@@ -140,18 +142,34 @@ class AbsTimeFancy extends Phrase {
   }
 }
 
+class Absolute extends Phrase {
+  describe () {
+    return (
+      <choice>
+        <AbsoluteNumeric />
+        <AbsoluteRelativeHour />
+        <AbsoluteNamed />
+      </choice>
+    )
+  }
+}
 
-class AbsTime extends Phrase {
+class AbsoluteNamed extends Phrase {
   getValue (result) {
-    let hour = parseInt(result.hour)
+    return {hour: result, minutes: 0}
+  }
 
-    if (result.ampm) {
-      hour = result.ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
-    }
+  describe () {
+    return <list items={[
+      {text: 'midnight', value: 0},
+      {text: 'noon', value: 12}
+    ]} />
+  }
+}
 
-    const minute = result.minutes ? parseInt(result.minutes, 10) : 0
-
-    return {hour, minute}
+class AbsoluteNumeric extends Phrase {
+  getValue (result) {
+    return {hour: parseInt(result.hour, 10), minutes: result.minutes, ampm: result.ampm}
   }
 
   describe () {
@@ -173,7 +191,8 @@ class AbsTime extends Phrase {
     )
   }
 }
-AbsTime.defaultProps = {minutes: true}
+
+AbsoluteNumeric.defaultProps = {minutes: true}
 
 class RecursiveTime extends Phrase {
   getValue (result) {
@@ -216,6 +235,10 @@ class RecursiveTime extends Phrase {
 }
 
 class Minutes extends Phrase {
+  getValue (result) {
+    return parseInt(result, 10)
+  }
+
   describe () {
     return <DigitString descriptor='minutes' max={59} minLength={2} maxLength={2} />
   }
