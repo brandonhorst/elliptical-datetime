@@ -38,9 +38,9 @@ describe('date-duration', () => {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
-      if (length > 1) {
+      if (length > 0) {
         expect(text(data[0])).to.equal(input)
-        expect(data[0].result).to.equalDate(output)
+        expect(data[0].result).to.eql(output)
       }
     })
   })
