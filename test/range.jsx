@@ -6,13 +6,13 @@ import { createElement, Phrase } from 'lacona-phrase'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import { text } from './_util'
-import { TimeRange } from '..'
+import { Range } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
-describe('time-range', () => {
+describe('range', () => {
   let parser
 
   beforeEach(() => {
@@ -22,13 +22,11 @@ describe('time-range', () => {
   describe('default', () => {
 
     beforeEach(() => {
-      parser.grammar = <TimeRange />
+      parser.grammar = <Range />
     })
 
     const testCases = [
-      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: '3pm to 6pm'},
-      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: '3pm for 3 hours'},
-      {output: {start: moment({hour: 8, minutes: 30}).toDate(), end: moment({hour: 12, minutes: 4}).toDate()}, input: '8:30am for 3 hours and 34 minutes'},
+      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: 'today from 3pm to 6pm'},
     ]
 
     _.forEach(testCases, ({input, output, length = 1 }) => {
@@ -37,8 +35,8 @@ describe('time-range', () => {
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)
-          expect(data[0].result.start).to.equalTime(output.start)
-          expect(data[0].result.end).to.equalTime(output.end)
+          expect(data[0].result.start).to.equalDate(output.start)
+          expect(data[0].result.end).to.equalDate(output.end)
         }
       })
     })

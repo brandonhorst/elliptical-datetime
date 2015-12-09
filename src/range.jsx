@@ -10,7 +10,7 @@ import { Duration, TimeDuration, DateDuration } from './duration'
 import { Time } from './time'
 
 function join (date, time) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds())
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), 0)
 }
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
@@ -39,18 +39,23 @@ export class TimeRange extends Phrase {
     return (
       <choice>
         <sequence>
+          {this.props.prepositions ? <literal text='from ' /> : null}
           <Time id='start' />
           <list items={[' to ', ' - ', '-']} limit={1} />
           <Time id='end' />
         </sequence>
         <sequence>
-          <Time id='start' />
+          <Time id='start' prepositions={this.props.prepositions} />
           <literal text=' for ' />
           <TimeDuration id='duration' />
         </sequence>
       </choice>
     )
   }
+}
+
+TimeRange.defaultProps = {
+  prepositions: false
 }
 
 export class Range extends Phrase {
@@ -85,10 +90,10 @@ export class Range extends Phrase {
         allday: true
       }
     } else if (result.date) {
-      if (result.starttime && result.endtime) {
+      if (result.timeRange) {
         return {
-          start: join(result.date, result.starttime),
-          end: join(result.date, result.endtime)
+          start: join(result.date, result.timeRange.start),
+          end: join(result.date, result.timeRange.end)
         }
       }
     }
@@ -109,9 +114,7 @@ export class Range extends Phrase {
           <sequence>
             <DatePhrase id='date' />
             <literal text=' ' />
-            <Time id='starttime' />
-            <list items={[' to ', ' - ', '-']} limit={1} />
-            <Time id='endtime' />
+            <TimeRange id='timeRange' prepositions />
           </sequence>
           <sequence>
             <Time id='starttime' />
