@@ -31,6 +31,7 @@ describe('time', () => {
     {output: moment({hours: 23, minutes: 45}).toDate(), input: 'quarter to midnight'},
     {output: moment({hours: 15, minutes: 30}).toDate(), input: 'half past 3pm'},
     {output: moment({hours: 15, minutes: 50}).toDate(), input: '10 til 4pm'},
+    {output: moment({hours: 15, minutes: 50}).toDate(), input: '10 minutes before 4pm'},
     {output: moment({hours: 10}).toDate(), input: '2 hours before noon'},
     {output: moment().seconds(0).milliseconds(0).add({hours: 3}).toDate(), input: 'in 3 hours'},
     {output: moment().seconds(0).milliseconds(0).subtract({minutes: 3}).toDate(), input: '3 minutes ago'},
@@ -41,7 +42,7 @@ describe('time', () => {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
-      if (length > 1) {
+      if (length > 0) {
         expect(text(data[0])).to.equal(input)
         expect(data[0].result).to.equalTime(output)
       }

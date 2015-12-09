@@ -5,7 +5,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { DigitString, Integer } from 'lacona-phrase-number'
 import { TimeDuration } from './duration'
 
-export default class Time extends Phrase {
+export class Time extends Phrase {
   getValue(result) {
     if (!result) return
 
@@ -95,14 +95,14 @@ class RelativeTime extends Phrase {
 
 class AbsoluteRelativeHour extends Phrase {
   getValue(result) {
-    if (!result) return
+    if (!result || !result.absolute) return
 
     if (result.direction > 0) {
-      return {hour: result.hour, minutes: result.minutes}
+      return {hour: result.absolute.hour, minutes: result.minutes, ampm: result.absolute.ampm}
     } else {
-      const hour = result.hour === 0 ? 23 : result.hour - 1
+      const hour = result.absolute.hour === 0 ? 23 : result.absolute.hour - 1
       const minutes = 60 - result.minutes
-      return {hour, minutes}
+      return {hour, minutes, ampm: result.absolute.ampm}
     }
   }
 
@@ -115,7 +115,6 @@ class AbsoluteRelativeHour extends Phrase {
             <literal text='half' value={30}/>
             <sequence>
               <Integer min={1} max={59} merge={true} />
-              <literal optional={true} text=' minutes'/>
             </sequence>
           </choice>
         </placeholder>
@@ -131,7 +130,7 @@ class AbsoluteRelativeHour extends Phrase {
             <literal text=' from '/>
           </choice>
         </choice>
-        <placeholder text='hour' merge={true}>
+        <placeholder text='hour' id='absolute'>
           <choice>
             <AbsoluteNumeric minutes={false} />
             <AbsoluteNamed />
@@ -222,10 +221,15 @@ class RecursiveTime extends Phrase {
           <sequence>
             <TimeDuration merge={true} />
             <list merge={true} id='direction' items={[
-      {text: ' before ', value: -1},
-      {text: ' after ', value: 1},
-      {text: ' from ', value: 1}
-    ]} limit={2} />
+              {text: ' before ', value: -1},
+              {text: ' after ', value: 1},
+              {text: ' from ', value: 1},
+              {text: ' past ', value: 1},
+              {text: ' to ', value: -1},
+              {text: ' of ', value: -1},
+              {text: ' til ', value: -1},
+              {text: ' from ', value: -1}
+            ]} limit={2} />
           </sequence>
         </argument>
         <Time recurse={false} relative={false} id='time' />
