@@ -1,4 +1,5 @@
 /** @jsx createElement */
+/* eslint-env mocha */
 
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'

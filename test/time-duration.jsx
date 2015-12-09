@@ -1,4 +1,5 @@
 /** @jsx createElement */
+/* eslint-env mocha */
 
 import { createElement, Phrase } from 'lacona-phrase'
 import { expect } from 'chai'
