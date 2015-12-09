@@ -32,6 +32,8 @@ describe('datetime', () => {
     {input: 'tomorrow evening', output: moment({hours: 17}).add({days: 1}).toDate()},
     {input: 'tomorrow night', output: moment({hours: 20}).add({days: 1}).toDate()},
     {input: 'tomorrow at 3pm', output: moment({hours: 15}).add({days: 1}).toDate()},
+    {input: 'the day after tomorrow', output: moment({hours: 8}).add({days: 2}).toDate()},
+    {input: 'the afternoon of the day after tomorrow', output: moment({hours: 12}).add({days: 2}).toDate()},
     {input: 'tomorrow afternoon at 3pm', output: moment({hours: 15}).add({days: 1}).toDate()},
     {input: 'tomorrow morning at 3pm', length: 0},
     {input: 'next Monday morning', output: moment({hours: 8}).day(8).toDate()},
@@ -41,9 +43,8 @@ describe('datetime', () => {
   _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
-      // console.log(data)
       expect(data).to.have.length(length)
-      if (length > 1) {
+      if (length > 0) {
         expect(text(data[0])).to.equal(input)
         expect(data[0].result).to.equalDate(output)
         expect(data[0].result).to.equalTime(output)

@@ -29,6 +29,8 @@ class TimeOfDay extends Phrase {
 
 export class DateWithTimeOfDay extends Phrase {
   getValue (result) {
+    if (!result) return
+
     if (result.relative) {
       return {date: dateFromRelativeComponents(result.relative), impliedTime: result.impliedTime}
     } else {
@@ -62,7 +64,7 @@ export class DateWithTimeOfDay extends Phrase {
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <RelativeWeekday merge={true} />
+          <RelativeWeekday id='date' />
           <literal text=' ' />
           <TimeOfDay id='impliedTime' />
         </sequence>
@@ -72,7 +74,7 @@ export class DateWithTimeOfDay extends Phrase {
           <literal text='the ' />
           <TimeOfDay id='impliedTime' />
           <literal text=' of ' />
-          <RelativeWeekday merge={true} />
+          <RelativeWeekday id='date' />
         </sequence>
 
         <sequence>
@@ -100,7 +102,7 @@ export class DateWithTimeOfDay extends Phrase {
           <literal text='the ' />
           <TimeOfDay id='impliedTime' />
           <literal text=' of ' />
-          <choice merge={true}>
+          <choice id='date'>
             <AbsoluteDay />
             <NamedMonthAbsolute />
           </choice>
@@ -110,11 +112,11 @@ export class DateWithTimeOfDay extends Phrase {
           <literal text='the ' />
           <TimeOfDay id='impliedTime' />
           <literal text=' of ' />
-          {this.props.recurse ? <RecursiveDay /> : null }
+          {this.props.recurse ? <RecursiveDay id='date' /> : null }
         </sequence>
 
         <sequence>
-          {this.props.recurse ? <RecursiveDay /> : null }
+          {this.props.recurse ? <RecursiveDay id='date' /> : null }
           <literal text=' in the ' />
           <TimeOfDay id='impliedTime' />
         </sequence>
@@ -125,6 +127,7 @@ export class DateWithTimeOfDay extends Phrase {
 }
 
 DateWithTimeOfDay.defaultProps = {
+  recurse: true,
   prepositions: false
 }
 
@@ -152,7 +155,7 @@ class InternalDate extends Phrase {
   describe() {
     if (this.props.nullify) return null
     return (
-    <argument text='date' showForEmpty={true} merge={true}>
+      <argument text='date' showForEmpty={true}>
         <choice>
           <NamedDay id='relative' />
 

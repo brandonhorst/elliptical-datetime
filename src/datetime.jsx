@@ -1,25 +1,26 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import Time from './time'
+import { Time } from './time'
 import { DateWithTimeOfDay, DatePhrase } from './date'
 
-export default class DateTime extends Phrase {
+export class DateTime extends Phrase {
   getValue(result) {
     if (!result) return
 
     if (result.date) {
-      if (result.impliedTime) {
-        if (result.time) {
-          return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.impliedTime, 0, 0, 0)
-        }
-      }
-
       if (result.time) {
         return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
       }
 
+      if (result.impliedTime) {
+        return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.impliedTime.default, 0, 0, 0)
+      }
+
       return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), 8, 0, 0, 0)
+    } else if (result.time) {
+      const date = new Date()
+      date.setHours(result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
     }
   }
 
@@ -34,6 +35,7 @@ export default class DateTime extends Phrase {
     return (
     <placeholder text='date and time'>
         <choice>
+          <Time id='time' />
           <DatePhrase id='date' />
           <DateWithTimeOfDay merge={true} />
           <sequence>
@@ -46,7 +48,7 @@ export default class DateTime extends Phrase {
           </sequence>
           <sequence>
             <choice merge={true}>
-              <DatePhrase recurse={false} prepositions={this.props.prepositions} />
+              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
               <DateWithTimeOfDay />
             </choice>
             <literal text=' ' />
