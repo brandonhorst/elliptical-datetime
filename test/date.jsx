@@ -42,20 +42,20 @@ describe('date', () => {
       {output: moment({hour: 0}).add(2, 'd').toDate(), input: 'the day after tomorrow'},
       {output: moment({month: 2, day: 14}).subtract(14, 'd').toDate(), input: '2 weeks before 3/14'},
       {output: moment({month: 4, day: 2, hour: 0}).toDate(), input: '5/2'},
-      {output: moment({year: 1992, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/92'},
-      {output: moment({year: 2020, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/20'},
+      {output: moment({year: 1992, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/92', suggestion:'5/2/1992'},
+      {output: moment({year: 2020, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/20', suggestion: '5/2/2020'},
       {output: moment({year: 1992, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/1992'},
       {output: moment({month: 4, day: 2, hour: 0}).toDate(), input: 'May 2nd'},
       {output: moment({month: 4, day: 2, hour: 0}).toDate(), input: 'May 2'},
       {output: moment({year: 1990, month: 4, day: 2, hour: 0}).toDate(), input: 'May 2nd, 1990'}
     ]
 
-    _.forEach(testCases, ({input, output, length = 1 }) => {
+    _.forEach(testCases, ({input, output, suggestion, length = 1 }) => {
       it(input, () => {
         const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
         expect(data).to.have.length(length)
-        if (length > 1) {
-          expect(text(data[0])).to.equal(input)
+        if (length > 0) {
+          expect(text(data[0])).to.equal(suggestion || input)
           expect(data[0].result).to.equalDate(output)
         }
       })

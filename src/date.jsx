@@ -311,7 +311,7 @@ class RelativeAdjacent extends Phrase {
   getValue(result) {
     if (!result) return
 
-    return {[result.type]: result.num}
+    return {[result.type]: result.num * (result.multiplier || 1)}
   }
 
   describe() {
@@ -321,11 +321,11 @@ class RelativeAdjacent extends Phrase {
           <literal text='next ' value={1} />
           <literal text='last ' value={-1} />
         </choice>
-        <placeholder text='week, month, year' id='type'>
+        <placeholder text='week, month, year' merge={true}>
           <choice>
-            <literal text='week' value='weeks'/>
-            <literal text='month' value='months'/>
-            <literal text='year' value='years'/>
+            <literal text='week' value={{type: 'days', multiplier: 7}} />
+            <literal text='month' value={{type: 'months'}} />
+            <literal text='year' value={{type: 'years'}} />
           </choice>
         </placeholder>
       </sequence>
