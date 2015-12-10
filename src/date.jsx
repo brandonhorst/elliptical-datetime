@@ -57,7 +57,7 @@ export class DateWithTimeOfDay extends Phrase {
         </sequence>
 
         <sequence>
-          <NamedDay useThis={true} id='relative' />
+          <NamedDay useThis id='relative' />
           <literal text=' ' />
           <TimeOfDay id='impliedTime' />
         </sequence>
@@ -270,7 +270,7 @@ class RecursiveDay extends Phrase {
 class NamedDay extends Phrase {
   describe() {
     return <list items={[
-      {text: this.props.this ? 'this' : 'today', value: {days: 0}},
+      {text: this.props.useThis ? 'this' : 'today', value: {days: 0}},
       {text: 'tomorrow', value: {days: 1}},
       {text: 'yesterday', value: {days: -1}}
     ]} />
