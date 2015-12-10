@@ -35,9 +35,11 @@ export class DateTime extends Phrase {
     return (
     <placeholder text='date and time'>
         <choice>
-          <Time id='time' />
-          <DatePhrase id='date' />
-          <DateWithTimeOfDay merge={true} />
+          {this.props.impliedDate ? <Time id='time' /> : null}
+          {this.props.impliedTime ? [
+            <DatePhrase id='date' />,
+            <DateWithTimeOfDay merge={true} />
+          ] : null}
           <sequence>
             <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
             <literal text=' ' />
@@ -62,5 +64,7 @@ export class DateTime extends Phrase {
 
 DateTime.defaultProps = {
   seconds: true,
-  prepositions: false
+  prepositions: false,
+  impliedTime: true,
+  impliedDate: true
 }

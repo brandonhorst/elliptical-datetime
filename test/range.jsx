@@ -26,12 +26,17 @@ describe('range', () => {
     })
 
     const testCases = [
-      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: 'today from 3pm to 6pm'},
+      {input: 'today from 3pm to 6pm', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: 'today at 3pm for 3 hours', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: '3 hours today at 3pm', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: '3pm to 6pm today', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: 'today at 3pm to tomorrow at 6pm', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).add(1, 'days').toDate()}}
     ]
 
     _.forEach(testCases, ({input, output, length = 1 }) => {
       it(input, () => {
         const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+        // console.log(require('util').inspect(data, {depth: 3}))
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)
