@@ -1,51 +1,55 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
+import moment from 'moment'
 import { createElement, Phrase } from 'lacona-phrase'
 import { DigitString, Integer } from 'lacona-phrase-number'
 import { TimeDuration } from './duration'
 
+export class AmbiguousTime extends Phrase {
+  describe () {
+    return (
+      <argument text='time' showForEmpty={true} merge={true}>
+        <sequence>
+          {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
+          <Absolute merge ampm={false} named={false} />
+        </sequence>
+      </argument>
+    )
+  }
+}
+
+function timeFromAbsolute (absolute) {
+    let hour = absolute.hour
+
+    if (absolute.ampm) {
+      hour = absolute.ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
+    }
+
+    return moment({hour, minutes: absolute.minutes}).toDate()
+
+}
+
 export class Time extends Phrase {
-  getValue(result) {
+  getValue (result) {
     if (!result) return
 
     if (_.isDate(result)) {
       return result
     } else if (result.relative) {
-      const date = new Date()
-      if (!_.isUndefined(result.relative.hours)) date.setHours(date.getHours() + result.relative.hours)
-      if (!_.isUndefined(result.relative.minutes)) date.setMinutes(date.getMinutes() + result.relative.minutes)
-      if (this.props.seconds && !_.isUndefined(result.relative.seconds)) {
-        date.setSeconds(date.getSeconds() + result.relative.seconds)
-      } else {
-        date.setSeconds(0)
-      }
-      date.setMilliseconds(0)
-
-      return date
+      return moment().millisecond(0).add(moment.duration(result.relative)).toDate()
     } else if (result.absolute) {
-      let hour = result.absolute.hour
-
-      if (result.absolute.ampm) {
-        hour = result.absolute.ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
-      }
-
-      const date = new Date()
-      date.setHours(hour, result.absolute.minutes || 0, 0, 0)
-      return date
+      return timeFromAbsolute(result.absolute)
     }
   }
-}
 
-Time.translations = [{
-  langs: ['en_US', 'default'],
-  describe() {
+  describe () {
     return (
-    <argument text='time' showForEmpty={true} merge={true}>
+      <argument text='time' showForEmpty={true} merge={true}>
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
-            <Absolute id='absolute'  />
+            <Absolute id='absolute' />
           </sequence>
           {this.props.relative ? <RelativeTime id='relative' /> : null}
           {this.props.recurse ? <RecursiveTime /> : null}
@@ -53,7 +57,7 @@ Time.translations = [{
       </argument>
     )
   }
-}]
+}
 
 Time.defaultProps = {
   recurse: true,
@@ -108,7 +112,7 @@ class AbsoluteRelativeHour extends Phrase {
 
   describe() {
     return (
-    <sequence>
+      <sequence>
         <placeholder text='number' showForEmpty={true} id='minutes'>
           <choice>
             <literal text='quarter' value={15} />
@@ -132,7 +136,7 @@ class AbsoluteRelativeHour extends Phrase {
         </choice>
         <placeholder text='hour' id='absolute'>
           <choice>
-            <AbsoluteNumeric minutes={false} />
+            <AbsoluteNumeric minutes={false} ampm={this.props.ampm} />
             <AbsoluteNamed />
           </choice>
         </placeholder>
@@ -144,13 +148,18 @@ class AbsoluteRelativeHour extends Phrase {
 class Absolute extends Phrase {
   describe() {
     return (
-    <choice>
-        <AbsoluteNumeric />
-        <AbsoluteRelativeHour />
-        <AbsoluteNamed />
+      <choice>
+        <AbsoluteNumeric ampm={this.props.ampm} />
+        <AbsoluteRelativeHour ampm={this.props.ampm} />
+        {this.props.named ? <AbsoluteNamed /> : null}
       </choice>
     )
   }
+}
+
+Absolute.defaultProps = {
+  ampm: true,
+  named: true
 }
 
 class AbsoluteNamed extends Phrase {
@@ -173,19 +182,22 @@ class AbsoluteNumeric extends Phrase {
 
   describe() {
     return (
-    <sequence>
+      <sequence>
         <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} id='hour' />
+
         {this.props.minutes ?
-      <sequence id='minutes' optional={true} preffered={false}>
+          <sequence id='minutes' optional>
             <literal text=':' />
-            <Minutes merge={true} />
-          </sequence> :
-      null
-    }
-        <choice id='ampm'>
-          <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
-          <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
-        </choice>
+            <Minutes merge />
+          </sequence>
+        : null }
+
+        {this.props.ampm ?
+          <choice id='ampm'>
+            <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
+            <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
+          </choice>
+        : null}
       </sequence>
     )
   }

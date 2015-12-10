@@ -1,7 +1,7 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import { Time } from './time'
+import { AmbiguousTime, Time } from './time'
 import { DateWithTimeOfDay, DatePhrase } from './date'
 
 export class DateTime extends Phrase {
@@ -14,13 +14,23 @@ export class DateTime extends Phrase {
       }
 
       if (result.impliedTime) {
-        return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.impliedTime.default, 0, 0, 0)
+        if (result.ambiguousTime) {
+          if (_.inRange(result.ambiguousTime.hour, ...result.impliedTime.range)) {
+            return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.ambiguousTime.hour, result.ambiguousTime.minutes || 0, result.ambiguousTime.seconds || 0, 0)
+          } else {
+            const newHour = result.ambiguousTime.hour < 12 ? result.ambiguousTime.hour + 12 : result.ambiguousTime.hour - 12
+            return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), newHour, result.ambiguousTime.minutes || 0, result.ambiguousTime.seconds || 0, 0)
+          }
+        } else {
+          return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.impliedTime.default, 0, 0, 0)
+        }
       }
 
       return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), 8, 0, 0, 0)
     } else if (result.time) {
       const date = new Date()
       date.setHours(result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
+      return date
     }
   }
 
@@ -33,28 +43,43 @@ export class DateTime extends Phrase {
 
   describe() {
     return (
-    <placeholder text='date and time'>
+      <placeholder text='date and time'>
         <choice>
           {this.props.impliedDate ? <Time id='time' /> : null}
+
           {this.props.impliedTime ? [
             <DatePhrase id='date' />,
             <DateWithTimeOfDay merge={true} />
           ] : null}
+
           <sequence>
             <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
             <literal text=' ' />
-            <choice merge={true}>
-              <DatePhrase id='date' recurse={false} prepositions={true} />
-              <DateWithTimeOfDay />
-            </choice>
+            <DatePhrase id='date' recurse={false} prepositions />
           </sequence>
+
           <sequence>
-            <choice merge={true}>
-              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
-              <DateWithTimeOfDay />
+            <choice limit={1} merge>
+              <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} />
+              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
             </choice>
             <literal text=' ' />
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={true} />
+            <DateWithTimeOfDay merge />
+          </sequence>
+
+          <sequence>
+            <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
+            <literal text=' ' />
+            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
+          </sequence>
+
+          <sequence>
+            <DateWithTimeOfDay merge />
+            <literal text=' ' />
+            <choice limit={1} merge>
+              <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions />
+              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions forceAmpm={false} />
+            </choice>
           </sequence>
         </choice>
       </placeholder>

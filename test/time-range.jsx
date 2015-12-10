@@ -26,9 +26,11 @@ describe('time-range', () => {
     })
 
     const testCases = [
-      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: '3pm to 6pm'},
-      {output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}, input: '3pm for 3 hours'},
-      {output: {start: moment({hour: 8, minutes: 30}).toDate(), end: moment({hour: 12, minutes: 4}).toDate()}, input: '8:30am for 3 hours and 34 minutes'},
+      {input: '3pm to 6pm', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: '3pm for 3 hours', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
+      {input: '10pm for 3 hours', output: {start: moment({hour: 22}).toDate(), end: moment({hour: 1}).add(1, 'day').toDate()}},
+      {input: '10pm to 1am', output: {start: moment({hour: 22}).toDate(), end: moment({hour: 1}).toDate()}},
+      {input: '8:30am for 3 hours and 34 minutes', output: {start: moment({hour: 8, minutes: 30}).toDate(), end: moment({hour: 12, minutes: 4}).toDate()}}
     ]
 
     _.forEach(testCases, ({input, output, length = 1 }) => {

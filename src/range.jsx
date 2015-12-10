@@ -13,26 +13,18 @@ function join (date, time) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), 0)
 }
 
-// const MS_PER_DAY = 1000 * 60 * 60 * 24
-//
-// function dateDiffInDays (a, b) {
-//   // Discard the time and time-zone information.
-//   const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())
-//   const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())
-//
-//   return Math.floor((utc2 - utc1) / MS_PER_DAY)
-// }
-
 export class TimeRange extends Phrase {
   getValue (result) {
     if (!result) return
 
-    if (result.duration) {
+    if (result.start && result.duration) {
       const end = moment(result.start).add(moment.duration(result.duration)).toDate()
       return {start: result.start, end: end}
     }
 
-    return result
+    if (result.start && result.end) {
+      return result
+    }
   }
 
   describe () {
@@ -48,7 +40,7 @@ export class TimeRange extends Phrase {
           <sequence>
             <Time id='start' prepositions={this.props.prepositions} />
             <literal text=' for ' />
-            <TimeDuration id='duration' />
+            <TimeDuration id='duration' max={{hours: 23, minutes: 59, seconds: 59}} />
           </sequence>
         : null}
       </choice>
@@ -67,17 +59,37 @@ export class Range extends Phrase {
 
     if (result.start) {
       if (result.end) {
-        return result
+        return {
+          start: result.start,
+          end: result.end,
+          allDay: false
+        }
       } else if (result.duration) {
         return {
           start: result.start,
-          end: moment(result.start).add(result.duration).toDate()
+          end: moment(result.start).add(result.duration).toDate(),
+          allDay: false
         }
-      } else if (result.timeRange) {
+      }
+    } else if (result.date && result.timeRange) {
+      if (moment(result.timeRange.end).isBefore(result.timeRange.start)) {
         return {
-          start: join(result.start, result.timeRange.start),
-          end: join(result.start, result.timeRange.end)
+          start: join(result.date, result.timeRange.start),
+          end: join(moment(result.date).add(1, 'days').toDate(), result.timeRange.end),
+          allDay: false
         }
+      } else {
+        return {
+          start: join(result.date, result.timeRange.start),
+          end: join(result.date, result.timeRange.end),
+          allDay: false
+        }
+      }
+    } else if (result.startDate && result.endDate) {
+      return {
+        start: result.startDate,
+        end: result.endDate,
+        allDay: true
       }
     }
   }
@@ -86,15 +98,26 @@ export class Range extends Phrase {
     return (
       <placeholder text='period of time'>
         <choice>
-          <sequence>
-            {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
-            <DateTime id='start' impliedDate={false} impliedTime={false} />
-            <list items={[' to ', ' - ', '-']} limit={1} />
-            <DateTime id='end' impliedDate={false} impliedTime={false} />
-          </sequence>
+          <choice limit={1}>
+            <sequence> {/* today to tomorrow */}
+              {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
+              <literal text='all day ' optional={true} limited={true} preferred={false} />
+              <DatePhrase id='startDate' />
+              <list items={[' to ', ' - ', '-']} limit={1} />
+              <literal text='all day ' optional={true} limited={true} preferred={false} />
+              <DatePhrase id='endDate' />
+            </sequence>
+
+            <sequence> {/* today at 3pm to tomorrow */}
+              {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
+              <DateTime id='start' impliedDate={false} />
+              <list items={[' to ', ' - ', '-']} limit={1} />
+              <DateTime id='end' impliedDate={false} />
+            </sequence>
+          </choice>
 
           <sequence>
-            <DatePhrase id='start' prepositions={this.props.prepositions} />
+            <DatePhrase id='date' prepositions={this.props.prepositions} />
             <literal text=' ' />
             <TimeRange id='timeRange' duration={false} prepositions />
           </sequence>
@@ -102,7 +125,7 @@ export class Range extends Phrase {
           <sequence>
             <TimeRange id='timeRange' prepositions={this.props.prepositions} />
             <literal text=' ' />
-            <DatePhrase id='start' prepositions />
+            <DatePhrase id='date' prepositions />
           </sequence>
 
           <sequence>
