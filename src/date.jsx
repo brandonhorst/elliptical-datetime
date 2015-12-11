@@ -40,7 +40,7 @@ export class DateWithTimeOfDay extends Phrase {
 
   describe () {
     return (
-    <choice>
+      <choice>
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
           <literal text='the ' />
@@ -50,10 +50,9 @@ export class DateWithTimeOfDay extends Phrase {
         </sequence>
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <DatePhrase id='date' nullify={true} />
+          <DatePhrase id='date' nullify={true} prepositions={this.props.prepositions} />
           <literal text=' ' />
-          <TimeOfDay id='impliedTime' />
+          <TimeOfDay id='impliedTime' prepositions />
         </sequence>
 
         <sequence>

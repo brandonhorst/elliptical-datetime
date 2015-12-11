@@ -8,7 +8,7 @@ export class DateTime extends Phrase {
   getValue(result) {
     if (!result) return
 
-    if (result.date) {
+    if (_.isDate(result.date)) {
       if (result.time) {
         return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
       }
@@ -45,11 +45,11 @@ export class DateTime extends Phrase {
     return (
       <placeholder text='date and time'>
         <choice>
-          {this.props.impliedDate ? <Time id='time' /> : null}
+          {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
 
           {this.props.impliedTime ? [
-            <DatePhrase id='date' />,
-            <DateWithTimeOfDay merge={true} />
+            <DatePhrase id='date' prepositions={this.props.prepositions} />,
+            <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
           ] : null}
 
           <sequence>
