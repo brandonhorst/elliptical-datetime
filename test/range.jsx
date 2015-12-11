@@ -41,9 +41,12 @@ describe('range', () => {
       {input: 'tomorrow to the day after tomorrow', output: {start: moment().add(1, 'days').toDate(), end: moment().add(2, 'days').toDate(), allDay: true}},
       {input: 'the day after tomorrow to tomorrow', length: 0},
       {input: 'tomorrow to yesterday', length: 0},
-      {input: 'all day today to all day tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}},
-      {input: 'today to all day tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}},
-      {input: 'all day today to tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}}
+      {input: 'tomorrow', output: {start: moment({hours: 0}).add(1, 'days').toDate(), end: moment({hours: 0}).add(1, 'days').toDate(), allDay: true}},
+      {input: 'tomorrow at 8pm', output: {start: moment({hours: 20}).add(1, 'days').toDate(), end: moment({hours: 21}).add(1, 'days').toDate(), allDay: false}},
+      {input: '8pm', output: {start: moment({hours: 20}).toDate(), end: moment({hours: 21}).toDate(), allDay: false}},
+      {input: 'all day today to all day tomorrow', output: {start: moment({hours: 0}).toDate(), end: moment({hours: 0}).add(1, 'days').toDate(), allDay: true}},
+      {input: 'today to all day tomorrow', output: {start: moment({hours: 0}).toDate(), end: moment({hours: 0}).add(1, 'days').toDate(), allDay: true}},
+      {input: 'all day today to tomorrow', output: {start: moment({hours: 0}).toDate(), end: moment({hours: 0}).add(1, 'days').toDate(), allDay: true}}
     ]
 
     _.forEach(testCases, ({input, output, length = 1 }) => {

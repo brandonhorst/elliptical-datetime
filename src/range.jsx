@@ -70,6 +70,12 @@ export class Range extends Phrase {
           end: moment(result.start).add(result.duration).toDate(),
           allDay: false
         }
+      } else {
+        return {
+          start: result.start,
+          end: moment(result.start).add(1, 'hours').toDate(),
+          allDay: false
+        }
       }
     } else if (result.date && result.timeRange) {
       if (moment(result.timeRange.end).isBefore(result.timeRange.start)) {
@@ -85,24 +91,42 @@ export class Range extends Phrase {
           allDay: false
         }
       }
-    } else if (result.startDate && result.endDate) {
-      return {
-        start: result.startDate,
-        end: result.endDate,
-        allDay: true
+    } else if (result.startDate) {
+      if (result.endDate) {
+        return {
+          start: result.startDate,
+          end: result.endDate,
+          allDay: true
+        }
+      } else {
+        return {
+          start: result.startDate,
+          end: result.startDate,
+          allDay: true
+        }
       }
     }
   }
 
   validate (result) {
-    if (result.start && result.end)
-    return moment(result.start).isBefore(result.end)
+    if (!result || !result.start || !result.end) return
+
+    const startMoment = moment(result.start)
+    if (result.allDay) {
+      return startMoment.isBefore(result.end) || startMoment.isSame(result.end)
+    } else {
+      return startMoment.isBefore(result.end)
+    }
   }
 
   describe () {
     return (
       <placeholder text='period of time'>
         <choice>
+          <DatePhrase id='startDate' />
+
+          <DateTime id='start' impliedTime={false} />
+
           <choice limit={1}>
             <sequence> {/* today to tomorrow */}
               {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
