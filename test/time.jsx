@@ -28,7 +28,6 @@ describe('time', () => {
       {output: moment({hours: 15}).toDate(), input: '3pm'},
       {output: moment({hours: 15}).toDate(), input: '3 in the afternoon'},
       {output: moment({hours: 15}).toDate(), input: '3:00 in the afternoon'},
-      {output: moment({hours: 15}).toDate(), input: '3'},
       {output: moment({hours: 0}).toDate(), input: 'midnight'},
       {output: moment({hours: 12}).toDate(), input: 'noon'},
       {output: moment({hours: 15, minutes: 45}).toDate(), input: 'quarter to 4pm'},

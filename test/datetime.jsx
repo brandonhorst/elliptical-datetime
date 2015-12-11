@@ -36,6 +36,7 @@ describe('datetime', () => {
     {input: 'tomorrow at 3pm', output: moment({hours: 15}).add({days: 1}).toDate()},
     {input: 'tomorrow morning at 9', output: moment({hours: 9}).add({days: 1}).toDate()},
     {input: 'tomorrow afternoon at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
+    {input: 'tomorrow at 9 in the afternoon', output: moment({hours: 21}).add({days: 1}).toDate()},
     {input: 'tomorrow evening at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
     {input: 'tomorrow night at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
     {input: 'tomorrow morning at noon', length: 0},

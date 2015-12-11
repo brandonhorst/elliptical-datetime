@@ -175,13 +175,14 @@ class Absolute extends Phrase {
 
 Absolute.defaultProps = {
   ampm: true,
-  named: true
+  named: true,
+  timeOfDay: true
 }
 
 class AbsoluteTimeOfDay extends Phrase {
   getValue (result) {
     if (!result || !result.absolute || !result.timeOfDay) return
-    
+
     if (_.inRange(result.absolute.hour, ...result.timeOfDay.range)) {
       return result.absolute
     } else {
