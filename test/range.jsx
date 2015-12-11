@@ -38,6 +38,9 @@ describe('range', () => {
       {input: 'today at 6pm to tomorrow afternoon', output: {start: moment({hour: 18}).toDate(), end: moment({hour: 12}).add(1, 'days').toDate()}, allDay: false},
       {input: 'this afternoon to tomorrow evening', output: {start: moment({hour: 12}).toDate(), end: moment({hour: 17}).add(1, 'days').toDate()}, allDay: false},
       {input: 'today to tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}},
+      {input: 'tomorrow to the day after tomorrow', output: {start: moment().add(1, 'days').toDate(), end: moment().add(2, 'days').toDate(), allDay: true}},
+      {input: 'the day after tomorrow to tomorrow', length: 0},
+      {input: 'tomorrow to yesterday', length: 0},
       {input: 'all day today to all day tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}},
       {input: 'today to all day tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}},
       {input: 'all day today to tomorrow', output: {start: moment().toDate(), end: moment().add(1, 'days').toDate(), allDay: true}}

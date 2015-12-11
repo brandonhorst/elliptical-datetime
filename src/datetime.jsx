@@ -43,46 +43,48 @@ export class DateTime extends Phrase {
 
   describe() {
     return (
-      <placeholder text='date and time' showForEmpty>
-        <choice>
-          {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
+      <filter function={this.filter.bind(this)}>
+        <placeholder text='date and time' showForEmpty>
+          <choice>
+            {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
 
-          {this.props.impliedTime ? [
-            <DatePhrase id='date' prepositions={this.props.prepositions} />,
-            <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
-          ] : null}
+            {this.props.impliedTime ? [
+              <DatePhrase id='date' prepositions={this.props.prepositions} />,
+              <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
+            ] : null}
 
-          <sequence>
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <DatePhrase id='date' recurse={false} prepositions />
-          </sequence>
-
-          <sequence>
-            <choice merge>
-              <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} />
+            <sequence>
               <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
-            </choice>
-            <literal text=' ' />
-            <DateWithTimeOfDay merge />
-          </sequence>
+              <literal text=' ' />
+              <DatePhrase id='date' recurse={false} prepositions />
+            </sequence>
 
-          <sequence>
-            <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
-          </sequence>
+            <sequence>
+              <choice merge>
+                <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
+              </choice>
+              <literal text=' ' />
+              <DateWithTimeOfDay merge />
+            </sequence>
 
-          <sequence>
-            <DateWithTimeOfDay merge />
-            <literal text=' ' />
-            <choice limit={1} merge>
-              <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions />
-              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions forceAmpm={false} />
-            </choice>
-          </sequence>
-        </choice>
-      </placeholder>
+            <sequence>
+              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
+              <literal text=' ' />
+              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
+            </sequence>
+
+            <sequence>
+              <DateWithTimeOfDay merge />
+              <literal text=' ' />
+              <choice limit={1} merge>
+                <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions forceAmpm={false} />
+              </choice>
+            </sequence>
+          </choice>
+        </placeholder>
+      </filter>
     )
   }
 }

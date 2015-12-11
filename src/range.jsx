@@ -94,6 +94,11 @@ export class Range extends Phrase {
     }
   }
 
+  validate (result) {
+    if (result.start && result.end)
+    return moment(result.start).isBefore(result.end)
+  }
+
   describe () {
     return (
       <placeholder text='period of time'>

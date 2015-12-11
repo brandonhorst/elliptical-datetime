@@ -8,7 +8,7 @@ function isUnique (array) {
 }
 
 class BaseDuration extends Phrase {
-  getValue(result) {
+  getValue (result) {
     const output = {}
     _.forEach(result, ({num, type}) => {
       output[type] = (output[type] || 0) + num
@@ -16,44 +16,46 @@ class BaseDuration extends Phrase {
     return output
   }
 
-  filter(results) {
+  filter (results) {
     return isUnique(_.map(results, 'id'))
   }
 
-  describe() {
+  describe () {
     return (
-    <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
-        {this.childDescribe()}
-      </repeat>
+      <filter function={this.filter.bind(this)}>
+        <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
+          {this.childDescribe()}
+        </repeat>
+      </filter>
     )
   }
 }
 
 class InternalDuration extends Phrase {
-  getValue({id, type, num, multiplier = 1 }) {
+  getValue ({id, type, num, multiplier = 1 }) {
     return {id, type, num: num * multiplier}
   }
 
-  describe() {
+  describe () {
     return (
-    <choice limit={1}>
+      <choice limit={1}>
         <sequence>
           <Integer max={1} min={1} id='num' />
           <literal text=' ' />
           <placeholder text='time period' merge={true}>
             <choice>
               {this.props.type !== 'time' ? [
-      <literal text='day' value={{id: 'days', type: 'days'}}  />,
-      <literal text='fortnight' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-      <literal text='week' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-      <literal text='month' value={{id: 'months', type: 'months'}} />,
-      <literal text='year' value={{id: 'years', type: 'years'}} />
-    ] : null}
+                <literal text='day' value={{id: 'days', type: 'days'}}  />,
+                <literal text='fortnight' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
+                <literal text='week' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
+                <literal text='month' value={{id: 'months', type: 'months'}} />,
+                <literal text='year' value={{id: 'years', type: 'years'}} />
+              ] : null}
               {this.props.type !== 'date' ? [
-      <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
-      <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
-      this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
-    ] : null}
+                <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
+                <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
+                this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
+              ] : null}
             </choice>
           </placeholder>
         </sequence>
@@ -63,17 +65,17 @@ class InternalDuration extends Phrase {
           <placeholder text='time period' merge={true}>
             <choice>
               {this.props.type !== 'time' ? [
-      <literal text='days' value={{id: 'days', type: 'days'}}  />,
-      <literal text='fortnights' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-      <literal text='weeks' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-      <literal text='months' value={{id: 'months', type: 'months'}} />,
-      <literal text='years' value={{id: 'years', type: 'years'}} />
-    ] : null}
+                <literal text='days' value={{id: 'days', type: 'days'}}  />,
+                <literal text='fortnights' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
+                <literal text='weeks' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
+                <literal text='months' value={{id: 'months', type: 'months'}} />,
+                <literal text='years' value={{id: 'years', type: 'years'}} />
+              ] : null}
               {this.props.type !== 'date' ? [
-      <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
-      <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
-      this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
-    ] : null}
+                <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
+                <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
+                this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
+              ] : null}
             </choice>
           </placeholder>
         </sequence>

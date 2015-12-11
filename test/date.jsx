@@ -47,7 +47,8 @@ describe('date', () => {
       {output: moment({year: 1992, month: 4, day: 2, hour: 0}).toDate(), input: '5/2/1992'},
       {output: moment({month: 4, day: 2, hour: 0}).toDate(), input: 'May 2nd'},
       {output: moment({month: 4, day: 2, hour: 0}).toDate(), input: 'May 2'},
-      {output: moment({year: 1990, month: 4, day: 2, hour: 0}).toDate(), input: 'May 2nd, 1990'}
+      {output: moment({year: 1990, month: 4, day: 2, hour: 0}).toDate(), input: 'May 2nd, 1990'},
+      {output: moment({year: 1990, month: 4, day: 2, hour: 0}).toDate(), input: 'May 2, 1990'}
     ]
 
     _.forEach(testCases, ({input, output, suggestion, length = 1 }) => {

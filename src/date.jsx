@@ -447,15 +447,17 @@ class AbsoluteDay extends Phrase {
 
   describe() {
     return (
-    <sequence>
-        <DigitString maxLength={2} descriptor='mm' id='month' />
-        <list items={['/', '-', '.']} limit={1} />
-        <DigitString maxLength={2} max={31} descriptor='dd' id='day' />
-        <sequence optional={true} merge={true}>
+      <filter function={this.filter.bind(this)}>
+        <sequence>
+          <DigitString maxLength={2} descriptor='mm' id='month' />
           <list items={['/', '-', '.']} limit={1} />
-          <Year id='year' />
+          <DigitString maxLength={2} max={31} descriptor='dd' id='day' />
+          <sequence optional={true} merge={true}>
+            <list items={['/', '-', '.']} limit={1} />
+            <Year id='year' />
+          </sequence>
         </sequence>
-      </sequence>
+      </filter>
     )
   }
 }
@@ -512,33 +514,35 @@ class NamedMonthAbsolute extends Phrase {
 
   describe() {
     return (
-    <choice>
-        <sequence>
-          <Month id='month' />
-          <list items={[' ', ' the ']} limit={1} />
-          <choice id='day' limit={1}>
-            <Integer max={31} min={1} />
-            <Ordinal max={31} />
-          </choice>
-          <sequence id='year' optional={true} preffered={false}>
-            <list items={[', ', ' ']} limit={1} />
-            <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+      <filter function={this.filter.bind(this)}>
+        <choice>
+          <sequence>
+            <Month id='month' />
+            <list items={[' ', ' the ']} limit={1} />
+            <choice id='day' limit={1}>
+              <Integer max={31} min={1} />
+              <Ordinal max={31} />
+            </choice>
+            <sequence id='year' optional={true} preffered={false}>
+              <list items={[', ', ' ']} limit={1} />
+              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+            </sequence>
           </sequence>
-        </sequence>
-        <sequence>
-          <literal text='the ' />
-          <choice id='day' limit={1}>
-            <Integer max={31} min={1} />
-            <Ordinal max={31} />
-          </choice>
-          <list items={[' of ', ' ']} limit={1} />
-          <Month id='month' />
-          <sequence id='year' optional={true} preffered={false}>
-            <list items={[', ', ' ']} limit={1} />
-            <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+          <sequence>
+            <literal text='the ' />
+            <choice id='day' limit={1}>
+              <Integer max={31} min={1} />
+              <Ordinal max={31} />
+            </choice>
+            <list items={[' of ', ' ']} limit={1} />
+            <Month id='month' />
+            <sequence id='year' optional={true} preffered={false}>
+              <list items={[', ', ' ']} limit={1} />
+              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+            </sequence>
           </sequence>
-        </sequence>
-      </choice>
+        </choice>
+      </filter>
     )
   }
 }
