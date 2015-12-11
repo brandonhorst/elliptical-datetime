@@ -6,13 +6,28 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { DigitString, Integer } from 'lacona-phrase-number'
 import { TimeDuration } from './duration'
 
+export class TimeOfDay extends Phrase {
+  describe () {
+    return (
+    <placeholder text='time of day'>
+      <list items={[
+        {text: 'morning', value: {default: 8, range: [0, 12]}},
+        {text: 'afternoon', value: {default: 12, range: [12, 24]}},
+        {text: 'evening', value: {default: 17, range: [12, 24]}},
+        {text: 'night', value: {default: 20, range: [12, 24]}}
+      ]} />
+      </placeholder>
+    )
+  }
+}
+
 export class AmbiguousTime extends Phrase {
   describe () {
     return (
       <sequence>
         {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
         <argument text='time' showForEmpty merge>
-          <Absolute merge ampm={false} named={false} />
+          <Absolute merge ampm={false} named={false} timeOfDay={false} />
         </argument>
       </sequence>
     )
@@ -98,7 +113,7 @@ class RelativeTime extends Phrase {
 }
 
 class AbsoluteRelativeHour extends Phrase {
-  getValue(result) {
+  getValue (result) {
     if (!result || !result.absolute) return
 
     if (result.direction > 0) {
@@ -110,7 +125,7 @@ class AbsoluteRelativeHour extends Phrase {
     }
   }
 
-  describe() {
+  describe () {
     return (
       <sequence>
         <placeholder text='number' showForEmpty={true} id='minutes'>
@@ -152,6 +167,7 @@ class Absolute extends Phrase {
         <AbsoluteNumeric ampm={this.props.ampm} />
         <AbsoluteRelativeHour ampm={this.props.ampm} />
         {this.props.named ? <AbsoluteNamed /> : null}
+        {this.props.timeOfDay ? <AbsoluteTimeOfDay /> : null}
       </choice>
     )
   }
@@ -162,12 +178,37 @@ Absolute.defaultProps = {
   named: true
 }
 
+class AbsoluteTimeOfDay extends Phrase {
+  getValue (result) {
+    if (!result || !result.absolute || !result.timeOfDay) return
+    
+    if (_.inRange(result.absolute.hour, ...result.timeOfDay.range)) {
+      return result.absolute
+    } else {
+      return {hour: result.absolute.hour < 12 ? result.absolute.hour + 12 : result.absolute.hour - 12, minute: result.absolute.minute}
+    }
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <choice id='absolute'>
+          <AbsoluteNumeric ampm={false} />
+          <AbsoluteRelativeHour ampm={false} />
+        </choice>
+        <literal text=' in the ' category='conjunction' />
+        <TimeOfDay id='timeOfDay' />
+      </sequence>
+    )
+  }
+}
+
 class AbsoluteNamed extends Phrase {
-  getValue(result) {
+  getValue (result) {
     return {hour: result, minutes: 0}
   }
 
-  describe() {
+  describe () {
     return <list items={[
       {text: 'midnight', value: 0},
       {text: 'noon', value: 12}
@@ -176,11 +217,11 @@ class AbsoluteNamed extends Phrase {
 }
 
 class AbsoluteNumeric extends Phrase {
-  getValue(result) {
+  getValue (result) {
     return {hour: parseInt(result.hour, 10), minutes: result.minutes, ampm: result.ampm}
   }
 
-  describe() {
+  describe () {
     return (
       <sequence>
         <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} id='hour' />

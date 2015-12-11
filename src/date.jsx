@@ -3,27 +3,13 @@ import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
 import DateDuration from './date-duration'
 import { DigitString, Integer, Ordinal } from 'lacona-phrase-number'
+import { TimeOfDay } from './time'
 import Month from './month'
 import Weekday from './weekday'
 
 export class DatePhrase extends Phrase {
   describe () {
     return <InternalDate {...this.props} />
-  }
-}
-
-class TimeOfDay extends Phrase {
-  describe () {
-    return (
-    <placeholder text='time of day'>
-      <list items={[
-        {text: 'morning', value: {default: 8, range: [0, 12]}},
-        {text: 'afternoon', value: {default: 12, range: [12, 24]}},
-        {text: 'evening', value: {default: 17, range: [12, 24]}},
-        {text: 'night', value: {default: 20, range: [12, 24]}}
-      ]} />
-      </placeholder>
-    )
   }
 }
 
