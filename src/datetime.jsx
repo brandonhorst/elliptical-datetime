@@ -43,7 +43,7 @@ export class DateTime extends Phrase {
 
   describe() {
     return (
-      <placeholder text='date and time'>
+      <placeholder text='date and time' showForEmpty>
         <choice>
           {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
 

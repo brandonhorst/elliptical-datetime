@@ -43,83 +43,126 @@ export class DateWithTimeOfDay extends Phrase {
       <choice>
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          <DatePhrase id='date' nullify={true} />
+          <argument text='date' merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <DatePhrase id='date' nullify={true} />
+            </sequence>
+          </argument>
         </sequence>
 
         <sequence>
-          <DatePhrase id='date' nullify={true} prepositions={this.props.prepositions} />
-          <literal text=' ' />
-          <TimeOfDay id='impliedTime' prepositions />
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <DatePhrase id='date' nullify={true} prepositions={this.props.prepositions} />
+              <literal text=' ' />
+              <TimeOfDay id='impliedTime' prepositions />
+            </sequence>
+          </argument>
         </sequence>
 
         <sequence>
-          <NamedDay useThis id='relative' />
-          <literal text=' ' />
-          <TimeOfDay id='impliedTime' />
-        </sequence>
-
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <RelativeWeekday id='date' />
-          <literal text=' ' />
-          <TimeOfDay id='impliedTime' />
-        </sequence>
-
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          <RelativeWeekday id='date' />
-        </sequence>
-
-        <sequence>
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          <RelativeAdjacent id='relative' />
-        </sequence>
-
-        <sequence>
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-        </sequence>
-
-        <sequence>
-          <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-          <literal text=' in the ' />
-          <TimeOfDay id='impliedTime' />
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <NamedDay useThis id='relative' />
+              <literal text=' ' />
+              <TimeOfDay id='impliedTime' />
+            </sequence>
+          </argument>
         </sequence>
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          <choice id='date'>
-            <AbsoluteDay />
-            <NamedMonthAbsolute />
-          </choice>
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <RelativeWeekday id='date' />
+              <literal text=' ' />
+              <TimeOfDay id='impliedTime' />
+            </sequence>
+          </argument>
         </sequence>
 
         <sequence>
-          <literal text='the ' />
-          <TimeOfDay id='impliedTime' />
-          <literal text=' of ' />
-          {this.props.recurse ? <RecursiveDay id='date' /> : null }
+          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <RelativeWeekday id='date' />
+            </sequence>
+          </argument>
         </sequence>
 
         <sequence>
-          {this.props.recurse ? <RecursiveDay id='date' /> : null }
-          <literal text=' in the ' />
-          <TimeOfDay id='impliedTime' />
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <RelativeAdjacent id='relative' />
+            </sequence>
+          </argument>
         </sequence>
 
+        <sequence>
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
+            </sequence>
+          </argument>
+        </sequence>
+
+        <sequence>
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
+              <literal text=' in the ' />
+              <TimeOfDay id='impliedTime' />
+            </sequence>
+          </argument>
+        </sequence>
+
+        <sequence>
+          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <choice id='date'>
+                <AbsoluteDay />
+                <NamedMonthAbsolute />
+              </choice>
+            </sequence>
+          </argument>
+        </sequence>
+
+        <sequence>
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              {this.props.recurse ? <RecursiveDay id='date' /> : null }
+            </sequence>
+          </argument>
+        </sequence>
+
+        <sequence>
+          <argument text='date' showForEmpty merge>
+            <sequence>
+              {this.props.recurse ? <RecursiveDay id='date' /> : null }
+              <literal text=' in the ' />
+              <TimeOfDay id='impliedTime' />
+            </sequence>
+          </argument>
+        </sequence>
       </choice>
     )
   }
@@ -154,30 +197,27 @@ class InternalDate extends Phrase {
   describe() {
     if (this.props.nullify) return null
     return (
-      <argument text='date' showForEmpty={true}>
-        <choice>
-          <NamedDay id='relative' />
+      <choice>
+        <argument text='date' showForEmpty>
+          <choice>
+            <NamedDay id='relative' />
+            <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
+            <RelativeAdjacent id='relative' />
+            {this.props.recurse ? <RecursiveDay /> : null }
+          </choice>
+        </argument>
 
-          <sequence>
-            {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-            <RelativeWeekday merge={true} />
-          </sequence>
-
-          <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-
-          <RelativeAdjacent id='relative' />
-
-          <sequence>
-            {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-            <choice merge={true}>
+        <sequence>
+          {this.props.prepositions ? <literal text='on ' optional prefered limited category='conjunction' /> : null}
+          <argument text='date' showForEmpty merge>
+            <choice>
+              <RelativeWeekday />
               <AbsoluteDay />
               <NamedMonthAbsolute />
             </choice>
-          </sequence>
-
-          {this.props.recurse ? <RecursiveDay /> : null }
-        </choice>
-      </argument>
+          </argument>
+        </sequence>
+      </choice>
     )
   }
 }
@@ -249,10 +289,10 @@ class RecursiveDay extends Phrase {
               <DateDuration />
             </choice>
             <list merge={true} id='direction' items={[
-      {text: ' before ', value: -1},
-      {text: ' after ', value: 1},
-      {text: ' from ', value: 1}
-    ]} limit={2} />
+              {text: ' before ', value: -1},
+              {text: ' after ', value: 1},
+              {text: ' from ', value: 1}
+            ]} limit={2} />
           </sequence>
         </argument>
         <placeholder text='date' id='date'>

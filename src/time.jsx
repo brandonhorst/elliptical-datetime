@@ -9,12 +9,12 @@ import { TimeDuration } from './duration'
 export class AmbiguousTime extends Phrase {
   describe () {
     return (
-      <argument text='time' showForEmpty={true} merge={true}>
-        <sequence>
-          {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
+      <sequence>
+        {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
+        <argument text='time' showForEmpty merge>
           <Absolute merge ampm={false} named={false} />
-        </sequence>
-      </argument>
+        </argument>
+      </sequence>
     )
   }
 }
