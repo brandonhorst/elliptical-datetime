@@ -41,18 +41,24 @@ function timeFromAbsolute (absolute) {
       hour = absolute.ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
     }
 
-    return moment({hour, minutes: absolute.minutes}).toDate()
+    return {hour, minute: absolute.minute || 0}
+}
 
+function timeFromRelative (duration, now) {
+  const localTime = moment(now)
+  const noTimeZoneLocalTime = moment.utc({hour: localTime.hour(), minute: localTime.minute()})
+  const newTime = noTimeZoneLocalTime.add(moment.duration(duration))
+  return {hour: newTime.hour(), minute: newTime.minute()}
 }
 
 export class Time extends Phrase {
   getValue (result) {
     if (!result) return
 
-    if (_.isDate(result)) {
-      return result
+    if (result.recursive) {
+      return timeFromRelative(result.recursive.duration, result.recursive.time)
     } else if (result.relative) {
-      return moment().millisecond(0).add(moment.duration(result.relative)).toDate()
+      return timeFromRelative(result.relative)
     } else if (result.absolute) {
       return timeFromAbsolute(result.absolute)
     }
@@ -67,7 +73,7 @@ export class Time extends Phrase {
             <Absolute id='absolute' />
           </sequence>
           {this.props.relative ? <RelativeTime id='relative' /> : null}
-          {this.props.recurse ? <RecursiveTime /> : null}
+          {this.props.recurse ? <RecursiveTime id='recursive' /> : null}
         </choice>
       </argument>
     )
@@ -117,18 +123,18 @@ class AbsoluteRelativeHour extends Phrase {
     if (!result || !result.absolute) return
 
     if (result.direction > 0) {
-      return {hour: result.absolute.hour, minutes: result.minutes, ampm: result.absolute.ampm}
+      return {hour: result.absolute.hour, minute: result.minute, ampm: result.absolute.ampm}
     } else {
       const hour = result.absolute.hour === 0 ? 23 : result.absolute.hour - 1
-      const minutes = 60 - result.minutes
-      return {hour, minutes, ampm: result.absolute.ampm}
+      const minute = 60 - result.minute
+      return {hour, minute, ampm: result.absolute.ampm}
     }
   }
 
   describe () {
     return (
       <sequence>
-        <placeholder text='number' showForEmpty={true} id='minutes'>
+        <placeholder text='number' showForEmpty={true} id='minute'>
           <choice>
             <literal text='quarter' value={15} />
             <literal text='half' value={30}/>
@@ -206,7 +212,7 @@ class AbsoluteTimeOfDay extends Phrase {
 
 class AbsoluteNamed extends Phrase {
   getValue (result) {
-    return {hour: result, minutes: 0}
+    return {hour: result, minute: 0}
   }
 
   describe () {
@@ -219,7 +225,7 @@ class AbsoluteNamed extends Phrase {
 
 class AbsoluteNumeric extends Phrase {
   getValue (result) {
-    return {hour: parseInt(result.hour, 10), minutes: result.minutes, ampm: result.ampm}
+    return {hour: parseInt(result.hour, 10), minute: result.minute, ampm: result.ampm}
   }
 
   describe () {
@@ -228,7 +234,7 @@ class AbsoluteNumeric extends Phrase {
         <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} id='hour' />
 
         {this.props.minutes ?
-          <sequence id='minutes' optional>
+          <sequence id='minute' optional>
             <literal text=':' />
             <Minutes merge />
           </sequence>
@@ -248,32 +254,23 @@ class AbsoluteNumeric extends Phrase {
 AbsoluteNumeric.defaultProps = {minutes: true}
 
 class RecursiveTime extends Phrase {
-  getValue(result) {
-    if (!result || !result.time) return
+  getValue (result) {
+    if (!result || !result.time || !result.duration || !result.direction) return
 
-    const date = new Date(result.time.getTime()) // clone date
-
-    if (result.hours) {
-      date.setHours((result.hours * result.direction) + result.time.getHours())
+    let duration = result.duration
+    if (result.direction === -1) {
+      duration = _.mapValues(result.duration, item => -item)
     }
 
-    if (result.minutes) {
-      date.setMinutes((result.minutes * result.direction) + result.time.getMinutes())
-    }
-
-    if (result.seconds) {
-      date.setSeconds((result.seconds * result.direction) + result.time.getSeconds())
-    }
-
-    return date
+    return {time: result.time, duration}
   }
 
-  describe() {
+  describe () {
     return (
-    <sequence>
-        <argument text='offset' showForEmpty={true} merge={true}>
+      <sequence>
+        <argument text='offset' showForEmpty merge>
           <sequence>
-            <TimeDuration merge={true} />
+            <TimeDuration id='duration' />
             <list merge={true} id='direction' items={[
               {text: ' before ', value: -1},
               {text: ' after ', value: 1},

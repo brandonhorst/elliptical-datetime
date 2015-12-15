@@ -4,42 +4,41 @@
 import _ from 'lodash'
 import { text } from './_util'
 import { createElement, Phrase } from 'lacona-phrase'
-import chai, { expect } from 'chai'
-import chaiDateTime from 'chai-datetime'
+import { expect } from 'chai'
 import lolex from 'lolex'
 import { Time } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
-chai.use(chaiDateTime)
-chai.config.includeStack = true
+function momentToTime (mom) {
+  return {hour: mom.hour(), minutes: mom.minute()}
+}
 
-describe('time', () => {
+describe('Time', () => {
   let parser
   let clock
-  let testCases
+
+  const testCases = [
+    {output: {hour: 3, minute: 31}, input: '3:31 am'},
+    {output: {hour: 15, minute: 31}, input: '3:31 pm'},
+    {output: {hour: 15, minute: 0}, input: '3pm'},
+    {output: {hour: 15, minute: 0}, input: '3 in the afternoon'},
+    {output: {hour: 15, minute: 0}, input: '3:00 in the afternoon'},
+    {output: {hour: 0, minute: 0}, input: 'midnight'},
+    {output: {hour: 12, minute: 0}, input: 'noon'},
+    {output: {hour: 15, minute: 45}, input: 'quarter to 4pm'},
+    {output: {hour: 23, minute: 45}, input: 'quarter to midnight'},
+    {output: {hour: 15, minute: 30}, input: 'half past 3pm'},
+    {output: {hour: 15, minute: 50}, input: '10 til 4pm'},
+    {output: {hour: 15, minute: 50}, input: '10 minutes before 4pm'},
+    {output: {hour: 10, minute: 0}, input: '2 hours before noon'},
+    {output: {hour: 15, minute: 0}, input: 'in 3 hours'},
+    {output: {hour: 11, minute: 57}, input: '3 minutes ago'},
+    {input: '2 minutes before 3 minutes ago', length: 0}
+  ]
 
   before(() => {
-    clock = lolex.install()
-
-    testCases = [
-      {output: moment({hours: 3, minutes: 31}).toDate(), input: '3:31 am'},
-      {output: moment({hours: 15, minutes: 31}).toDate(), input: '3:31 pm'},
-      {output: moment({hours: 15}).toDate(), input: '3pm'},
-      {output: moment({hours: 15}).toDate(), input: '3 in the afternoon'},
-      {output: moment({hours: 15}).toDate(), input: '3:00 in the afternoon'},
-      {output: moment({hours: 0}).toDate(), input: 'midnight'},
-      {output: moment({hours: 12}).toDate(), input: 'noon'},
-      {output: moment({hours: 15, minutes: 45}).toDate(), input: 'quarter to 4pm'},
-      {output: moment({hours: 23, minutes: 45}).toDate(), input: 'quarter to midnight'},
-      {output: moment({hours: 15, minutes: 30}).toDate(), input: 'half past 3pm'},
-      {output: moment({hours: 15, minutes: 50}).toDate(), input: '10 til 4pm'},
-      {output: moment({hours: 15, minutes: 50}).toDate(), input: '10 minutes before 4pm'},
-      {output: moment({hours: 10}).toDate(), input: '2 hours before noon'},
-      {output: moment().milliseconds(0).add({hours: 3}).toDate(), input: 'in 3 hours'},
-      {output: moment().milliseconds(0).subtract({minutes: 3}).toDate(), input: '3 minutes ago'},
-      {input: '2 minutes before 3 minutes ago', length: 0}
-    ]
+    clock = lolex.install(global, moment({hour: 12}).toDate())
   })
 
   after(() => {
@@ -57,7 +56,7 @@ describe('time', () => {
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)
-        expect(data[0].result).to.equalTime(output)
+        expect(data[0].result).to.eql(output)
       }
     })
   })
