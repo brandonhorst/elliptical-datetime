@@ -48,15 +48,23 @@ export class DateTime extends Phrase {
           <choice>
             {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
 
-            {this.props.impliedTime ? [
-              <DatePhrase id='date' prepositions={this.props.prepositions} />,
-              <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
-            ] : null}
+            {this.props.impliedTime ?
+              <choice limit={1}>
+                <DatePhrase id='date' prepositions={this.props.prepositions} />
+                <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
+              </choice>
+            : null}
 
             <sequence>
               <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
               <literal text=' ' />
               <DatePhrase id='date' recurse={false} prepositions />
+            </sequence>
+
+            <sequence>
+              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
+              <literal text=' ' />
+              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
             </sequence>
 
             <sequence>
@@ -66,12 +74,6 @@ export class DateTime extends Phrase {
               </choice>
               <literal text=' ' />
               <DateWithTimeOfDay merge />
-            </sequence>
-
-            <sequence>
-              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
-              <literal text=' ' />
-              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
             </sequence>
 
             <sequence>

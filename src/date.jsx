@@ -28,25 +28,25 @@ export class DateWithTimeOfDay extends Phrase {
     return (
       <choice>
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
-          <argument text='date' merge>
+          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
+          <placeholder text='date' merge>
             <sequence>
               <literal text='the ' />
               <TimeOfDay id='impliedTime' />
               <literal text=' of ' />
-              <DatePhrase id='date' nullify={true} />
+              <DatePhrase id='date' nullify />
             </sequence>
-          </argument>
+          </placeholder>
         </sequence>
 
         <sequence>
-          <argument text='date' showForEmpty merge>
+          <placeholder text='date' showForEmpty merge>
             <sequence>
-              <DatePhrase id='date' nullify={true} prepositions={this.props.prepositions} />
+              <DatePhrase id='date' nullify prepositions={this.props.prepositions} />
               <literal text=' ' />
               <TimeOfDay id='impliedTime' prepositions />
             </sequence>
-          </argument>
+          </placeholder>
         </sequence>
 
         <sequence>
@@ -60,7 +60,7 @@ export class DateWithTimeOfDay extends Phrase {
         </sequence>
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
+          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
           <argument text='date' showForEmpty merge>
             <sequence>
               <RelativeWeekday id='date' />
@@ -71,7 +71,7 @@ export class DateWithTimeOfDay extends Phrase {
         </sequence>
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
+          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
           <argument text='date' showForEmpty merge>
             <sequence>
               <literal text='the ' />
@@ -115,7 +115,7 @@ export class DateWithTimeOfDay extends Phrase {
         </sequence>
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional={true} prefered={true} limited={true} /> : null}
+          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
           <argument text='date' showForEmpty merge>
             <sequence>
               <literal text='the ' />
@@ -224,7 +224,7 @@ class ExtraDateDuration extends Phrase {
         <placeholder text='number'>
           <literal text='the ' />
         </placeholder>
-        <placeholder text='time period' merge={true}>
+        <placeholder text='time period' merge>
           <choice>
             <literal text='day' value={{type: 'days'}}  />,
             <literal text='fortnight' value={{type: 'days', multiplier: 14}} />,
@@ -268,13 +268,13 @@ class RecursiveDay extends Phrase {
   describe() {
     return (
     <sequence>
-        <argument text='offset' showForEmpty={true} merge={true}>
+        <argument text='offset' showForEmpty merge>
           <sequence>
-            <choice merge={true}>
+            <choice merge>
               <ExtraDateDuration />
               <DateDuration />
             </choice>
-            <list merge={true} id='direction' items={[
+            <list merge id='direction' items={[
               {text: ' before ', value: -1},
               {text: ' after ', value: 1},
               {text: ' from ', value: 1}
@@ -349,7 +349,7 @@ class RelativeAdjacent extends Phrase {
           <literal text='next ' value={1} />
           <literal text='last ' value={-1} />
         </choice>
-        <placeholder text='week, month, year' merge={true}>
+        <placeholder text='week, month, year' merge>
           <choice>
             <literal text='week' value={{type: 'days', multiplier: 7}} />
             <literal text='month' value={{type: 'months'}} />
@@ -452,7 +452,7 @@ class AbsoluteDay extends Phrase {
           <DigitString maxLength={2} descriptor='mm' id='month' />
           <list items={['/', '-', '.']} limit={1} />
           <DigitString maxLength={2} max={31} descriptor='dd' id='day' />
-          <sequence optional={true} merge={true}>
+          <sequence optional merge>
             <list items={['/', '-', '.']} limit={1} />
             <Year id='year' />
           </sequence>
@@ -523,9 +523,9 @@ class NamedMonthAbsolute extends Phrase {
               <Integer max={31} min={1} />
               <Ordinal max={31} />
             </choice>
-            <sequence id='year' optional={true} preffered={false}>
+            <sequence id='year' optional preffered={false}>
               <list items={[', ', ' ']} limit={1} />
-              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge />
             </sequence>
           </sequence>
           <sequence>
@@ -536,9 +536,9 @@ class NamedMonthAbsolute extends Phrase {
             </choice>
             <list items={[' of ', ' ']} limit={1} />
             <Month id='month' />
-            <sequence id='year' optional={true} preffered={false}>
+            <sequence id='year' optional preffered={false}>
               <list items={[', ', ' ']} limit={1} />
-              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge={true} />
+              <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge />
             </sequence>
           </sequence>
         </choice>

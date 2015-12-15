@@ -109,7 +109,7 @@ export class Range extends Phrase {
   }
 
   validate (result) {
-    if (!result || !result.start || !result.end) return
+    if (!result || !result.start || !result.end) return true
 
     const startMoment = moment(result.start)
     if (result.allDay) {
