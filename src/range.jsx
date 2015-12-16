@@ -15,15 +15,26 @@ export class TimeRange extends Phrase {
     if (!result) return
 
     if (result.start && result.duration) {
-      const endDate = moment.utc(result.start).add(moment.duration(result.duration))
-      const end = {hour: endDate.hour(), minute: endDate.minute()}
-      return {start: result.start, end}
+      const startDate = moment.utc(result.start)
+      const endDate = startDate.add(moment.duration(result.duration))
+      const dayOffset = endDate.diff(startDate, 'days')
+      const end = {hour: endDate.hour(), minute: endDate.minute(), second: endDate.second()}
+      return {start: result.start, end, dayOffset}
     }
 
     if (result.start && result.end) {
       return result
     }
   }
+
+  // validate (result) {
+  //   if (!result || !result.start || !result.end || result.dayOffset == null) return true
+  //
+  //   if (result.dayOffset > 0) return true
+  //
+  //   const startMoment = moment.utc(result.start)
+  //   return startMoment.isBefore(moment.utc(result.end))
+  // }
 
   describe () {
     return (

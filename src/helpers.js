@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import moment from 'moment'
 
 export function join (date, time) {
@@ -10,7 +11,45 @@ export function timeIsBefore(timeA, timeB) {
 
   if (timeA.minute < timeB.minute) return true
   if (timeA.minute > timeB.minute) return false
-  
+
   if (timeA.second < timeB.second) return true
   if (timeA.second > timeB.second) return false
+}
+
+export function negateDuration (duration) {
+  return _.mapValues(duration, num => -num)
+}
+
+export function relativeTime (duration, now) {
+  const newTime = moment(now).utc().add(moment.duration(duration)).local()
+
+  return {hour: newTime.hour(), minute: newTime.minute(), second: newTime.second()}
+}
+
+export function absoluteTime (absolute) {
+  return {hour: absolute.hour, minute: absolute.minute || 0, second: absolute.second || 0}
+}
+
+export function ambiguousTime (ambiguousTime, ampm) {
+  const hour = ampmHourToHour(ambiguousTime.hour, ampm)
+
+  return {hour, minute: ambiguousTime.minute || 0, second: ambiguousTime.second || 0}
+}
+
+function ampmHourToHour (hour, ampm) {
+  if (ampm) {
+    return ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
+  } else {
+    return hour
+  }
+}
+
+export function coerceAmbiguousTime (ambiguousTime, range) {
+  if (_.inRange(ambiguousTime.hour, ...range)) {
+    return absolute
+  } else {
+    return {hour: ambiguousTime.hour < 12 ? ambiguousTime.hour + 12 : ambiguousTime.hour - 12, minute: ambiguousTime.minute, second: ambiguousTime.second}
+  }
+
+
 }

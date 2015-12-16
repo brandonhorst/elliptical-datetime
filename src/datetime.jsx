@@ -83,7 +83,7 @@ export class DateTime extends Phrase {
               <literal text=' ' />
               <choice limit={1} merge>
                 <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions />
-                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions forceAmpm={false} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
               </choice>
             </sequence>
           </choice>
