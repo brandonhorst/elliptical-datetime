@@ -46,7 +46,7 @@ function ampmHourToHour (hour, ampm) {
 
 export function coerceAmbiguousTime (ambiguousTime, range) {
   if (_.inRange(ambiguousTime.hour, ...range)) {
-    return absolute
+    return ambiguousTime
   } else {
     return {hour: ambiguousTime.hour < 12 ? ambiguousTime.hour + 12 : ambiguousTime.hour - 12, minute: ambiguousTime.minute, second: ambiguousTime.second}
   }
@@ -64,7 +64,6 @@ export function relativeDay (duration, now = {}) {
   const newMoment = moment(now).year(2010).add(moment.duration(duration)) // not leap year
   return {month: newMoment.month(), day: newMoment.date()}
 }
-
 
 export function validateDay ({month, day, year = 2012} = {}) { //leap year
   if (_.isUndefined(month) || _.isUndefined(day)) return true

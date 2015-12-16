@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
 import { AmbiguousTime, Time } from './time'
 import moment from 'moment'
-import { join } from './helpers'
+import { coerceAmbiguousTime, join } from './helpers'
 import { DateWithTimeOfDay, DatePhrase } from './date'
 
 export class DateTime extends Phrase {
@@ -15,16 +15,8 @@ export class DateTime extends Phrase {
         return join(result.date, result.time)
       } else if (result.impliedTime) {
         if (result.ambiguousTime) {
-          if (_.inRange(result.ambiguousTime.hour, ...result.impliedTime.range)) {
-            return join(result.date, result.ambiguousTime)
-          } else {
-            const time = {
-              hour: result.ambiguousTime.hour < 12 ? result.ambiguousTime.hour + 12 : result.ambiguousTime.hour - 12,
-              minute: result.ambiguousTime.minute,
-              seconds: result.ambiguousTime.second
-            }
-            return join(result.date, time)
-          }
+          const time = coerceAmbiguousTime(result.ambiguousTime, result.impliedTime.range)
+          return join(result.date, time)
         } else {
           return join(result.date, {hour: result.impliedTime.default})
         }
