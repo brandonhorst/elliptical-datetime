@@ -134,7 +134,7 @@ export class Range extends Phrase {
         <choice>
           <Date id='startDate' />
 
-          <DateTime id='start' impliedTime={false} defaultTime={this.props.defaultTime} />
+          <DateTime id='start' _impliedTime={false} defaultTime={this.props.defaultTime} />
 
           <choice limit={1}>
             <sequence> {/* today to tomorrow */}
@@ -148,9 +148,9 @@ export class Range extends Phrase {
 
             <sequence> {/* today at 3pm to tomorrow */}
               {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
-              <DateTime id='start' impliedDate={false} defaultTime={this.props.defaultTime} />
+              <DateTime id='start' _impliedDate={false} defaultTime={this.props.defaultTime} />
               <list items={[' to ', ' - ', '-']} limit={1} />
-              <DateTime id='end' impliedDate={false} defaultTime={this.props.defaultTime} />
+              <DateTime id='end' _impliedDate={false} defaultTime={this.props.defaultTime} />
             </sequence>
           </choice>
 
@@ -188,5 +188,7 @@ Range.defaultProps = {
   prepositions: false,
   seconds: true,
   defaultTime: {hour: 8},
-  defaultDuration: {hours: 1}
+  defaultDuration: {hours: 1},
+  future: true,
+  past: true
 }

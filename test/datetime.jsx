@@ -16,12 +16,12 @@ chai.use(chaiDateTime)
 describe('DateTime', () => {
   let parser, clock
 
-  function test ({input, output, length = 1}) {
+  function test ({input, output, suggestion, length = 1}) {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
-        expect(text(data[0])).to.equal(input)
+        expect(text(data[0])).to.equal(suggestion || input)
         expect(data[0].result).to.equalDate(output)
         expect(data[0].result).to.equalTime(output)
       }
@@ -129,6 +129,99 @@ describe('DateTime', () => {
     }, {
       input: 'the afternoon of 2/3/2003',
       output: moment({year: 2003, month: 1, day: 3, hour: 12}).toDate()
+    }]
+
+    _.forEach(testCases, test)
+  })
+
+  describe ('past={false}', () => {
+    beforeEach(() => {
+      parser.grammar = <DateTime past={false} />
+    })
+
+    const testCases = [{
+      input: '2:00pm 2/3/2003',
+      output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
+    }, {
+      input: '2:00pm 2/3/1987',
+      length: 0
+    }, {
+      input: '2/3/2003 at 2pm',
+      output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
+    }, {
+      input: '2/3/1987 2:00pm',
+      length: 0
+    }, {
+      input: 'next Tuesday at 8am',
+      output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+    }, {
+      input: '8am next Tuesday',
+      output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+    }, {
+      input: '8am on next Tuesday',
+      output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+    }, {
+      input: '8am last Tuesday',
+      length: 0
+    }, {
+      input: 'this morning',
+      length: 0
+    }, {
+      input: 'this afternoon',
+      output: moment({year: 1990, month: 9, day: 11, hour: 12}).toDate()
+    }, {
+      input: 'this evening',
+      output: moment({year: 1990, month: 9, day: 11, hour: 17}).toDate()
+    }, {
+      input: 'tomorrow',
+      output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+    }, {
+      input: 'tomorrow night',
+      output: moment({year: 1990, month: 9, day: 12, hour: 20}).toDate()
+    }, {
+      input: 'the day after tomorrow',
+      output: moment({year: 1990, month: 9, day: 13, hour: 8}).toDate()
+    }, {
+      input: 'the day before yesterday',
+      length: 0
+    }, {
+      input: 'the afternoon of the day before yesterday',
+      length: 0
+    }, {
+      input: 'this Monday morning',
+      length: 0,
+    }, {
+      input: 'Monday morning',
+      output: moment({year: 1990, month: 9, day: 15, hour: 8}).toDate()
+    }, {
+      input: 'Friday morning',
+      output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+    }, {
+      input: 'this Friday morning',
+      output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+    }, {
+      input: 'tomorrow afternoon at 3pm',
+      output: moment({year: 1990, month: 9, day: 12, hour: 15}).toDate()
+    }, {
+      input: 'tomorrow morning at 3pm',
+      length: 0
+    }, {
+      input: 'next Monday morning',
+      output: moment({year: 1990, month: 9, day: 15, hour: 8}).toDate()
+    }, {
+      input: 'the afternoon of 2/3/1983',
+      length: 0
+    }, {
+      input: 'the afternoon of 2/3/03',
+      suggestion: 'the afternoon of 2/3/2003',
+      output: moment({year: 2003, month: 1, day: 3, hour: 12}).toDate()
+    }, {
+      input: 'the afternoon of 2/3/40',
+      suggestion: 'the afternoon of 2/3/2040',
+      output: moment({year: 2040, month: 1, day: 3, hour: 12}).toDate()
+    }, {
+      input: 'the afternoon of 2/3/2050',
+      output: moment({year: 2050, month: 1, day: 3, hour: 12}).toDate()
     }]
 
     _.forEach(testCases, test)

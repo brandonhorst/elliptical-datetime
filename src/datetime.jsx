@@ -7,7 +7,7 @@ import { coerceAmbiguousTime, join } from './helpers'
 import { DateWithTimeOfDay, Date } from './date'
 
 export class DateTime extends Phrase {
-  getValue(result) {
+  getValue (result) {
     if (!result) return
 
     if (result.date) {
@@ -28,21 +28,34 @@ export class DateTime extends Phrase {
     }
   }
 
-  filter(result) {
+  validate (result) {
+    if (!result) return true
+
+    if (!this.props.past && moment().isAfter(result)) {
+      return false
+    }
+    if (!this.props.future && moment().isBefore(result)) {
+      return false
+    }
+
+    return true
+  }
+
+  filter (result) {
     if (result && result.time && result.impliedTime) {
       return _.inRange(result.time.hour, ...result.impliedTime.range)
     }
     return true
   }
 
-  describe() {
+  describe () {
     return (
       <filter function={this.filter.bind(this)}>
         <placeholder text='date and time' showForEmpty>
           <choice>
-            {this.props.impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
+            {this.props._impliedDate ? <Time id='time' prepositions={this.props.prepositions} /> : null}
 
-            {this.props.impliedTime ?
+            {this.props._impliedTime ?
               <choice limit={1}>
                 <Date id='date' prepositions={this.props.prepositions} />
                 <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
@@ -89,6 +102,8 @@ DateTime.defaultProps = {
   defaultTime: {hour: 8},
   seconds: true,
   prepositions: false,
-  impliedTime: true,
-  impliedDate: true
+  _impliedTime: true,
+  _impliedDate: true,
+  past: true,
+  future: true
 }
