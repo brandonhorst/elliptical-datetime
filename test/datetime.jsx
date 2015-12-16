@@ -227,6 +227,100 @@ describe('DateTime', () => {
     _.forEach(testCases, test)
   })
 
+
+    describe ('future={false}', () => {
+      beforeEach(() => {
+        parser.grammar = <DateTime future={false} />
+      })
+
+      const testCases = [{
+        input: '2:00pm 2/3/2003',
+        length: 0
+      }, {
+        input: '2:00pm 2/3/1987',
+        output: moment({year: 1987, month: 1, day: 3, hour: 14}).toDate()
+      }, {
+        input: '2/3/2003 at 2pm',
+        length: 0
+      }, {
+        input: '2/3/1987 at 2:00pm',
+        output: moment({year: 1987, month: 1, day: 3, hour: 14}).toDate()
+      }, {
+        input: 'last Tuesday at 8am',
+        output: moment({year: 1990, month: 9, day: 2, hour: 8}).toDate()
+      }, {
+        input: '8am last Tuesday',
+        output: moment({year: 1990, month: 9, day: 2, hour: 8}).toDate()
+      }, {
+        input: '8am on last Tuesday',
+        output: moment({year: 1990, month: 9, day: 2, hour: 8}).toDate()
+      }, {
+        input: '8am next Tuesday',
+        length: 0
+      }, {
+        input: 'this morning',
+        output: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate()
+      }, {
+        input: 'this afternoon',
+        output: moment({year: 1990, month: 9, day: 11, hour: 12}).toDate()
+      }, {
+        input: 'this evening',
+        length: 0
+      }, {
+        input: 'tomorrow',
+        length: 0
+      }, {
+        input: 'yesterday night',
+        output: moment({year: 1990, month: 9, day: 10, hour: 20}).toDate()
+      }, {
+        input: 'the day after tomorrow',
+        length: 0
+      }, {
+        input: 'the day before yesterday',
+        output: moment({year: 1990, month: 9, day: 9, hour: 8}).toDate()
+      }, {
+        input: 'the afternoon of the day before yesterday',
+        output: moment({year: 1990, month: 9, day: 9, hour: 12}).toDate()
+      }, {
+        input: 'this Monday morning',
+        output: moment({year: 1990, month: 9, day: 8, hour: 8}).toDate()
+      }, {
+        input: 'Monday morning',
+        output: moment({year: 1990, month: 9, day: 8, hour: 8}).toDate()
+      }, {
+        input: 'Friday morning',
+        output: moment({year: 1990, month: 9, day: 5, hour: 8}).toDate()
+      }, {
+        input: 'this Friday morning',
+        length: 0
+      }, {
+        input: 'yesterday afternoon at 3pm',
+        output: moment({year: 1990, month: 9, day: 10, hour: 15}).toDate()
+      }, {
+        input: 'yesterday morning at 3pm',
+        length: 0
+      }, {
+        input: 'next Monday morning',
+        length: 0
+      }, {
+        input: 'the afternoon of 2/3/1983',
+        output: moment({year: 1983, month: 1, day: 3, hour: 12}).toDate()
+      }, {
+        input: 'the afternoon of 2/3/03',
+        suggestion: 'the afternoon of 2/3/1903',
+        output: moment({year: 1903, month: 1, day: 3, hour: 12}).toDate()
+      }, {
+        input: 'the afternoon of 2/3/40',
+        suggestion: 'the afternoon of 2/3/1940',
+        output: moment({year: 1940, month: 1, day: 3, hour: 12}).toDate()
+      }, {
+        input: 'the afternoon of 2/3/2050',
+        length: 0
+      }]
+
+      _.forEach(testCases, test)
+    })
+
   describe('extended', () => {
     class SpecialDay extends Phrase {
       describe () {
