@@ -4,7 +4,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { AmbiguousTime, Time } from './time'
 import moment from 'moment'
 import { coerceAmbiguousTime, join } from './helpers'
-import { DateWithTimeOfDay, DatePhrase } from './date'
+import { DateWithTimeOfDay, Date } from './date'
 
 export class DateTime extends Phrase {
   getValue(result) {
@@ -24,7 +24,7 @@ export class DateTime extends Phrase {
         return join(result.date, this.props.defaultTime)
       }
     } else if (result.time) {
-      return join(new Date(), result.time)
+      return join(moment().toDate(), result.time)
     }
   }
 
@@ -44,7 +44,7 @@ export class DateTime extends Phrase {
 
             {this.props.impliedTime ?
               <choice limit={1}>
-                <DatePhrase id='date' prepositions={this.props.prepositions} />
+                <Date id='date' prepositions={this.props.prepositions} />
                 <DateWithTimeOfDay merge prepositions={this.props.prepositions} />
               </choice>
             : null}
@@ -52,11 +52,11 @@ export class DateTime extends Phrase {
             <sequence>
               <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
               <literal text=' ' />
-              <DatePhrase id='date' recurse={false} prepositions />
+              <Date id='date' recurse={false} prepositions />
             </sequence>
 
             <sequence>
-              <DatePhrase id='date' recurse={false} prepositions={this.props.prepositions} />
+              <Date id='date' recurse={false} prepositions={this.props.prepositions} />
               <literal text=' ' />
               <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
             </sequence>

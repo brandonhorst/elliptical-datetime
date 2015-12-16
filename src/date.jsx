@@ -39,63 +39,7 @@ Day.defaultProps = {
   recurse: true
 }
 
-export class DateWithTimeOfDay extends Phrase {
-  describe () {
-    return (
-      <choice>
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <placeholder text='date' merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
-              <choice id='date'>
-                <DatePhrase nullify />
-                <RelativeWeekday />
-                <RelativeAdjacent />
-                <RelativeNumbered />
-                <AbsoluteDay />
-                <DayWithYear />
-                {this.props.recurse ? <RecursiveDate /> : null}
-              </choice>
-            </sequence>
-          </placeholder>
-        </sequence>
-
-        <placeholder text='date' showForEmpty merge>
-          <sequence>
-            <choice id='date'>
-              <DatePhrase nullify prepositions={this.props.prepositions} />
-              <TimeOfDayModifier />
-              <RelativeWeekday />
-            </choice>
-            <literal text=' ' />
-            <TimeOfDay id='impliedTime' prepositions />
-          </sequence>
-        </placeholder>
-
-        <placeholder text='date' showForEmpty merge>
-          <sequence>
-            <RelativeNumbered id='date' prepositions={this.props.prepositions} />
-            <literal text=' in the ' />
-            <choice>
-              <TimeOfDay id='impliedTime' />
-              {this.props.recurse ? <RecursiveDate /> : null}
-            </choice>
-          </sequence>
-        </placeholder>
-      </choice>
-    )
-  }
-}
-
-DateWithTimeOfDay.defaultProps = {
-  recurse: true,
-  prepositions: false
-}
-
-export class DatePhrase extends Phrase {
+export class Date extends Phrase {
   describe() {
     if (this.props.nullify) return
 
@@ -125,10 +69,66 @@ export class DatePhrase extends Phrase {
   }
 }
 
-DatePhrase.defaultProps = {
+Date.defaultProps = {
   recurse: true,
   prepositions: false,
   nullify: false
+}
+
+export class DateWithTimeOfDay extends Phrase {
+  describe () {
+    return (
+      <choice>
+        <sequence>
+          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
+          <placeholder text='date' merge>
+            <sequence>
+              <literal text='the ' />
+              <TimeOfDay id='impliedTime' />
+              <literal text=' of ' />
+              <choice id='date'>
+                <Date nullify />
+                <RelativeWeekday />
+                <RelativeAdjacent />
+                <RelativeNumbered />
+                <AbsoluteDay />
+                <DayWithYear />
+                {this.props.recurse ? <RecursiveDate /> : null}
+              </choice>
+            </sequence>
+          </placeholder>
+        </sequence>
+
+        <placeholder text='date' showForEmpty merge>
+          <sequence>
+            <choice id='date'>
+              <Date nullify prepositions={this.props.prepositions} />
+              <TimeOfDayModifier />
+              <RelativeWeekday />
+            </choice>
+            <literal text=' ' />
+            <TimeOfDay id='impliedTime' prepositions />
+          </sequence>
+        </placeholder>
+
+        <placeholder text='date' showForEmpty merge>
+          <sequence>
+            <RelativeNumbered id='date' prepositions={this.props.prepositions} />
+            <literal text=' in the ' />
+            <choice>
+              <TimeOfDay id='impliedTime' />
+              {this.props.recurse ? <RecursiveDate /> : null}
+            </choice>
+          </sequence>
+        </placeholder>
+      </choice>
+    )
+  }
+}
+
+DateWithTimeOfDay.defaultProps = {
+  recurse: true,
+  prepositions: false
 }
 
 class DayWithYear extends Phrase {
@@ -233,7 +233,7 @@ class RecursiveDate extends Phrase {
             ]} limit={2} />
           </sequence>
         </argument>
-        <DatePhrase id='date' recurse={false} prepositions={false} />
+        <Date id='date' recurse={false} prepositions={false} />
       </sequence>
     )
   }

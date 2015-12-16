@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { createElement, Phrase } from 'lacona-phrase'
 
-import { DatePhrase } from './date'
+import { Date } from './date'
 import { DateTime } from './datetime'
 import { Duration, TimeDuration, DateDuration } from './duration'
 import { Time } from './time'
@@ -132,7 +132,7 @@ export class Range extends Phrase {
     return (
       <placeholder text='period of time'>
         <choice>
-          <DatePhrase id='startDate' />
+          <Date id='startDate' />
 
           <DateTime id='start' impliedTime={false} defaultTime={this.props.defaultTime} />
 
@@ -140,10 +140,10 @@ export class Range extends Phrase {
             <sequence> {/* today to tomorrow */}
               {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
               <literal text='all day ' optional={true} limited={true} preferred={false} />
-              <DatePhrase id='startDate' />
+              <Date id='startDate' />
               <list items={[' to ', ' - ', '-']} limit={1} />
               <literal text='all day ' optional={true} limited={true} preferred={false} />
-              <DatePhrase id='endDate' />
+              <Date id='endDate' />
             </sequence>
 
             <sequence> {/* today at 3pm to tomorrow */}
@@ -155,7 +155,7 @@ export class Range extends Phrase {
           </choice>
 
           <sequence>
-            <DatePhrase id='date' prepositions={this.props.prepositions} />
+            <Date id='date' prepositions={this.props.prepositions} />
             <literal text=' ' />
             <TimeRange id='timeRange' duration={false} prepositions />
           </sequence>
@@ -163,7 +163,7 @@ export class Range extends Phrase {
           <sequence>
             <TimeRange id='timeRange' prepositions={this.props.prepositions} />
             <literal text=' ' />
-            <DatePhrase id='date' prepositions />
+            <Date id='date' prepositions />
           </sequence>
 
           <sequence>
