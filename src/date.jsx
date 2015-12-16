@@ -81,7 +81,7 @@ export class DateWithTimeOfDay extends Phrase {
       <choice>
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <placeholder text='date' merge>
+          <placeholder text='date' merge showForEmpty>
             <sequence>
               <literal text='the ' />
               <TimeOfDay id='impliedTime' />
@@ -99,26 +99,32 @@ export class DateWithTimeOfDay extends Phrase {
           </placeholder>
         </sequence>
 
-        <placeholder text='date' showForEmpty merge>
+        <placeholder text='date' showForEmpty>
           <sequence>
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
               <TimeOfDayModifier />
-              <RelativeWeekday />
+              <RelativeWeekday prepositions={this.props.prepositions} />
             </choice>
             <literal text=' ' />
-            <TimeOfDay id='impliedTime' prepositions />
+            <TimeOfDay id='impliedTime' />
           </sequence>
         </placeholder>
 
-        <placeholder text='date' showForEmpty merge>
+        <placeholder text='date' showForEmpty>
+          <DayWithYearAndTimeOfDay />
+        </placeholder>
+
+        <placeholder text='date' showForEmpty>
           <sequence>
-            <RelativeNumbered id='date' prepositions={this.props.prepositions} />
-            <literal text=' in the ' />
-            <choice>
-              <TimeOfDay id='impliedTime' />
-              {this.props.recurse ? <RecursiveDate /> : null}
+            <choice id='date'>
+              <Date nullify prepositions={this.props.prepositions} />
+              <DayWithYear prepositions={this.props.prepositions} />
+              <RelativeNumbered prepositions={this.props.prepositions} />
+              {this.props.recurse ? <RecursiveDate prepositions={this.props.prepositions} /> : null}
             </choice>
+            <literal text=' in the ' />
+            <TimeOfDay id='impliedTime' />
           </sequence>
         </placeholder>
       </choice>
@@ -133,6 +139,7 @@ DateWithTimeOfDay.defaultProps = {
 
 class DayWithYear extends Phrase {
   getValue (result) {
+    if (!result) return
     return absoluteDate(result)
   }
 
@@ -141,12 +148,37 @@ class DayWithYear extends Phrase {
       <sequence>
         <Day prepositions={this.props.prepositions} merge recurse={false} />
         <sequence optional merge>
-          <list items={[', ', ' in ']} category='conjunction' />
+          <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
           <Year id='year' />
         </sequence>
       </sequence>
     )
   }
+}
+
+class DayWithYearAndTimeOfDay extends Phrase {
+  getValue (result) {
+    const absolute = _.assign({year: result.year}, result.day)
+    return {date: absoluteDate(absolute), impliedTime: result.impliedTime}
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <Day id='day' prepositions={this.props.prepositions} />
+        <literal text=' ' />
+        <TimeOfDay id='impliedTime' />
+        <sequence optional merge>
+          <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
+          <Year id='year' />
+        </sequence>
+      </sequence>
+    )
+  }
+}
+
+DayWithYearAndTimeOfDay.defaultProps = {
+  prepositions: false
 }
 
 class ExtraDateDuration extends Phrase {
