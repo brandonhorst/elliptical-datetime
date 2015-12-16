@@ -40,6 +40,19 @@ Day.defaultProps = {
 }
 
 export class Date extends Phrase {
+  validate (result) {
+    if (!result) return true
+
+    if (!this.props.past && moment({}).isAfter(result)) {
+      return false
+    }
+    if (!this.props.future && moment({}).isBefore(result)) {
+      return false
+    }
+
+    return true
+  }
+
   describe() {
     if (this.props.nullify) return
 
@@ -72,7 +85,9 @@ export class Date extends Phrase {
 Date.defaultProps = {
   recurse: true,
   prepositions: false,
-  nullify: false
+  nullify: false,
+  past: true,
+  future: true
 }
 
 export class DateWithTimeOfDay extends Phrase {
@@ -140,17 +155,29 @@ DateWithTimeOfDay.defaultProps = {
 class DayWithYear extends Phrase {
   getValue (result) {
     if (!result) return
-    return absoluteDate(result)
+
+    if (result.duration) {
+      return relativeDate(result.duration, result.day)
+    } else {
+      return absoluteDate(_.assign({year: result.year}, result.day))
+    }
   }
 
   describe () {
     return (
       <sequence>
-        <Day prepositions={this.props.prepositions} merge recurse={false} />
-        <sequence optional merge>
-          <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
-          <Year id='year' />
-        </sequence>
+        <Day prepositions={this.props.prepositions} id='day' recurse={false} />
+        <choice merge>
+          <choice id='duration' limit={1}>
+            <literal text='' value={{}} />
+            <literal text='' value={{years: 1}} />
+            <literal text='' value={{years: -1}} />
+          </choice>
+          <sequence>
+            <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
+            <Year id='year' />
+          </sequence>
+        </choice>
       </sequence>
     )
   }
@@ -358,7 +385,7 @@ class RelativeAdjacent extends Phrase {
 
 class RelativeWeekday extends Phrase {
   getValue(result) {
-    const day = ((result.distance || 0) * 7) + result.weekday
+    const day = ((result.distance) * 7) + result.weekday
 
     return moment().day(day).toDate()
   }
@@ -368,7 +395,11 @@ class RelativeWeekday extends Phrase {
     <choice>
         <sequence>
           <choice id='distance'>
-            <literal text='' value={null} />
+            <choice limit={1}> {/* automatically handle past/present/future */}
+              <literal text='' value={0} />
+              <literal text='' value={1} />
+              <literal text='' value={-1} />
+            </choice>
             <literal text='last ' value={-1} />
             <literal text='this ' value={0} />
             <list items={['next ', 'this upcoming ']} limit={1} value={1} />
@@ -472,13 +503,28 @@ class Year extends Phrase {
       <argument displayWhen={this.displayWhen} text='year'>
         <choice limit={1}>
           <sequence>
+            <literal text={'\''} />
+            <choice merge limit={1}>
+              <DigitString minLength={2} maxLength={2} min={0} max={29} id='year20' />
+              <DigitString minLength={2} maxLength={2} min={30} max={99} id='year19' />
+            </choice>
+          </sequence>
+
+          <sequence>
             <decorator text='20' />
             <DigitString minLength={2} maxLength={2} min={0} max={29} id='year20' />
           </sequence>
+
           <sequence>
             <decorator text='19' />
-            <DigitString minLength={2} maxLength={2} min={30} max={99} id='year19' />
+            <DigitString minLength={2} maxLength={2} min={0} max={99} id='year19' />
           </sequence>
+
+          <sequence>
+            <decorator text='20' />
+            <DigitString minLength={2} maxLength={2} min={0} max={99} id='year20' />
+          </sequence>
+
           <DigitString minLength={4} maxLength={4} id='year' />
         </choice>
       </argument>
