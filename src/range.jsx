@@ -8,18 +8,16 @@ import { DatePhrase } from './date'
 import { DateTime } from './datetime'
 import { Duration, TimeDuration, DateDuration } from './duration'
 import { Time } from './time'
-
-function join (date, time) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), 0)
-}
+import { join, timeIsBefore } from './helpers'
 
 export class TimeRange extends Phrase {
   getValue (result) {
     if (!result) return
 
     if (result.start && result.duration) {
-      const end = moment(result.start).add(moment.duration(result.duration)).toDate()
-      return {start: result.start, end: end}
+      const endDate = moment.utc(result.start).add(moment.duration(result.duration))
+      const end = {hour: endDate.hour(), minute: endDate.minute()}
+      return {start: result.start, end}
     }
 
     if (result.start && result.end) {
@@ -67,21 +65,21 @@ export class Range extends Phrase {
       } else if (result.duration) {
         return {
           start: result.start,
-          end: moment(result.start).add(result.duration).toDate(),
+          end: moment(result.start).add(moment.duration(result.duration)).toDate(),
           allDay: false
         }
       } else {
         return {
           start: result.start,
-          end: moment(result.start).add(1, 'hours').toDate(),
+          end: moment(result.start).add(moment.duration(this.props.defaultDuration)).toDate(),
           allDay: false
         }
       }
     } else if (result.date && result.timeRange) {
-      if (moment(result.timeRange.end).isBefore(result.timeRange.start)) {
+      if (timeIsBefore(result.timeRange.end, result.timeRange.start)) {
         return {
           start: join(result.date, result.timeRange.start),
-          end: join(moment(result.date).add(1, 'days').toDate(), result.timeRange.end),
+          end: join(moment(result.date).add(1, 'day').toDate(), result.timeRange.end),
           allDay: false
         }
       } else {
@@ -125,7 +123,7 @@ export class Range extends Phrase {
         <choice>
           <DatePhrase id='startDate' />
 
-          <DateTime id='start' impliedTime={false} />
+          <DateTime id='start' impliedTime={false} defaultTime={this.props.defaultTime} />
 
           <choice limit={1}>
             <sequence> {/* today to tomorrow */}
@@ -139,9 +137,9 @@ export class Range extends Phrase {
 
             <sequence> {/* today at 3pm to tomorrow */}
               {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
-              <DateTime id='start' impliedDate={false} />
+              <DateTime id='start' impliedDate={false} defaultTime={this.props.defaultTime} />
               <list items={[' to ', ' - ', '-']} limit={1} />
-              <DateTime id='end' impliedDate={false} />
+              <DateTime id='end' impliedDate={false} defaultTime={this.props.defaultTime} />
             </sequence>
           </choice>
 
@@ -161,11 +159,11 @@ export class Range extends Phrase {
             {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
             <Duration id='duration' seconds={this.props.seconds} />
             <literal text=' ' />
-            <DateTime id='start' prepositions />
+            <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
           </sequence>
 
           <sequence>
-            <DateTime id='start' prepositions={this.props.prepositions} />
+            <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
             <literal text=' for ' />
             <Duration id='duration' seconds={this.props.seconds} />
           </sequence>
@@ -177,5 +175,7 @@ export class Range extends Phrase {
 
 Range.defaultProps = {
   prepositions: false,
-  seconds: true
+  seconds: true,
+  defaultTime: {hour: 8},
+  defaultDuration: {hours: 1}
 }

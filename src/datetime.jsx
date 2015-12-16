@@ -2,41 +2,43 @@
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
 import { AmbiguousTime, Time } from './time'
+import moment from 'moment'
+import { join } from './helpers'
 import { DateWithTimeOfDay, DatePhrase } from './date'
 
 export class DateTime extends Phrase {
   getValue(result) {
     if (!result) return
 
-    if (_.isDate(result.date)) {
+    if (result.date) {
       if (result.time) {
-        return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
-      }
-
-      if (result.impliedTime) {
+        return join(result.date, result.time)
+      } else if (result.impliedTime) {
         if (result.ambiguousTime) {
           if (_.inRange(result.ambiguousTime.hour, ...result.impliedTime.range)) {
-            return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.ambiguousTime.hour, result.ambiguousTime.minutes || 0, result.ambiguousTime.seconds || 0, 0)
+            return join(result.date, result.ambiguousTime)
           } else {
-            const newHour = result.ambiguousTime.hour < 12 ? result.ambiguousTime.hour + 12 : result.ambiguousTime.hour - 12
-            return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), newHour, result.ambiguousTime.minutes || 0, result.ambiguousTime.seconds || 0, 0)
+            const time = {
+              hour: result.ambiguousTime.hour < 12 ? result.ambiguousTime.hour + 12 : result.ambiguousTime.hour - 12,
+              minute: result.ambiguousTime.minute,
+              seconds: result.ambiguousTime.second
+            }
+            return join(result.date, time)
           }
         } else {
-          return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), result.impliedTime.default, 0, 0, 0)
+          return join(result.date, {hour: result.impliedTime.default})
         }
+      } else {
+        return join(result.date, this.props.defaultTime)
       }
-
-      return new Date(result.date.getFullYear(), result.date.getMonth(), result.date.getDate(), 8, 0, 0, 0)
     } else if (result.time) {
-      const date = new Date()
-      date.setHours(result.time.getHours(), result.time.getMinutes(), result.time.getSeconds(), 0)
-      return date
+      return join(new Date(), result.time)
     }
   }
 
   filter(result) {
     if (result && result.time && result.impliedTime) {
-      return _.inRange(result.time.getHours(), ...result.impliedTime.range)
+      return _.inRange(result.time.hour, ...result.impliedTime.range)
     }
     return true
   }
@@ -92,6 +94,7 @@ export class DateTime extends Phrase {
 }
 
 DateTime.defaultProps = {
+  defaultTime: {hour: 8},
   seconds: true,
   prepositions: false,
   impliedTime: true,

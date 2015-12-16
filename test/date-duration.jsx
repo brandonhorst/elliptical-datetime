@@ -8,7 +8,7 @@ import { text } from './_util'
 import { DateDuration } from '..'
 import { Parser } from 'lacona'
 
-describe('date-duration', () => {
+describe('DateDuration', () => {
   let parser
 
   beforeEach(() => {

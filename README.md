@@ -14,7 +14,7 @@ Complex phrases themselves allow for implied components. That is to say, "Januar
 </choice>
 ```
 
-The `DateTime` itself allows `Date`s and `Time`s to be entered alone, so such a setup just causes problems. Instead, use props like `impliedTime` to modify the default settings.
+The `DateTime` itself allows `Date`s and `Time`s to be entered alone, so such a setup just causes problems. Instead, use props like `defaultTime` to modify the default settings.
 
 ## Example
 
@@ -113,7 +113,7 @@ A phrase that represents a specific point in time.
 Note that the user does not necessarily need to specify the full date and time. If the user enters a:
 
 - `Time`: If `future` and `past` are true, this implies `<Time> today`. If `future` is `false`, it represents the most recent `<Time>` (either today or yesterday depending on the current time). If `past` is false, it represents the closest upcoming `<Time>` (either today or tomorrow depending on the current time).
-- `Date`: The start time is implied as `<impliedTime> <Date>` (`impliedTime` defaults to 8:00).
+- `Date`: The start time is implied as `<defaultTime> <Date>` (`defaultTime` defaults to 8:00).
 
 #### Result
 
@@ -121,7 +121,7 @@ Note that the user does not necessarily need to specify the full date and time. 
 
 #### Props
 
-- `impliedTime`: `Date` - defaults to `new Date(8:00)`. The time of day to use for `start` if only the day is specified. The year/month/day components of the `Date` object are ignored.
+- `defaultTime`: `Date` - defaults to `{hour: 8}`. The time of day to use for `start` if only the day is specified.
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'on January 2nd at 3pm' vs 'January 2nd at 3pm'
     * 'at 3pm tomorrow' vs '3pm tomorrow'
@@ -175,7 +175,7 @@ Represents an absolute period of time, with a beginning DateTime and an ending D
 Note that the user does not necessarily need to fully specify the start and end. `Range` makes some suggestions for simplicity. For example, if the user enters a:
 
 - `Time`: If `future` and `past` are true, this implies `<Time> today`. If `future` is `false`, it represents the most recent `<Time>` (either today or yesterday depending on the current time). If `past` is false, it represents the closest upcoming `<Time>` (either today or tomorrow depending on the current time). The end time is `impliedDuration` after the start time (`impliedDuration` defaults to 1 hour).
-- `Date`: The start time is implied as `<impliedTime> <Date>` (`impliedTime` defaults to 8:00).
+- `Date`: The start time is implied as `<defaultTime> <Date>` (`defaultTime` defaults to 8:00).
 - `DateTime`: The end time is `impliedDuration` after `<DateTime>` (`impliedDuration` defaults to 1 hour).
 
 #### Result
@@ -194,7 +194,7 @@ An object of the form
 #### Props
 
 - `impliedDuration`: `Duration` - defaults to `{hours: 1}`. The amount of time between `start` and `end` if the user does not indicate it directly.
-- `impliedTime`: `Date` - defaults to `new Date(8:00)`. The time of day to use for `start` if only the day is specified. The year/month/day components of the `Date` object are ignored.
+- `defaultTime`: `Date` - defaults to `{hour: 8}`. The time of day to use for `start` if only the day is specified.
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'from 3pm to 4pm' vs '3pm to 4pm'
     * 'on January 2nd for 3 hours' vs 'January 2nd for 3 hours'

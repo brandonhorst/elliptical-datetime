@@ -6,48 +6,108 @@ import { text } from './_util'
 import { createElement, Phrase } from 'lacona-phrase'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
+import lolex from 'lolex'
 import { DateTime } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
-describe('datetime', () => {
-  let parser
+describe('DateTime', () => {
+  let parser, clock
 
   beforeEach(() => {
     parser = new Parser()
     parser.grammar = <DateTime />
   })
 
-  const testCases = [
-    {input: '2:00pm 2/3/2003', output: moment({years: 2003, months: 1, days: 3, hours: 14}).toDate()},
-    {input: '2/3/2003 at 2pm', output: moment({years: 2003, months: 1, days: 3, hours: 14}).toDate()},
-    {input: 'next Tuesday at 8am', output: moment({hours: 8}).day(9).toDate()},
-    {input: '8am next Tuesday', output: moment({hours: 8}).day(9).toDate()},
-    {input: '8am on next Tuesday', output: moment({hours: 8}).day(9).toDate()},
-    {input: 'this morning', output: moment({hours: 8}).toDate()},
-    {input: 'this afternoon', output: moment({hours: 12}).toDate()},
-    {input: 'tomorrow', output: moment({hours: 8}).add({days: 1}).toDate()},
-    {input: 'tomorrow morning', output: moment({hours: 8}).add({days: 1}).toDate()},
-    {input: 'tomorrow afternoon', output: moment({hours: 12}).add({days: 1}).toDate()},
-    {input: 'tomorrow evening', output: moment({hours: 17}).add({days: 1}).toDate()},
-    {input: 'tomorrow night', output: moment({hours: 20}).add({days: 1}).toDate()},
-    {input: 'tomorrow at 3pm', output: moment({hours: 15}).add({days: 1}).toDate()},
-    {input: 'tomorrow morning at 9', output: moment({hours: 9}).add({days: 1}).toDate()},
-    {input: 'tomorrow afternoon at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
-    {input: 'tomorrow at 9 in the afternoon', output: moment({hours: 21}).add({days: 1}).toDate()},
-    {input: 'tomorrow evening at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
-    {input: 'tomorrow night at 9', output: moment({hours: 21}).add({days: 1}).toDate()},
-    {input: 'tomorrow morning at noon', length: 0},
-    {input: 'tomorrow afternoon at midnight', length: 0},
-    {input: 'the day after tomorrow', output: moment({hours: 8}).add({days: 2}).toDate()},
-    {input: 'the afternoon of the day after tomorrow', output: moment({hours: 12}).add({days: 2}).toDate()},
-    {input: 'tomorrow afternoon at 3pm', output: moment({hours: 15}).add({days: 1}).toDate()},
-    {input: 'tomorrow morning at 3pm', length: 0},
-    {input: 'next Monday morning', output: moment({hours: 8}).day(8).toDate()},
-    {input: 'the afternoon of 2/3/2003', output: moment({years: 2003, months: 1, days: 3, hours: 12}).toDate()}
-  ]
+  before(() => {
+    clock = lolex.install(global, new Date(1990, 9, 11, 12, 0, 0, 0))
+  })
+
+  after(() => {
+    clock.uninstall()
+  })
+
+  const testCases = [{
+    input: '2:00pm 2/3/2003',
+    output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
+  }, {
+    input: '2/3/2003 at 2pm',
+    output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
+  }, {
+    input: 'next Tuesday at 8am',
+    output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+  }, {
+    input: '8am next Tuesday',
+    output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+  }, {
+    input: '8am on next Tuesday',
+    output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+  }, {
+    input: 'this morning',
+    output: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate()
+  }, {
+    input: 'this afternoon',
+    output: moment({year: 1990, month: 9, day: 11, hour: 12}).toDate()
+  }, {
+    input: 'tomorrow',
+    output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+  }, {
+    input: 'tomorrow morning',
+    output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+  }, {
+    input: 'tomorrow afternoon',
+    output: moment({year: 1990, month: 9, day: 12, hour: 12}).toDate()
+  }, {
+    input: 'tomorrow evening',
+    output: moment({year: 1990, month: 9, day: 12, hour: 17}).toDate()
+  }, {
+    input: 'tomorrow night',
+    output: moment({year: 1990, month: 9, day: 12, hour: 20}).toDate()
+  }, {
+    input: 'tomorrow at 3pm',
+    output: moment({year: 1990, month: 9, day: 12, hour: 15}).toDate()
+  }, {
+    input: 'tomorrow morning at 9',
+    output: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate()
+  }, {
+    input: 'tomorrow afternoon at 9',
+    output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+  }, {
+    input: 'tomorrow at 9 in the afternoon',
+    output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+  }, {
+    input: 'tomorrow evening at 9',
+    output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+  }, {
+    input: 'tomorrow night at 9',
+    output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+  }, {
+    input: 'tomorrow morning at noon',
+    length: 0
+  }, {
+    input: 'tomorrow afternoon at midnight',
+    length: 0
+  }, {
+    input: 'the day after tomorrow',
+    output: moment({year: 1990, month: 9, day: 13, hour: 8}).toDate()
+  }, {
+    input: 'the afternoon of the day after tomorrow',
+    output: moment({year: 1990, month: 9, day: 13, hour: 12}).toDate()
+  }, {
+    input: 'tomorrow afternoon at 3pm',
+    output: moment({year: 1990, month: 9, day: 12, hour: 15}).toDate()
+  }, {
+    input: 'tomorrow morning at 3pm',
+    length: 0
+  }, {
+    input: 'next Monday morning',
+    output: moment({year: 1990, month: 9, day: 15, hour: 8}).toDate()
+  }, {
+    input: 'the afternoon of 2/3/2003',
+    output: moment({year: 2003, month: 1, day: 3, hour: 12}).toDate()
+  }]
 
   _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {

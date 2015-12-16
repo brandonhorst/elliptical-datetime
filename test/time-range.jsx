@@ -12,7 +12,7 @@ import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
-describe('time-range', () => {
+describe('TimeRange', () => {
   let parser
 
   beforeEach(() => {
@@ -26,11 +26,11 @@ describe('time-range', () => {
     })
 
     const testCases = [
-      {input: '3pm to 6pm', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
-      {input: '3pm for 3 hours', output: {start: moment({hour: 15}).toDate(), end: moment({hour: 18}).toDate()}},
-      {input: '10pm for 3 hours', output: {start: moment({hour: 22}).toDate(), end: moment({hour: 1}).add(1, 'day').toDate()}},
-      {input: '10pm to 1am', output: {start: moment({hour: 22}).toDate(), end: moment({hour: 1}).toDate()}},
-      {input: '8:30am for 3 hours and 34 minutes', output: {start: moment({hour: 8, minutes: 30}).toDate(), end: moment({hour: 12, minutes: 4}).toDate()}}
+      {input: '3pm to 6pm', output: {start: {hour: 15, minute: 0}, end: {hour: 18, minute: 0}}},
+      {input: '3pm for 3 hours', output: {start: {hour: 15, minute: 0}, end: {hour: 18, minute: 0}}},
+      {input: '10pm for 3 hours', output: {start: {hour: 22, minute: 0}, end: {hour: 1, minute: 0}}},
+      {input: '10pm to 1am', output: {start: {hour: 22, minute: 0}, end: {hour: 1, minute: 0}}},
+      {input: '8:30am for 3 hours and 34 minutes', output: {start: {hour: 8, minute: 30}, end: {hour: 12, minute: 4}}}
     ]
 
     _.forEach(testCases, ({input, output, length = 1 }) => {
@@ -39,8 +39,8 @@ describe('time-range', () => {
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)
-          expect(data[0].result.start).to.equalTime(output.start)
-          expect(data[0].result.end).to.equalTime(output.end)
+          expect(data[0].result.start).to.eql(output.start)
+          expect(data[0].result.end).to.eql(output.end)
         }
       })
     })

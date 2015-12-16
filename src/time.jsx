@@ -72,6 +72,7 @@ export class Time extends Phrase {
             {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
             <Absolute id='absolute' />
           </sequence>
+          {this.props.named ? <RelativeNamed id='relative' /> : null}
           {this.props.relative ? <RelativeTime id='relative' /> : null}
           {this.props.recurse ? <RecursiveTime id='recursive' /> : null}
         </choice>
@@ -81,6 +82,7 @@ export class Time extends Phrase {
 }
 
 Time.defaultProps = {
+  named: true,
   recurse: true,
   relative: true,
   prepositions: false,
@@ -91,7 +93,7 @@ class RelativeTime extends Phrase {
   getValue(result) {
     if (!result) return
 
-    if (result.direction < 0) {
+    if (result.direction === -1) {
       return _.mapValues(result.duration, num => -num)
     } else {
       return result.duration
@@ -100,7 +102,7 @@ class RelativeTime extends Phrase {
 
   describe() {
     return (
-    <choice>
+      <choice>
         <sequence>
           <literal text='in ' id='direction' value={1} />
           <TimeDuration id='duration' seconds={this.props.seconds} />
@@ -163,6 +165,15 @@ class AbsoluteRelativeHour extends Phrase {
         </placeholder>
       </sequence>
     )
+  }
+}
+
+class RelativeNamed extends Phrase {
+  describe() {
+    return <list items={[
+      {text: 'now', value: {}},
+      {text: 'right now', value: {}}
+    ]} limit={1} />
   }
 }
 

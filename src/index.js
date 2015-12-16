@@ -1,5 +1,5 @@
 export { DateTime } from './datetime'
-export { DatePhrase as Date } from './date'
+export { Day, DatePhrase as Date } from './date'
 export { Time } from './time'
 
 export { Duration, DateDuration, TimeDuration } from './duration'
