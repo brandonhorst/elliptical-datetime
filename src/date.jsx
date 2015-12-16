@@ -7,35 +7,26 @@ import { TimeOfDay } from './time'
 import moment from 'moment'
 import Month from './month'
 import Weekday from './weekday'
+import { absoluteDate, negateDuration, relativeDate, relativeDay, validateDay } from './helpers'
 
 export class Day extends Phrase {
-  getValue (result) {
-    if (!result) return
-
-    if (result.absolute) {
-      return result.absolute
-    } else if (result.recursive) {
-      return dayFromRelative(result.recursive.duration, result.recursive.day)
-    }
-  }
-
   describe () {
     if (this.props.nullify) return
 
     return (
       <choice>
         {this.props.recurse ? (
-          <argument text='day' showForEmpty id='recursive'>
+          <argument text='day' showForEmpty>
             <RecursiveDay />
           </argument>
         ) : null}
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional prefered limited category='conjunction' /> : null}
-          <argument text='day' id='absolute' showForEmpty merge>
+          <argument text='day' showForEmpty merge>
             <choice>
-              <AbsoluteDay year={false} />
-              <NamedMonthAbsolute />
+              <AmbiguousAbsoluteDay />
+              <AmbiguousAbsoluteNamedMonth />
             </choice>
           </argument>
         </sequence>
@@ -49,18 +40,6 @@ Day.defaultProps = {
 }
 
 export class DateWithTimeOfDay extends Phrase {
-  getValue (result) {
-    if (!result) return
-
-    if (result.relative) {
-      return {date: dateFromRelative(result.relative), impliedTime: result.impliedTime}
-    } else if (result.recursive) {
-      return {date: dateFromRelative(result.recursive.duration, result.recursive.date), impliedTime: result.impliedTime}
-    } else {
-      return result
-    }
-  }
-
   describe () {
     return (
       <choice>
@@ -71,121 +50,41 @@ export class DateWithTimeOfDay extends Phrase {
               <literal text='the ' />
               <TimeOfDay id='impliedTime' />
               <literal text=' of ' />
-              <DatePhrase id='date' nullify />
-            </sequence>
-          </placeholder>
-        </sequence>
-
-        <sequence>
-          <placeholder text='date' showForEmpty merge>
-            <sequence>
-              <DatePhrase id='date' nullify prepositions={this.props.prepositions} />
-              <literal text=' ' />
-              <TimeOfDay id='impliedTime' prepositions />
-            </sequence>
-          </placeholder>
-        </sequence>
-
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <TimeOfDayModifier id='relative' />
-              <literal text=' ' />
-              <TimeOfDay id='impliedTime' />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <RelativeWeekday id='date' />
-              <literal text=' ' />
-              <TimeOfDay id='impliedTime' />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
-              <RelativeWeekday id='date' />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
-              <RelativeAdjacent id='relative' />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
-              <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-              <literal text=' in the ' />
-              <TimeOfDay id='impliedTime' />
-            </sequence>
-          </argument>
-        </sequence>
-
-        <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
               <choice id='date'>
+                <DatePhrase nullify />
+                <RelativeWeekday />
+                <RelativeAdjacent />
+                <RelativeNumbered />
                 <AbsoluteDay />
-                <NamedMonthAbsolute />
+                <DayWithYear />
+                {this.props.recurse ? <RecursiveDate /> : null}
               </choice>
             </sequence>
-          </argument>
+          </placeholder>
         </sequence>
 
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
-              <literal text=' of ' />
-              {this.props.recurse ? <RecursiveDate id='recursive' /> : null }
-            </sequence>
-          </argument>
-        </sequence>
+        <placeholder text='date' showForEmpty merge>
+          <sequence>
+            <choice id='date'>
+              <DatePhrase nullify prepositions={this.props.prepositions} />
+              <TimeOfDayModifier />
+              <RelativeWeekday />
+            </choice>
+            <literal text=' ' />
+            <TimeOfDay id='impliedTime' prepositions />
+          </sequence>
+        </placeholder>
 
-        <sequence>
-          <argument text='date' showForEmpty merge>
-            <sequence>
-              {this.props.recurse ? <RecursiveDate id='date' /> : null }
-              <literal text=' in the ' />
+        <placeholder text='date' showForEmpty merge>
+          <sequence>
+            <RelativeNumbered id='date' prepositions={this.props.prepositions} />
+            <literal text=' in the ' />
+            <choice>
               <TimeOfDay id='impliedTime' />
-            </sequence>
-          </argument>
-        </sequence>
+              {this.props.recurse ? <RecursiveDate /> : null}
+            </choice>
+          </sequence>
+        </placeholder>
       </choice>
     )
   }
@@ -196,56 +95,28 @@ DateWithTimeOfDay.defaultProps = {
   prepositions: false
 }
 
-function dateFromRelative (duration, now = {}) {
-  return moment(now).add(moment.duration(duration)).toDate()
-}
-
-function dayFromRelative(duration, now = {}) {
-  const newMoment = moment(now).year(2002).add(moment.duration(duration))
-  return {month: newMoment.month(), day: newMoment.date()}
-}
-
 export class DatePhrase extends Phrase {
-  getValue(result) {
-    if (!result || _.isEmpty(result)) return
-
-    if (result.absolute) {
-      return moment(result.absolute).toDate()
-    } else if (result.relative) {
-      return dateFromRelative(result.relative)
-    } else if (result.recursive) {
-      return dateFromRelative(result.recursive.duration, result.recursive.date)
-    }
-  }
-
   describe() {
-    if (this.props.nullify) return null
+    if (this.props.nullify) return
 
     return (
       <choice>
         <argument text='date' showForEmpty>
           <choice>
-            <NamedDay id='relative' />
-            <RelativeNumbered id='relative' prepositions={this.props.prepositions} />
-            <RelativeAdjacent id='relative' />
-            {this.props.recurse ? <RecursiveDate id='recursive' /> : null }
+            <RelativeNamed />
+            <RelativeNumbered prepositions={this.props.prepositions} />
+            <DayWithYear prepositions={this.props.prepositions} />
+            <RelativeAdjacent />
+            {this.props.recurse ? <RecursiveDate /> : null }
           </choice>
         </argument>
-
-        <sequence id='absolute'>
-          <Day prepositions={this.props.prepositions} merge recurse={false} />
-          <sequence optional merge>
-            <list items={[', ', ' in ']} category='conjunction' />
-            <Year id='year' />
-          </sequence>
-        </sequence>
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional prefered limited category='conjunction' /> : null}
           <argument text='date' showForEmpty merge>
             <choice>
-              <RelativeWeekday id='absolute' />
-              <AbsoluteDay id='absolute' />
+              <RelativeWeekday />
+              <AbsoluteDay />
             </choice>
           </argument>
         </sequence>
@@ -258,6 +129,24 @@ DatePhrase.defaultProps = {
   recurse: true,
   prepositions: false,
   nullify: false
+}
+
+class DayWithYear extends Phrase {
+  getValue (result) {
+    return absoluteDate(result)
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <Day prepositions={this.props.prepositions} merge recurse={false} />
+        <sequence optional merge>
+          <list items={[', ', ' in ']} category='conjunction' />
+          <Year id='year' />
+        </sequence>
+      </sequence>
+    )
+  }
 }
 
 class ExtraDateDuration extends Phrase {
@@ -290,12 +179,9 @@ class RecursiveDay extends Phrase {
   getValue(result) {
     if (!result || !result.day) return
 
-    let duration = result.duration
-    if (result.direction === -1) {
-      duration = _.mapValues(result.duration, item => -item)
-    }
+    const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return {duration, day: result.day}
+    return relativeDay(duration, result.day)
   }
 
   describe() {
@@ -326,17 +212,14 @@ class RecursiveDate extends Phrase {
   getValue(result) {
     if (!result) return
 
-    let duration = result.duration
-    if (result.direction === -1) {
-      duration = _.mapValues(result.duration, item => -item)
-    }
+    const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return {duration, date: result.date}
+    return relativeDate(duration, result.date)
   }
 
   describe() {
     return (
-    <sequence>
+      <sequence>
         <argument text='offset' showForEmpty merge>
           <sequence>
             <choice id='duration'>
@@ -350,19 +233,18 @@ class RecursiveDate extends Phrase {
             ]} limit={2} />
           </sequence>
         </argument>
-        <placeholder text='date' id='date'>
-          {/*<choice>
-            <literal text='now' value='now' /> */}
-            <DatePhrase recurse={false} prepositions={false} />
-          {/*</choice>*/}
-        </placeholder>
+        <DatePhrase id='date' recurse={false} prepositions={false} />
       </sequence>
     )
   }
 }
 
-class NamedDay extends Phrase {
-  describe() {
+class RelativeNamed extends Phrase {
+  getValue (result) {
+    return relativeDate(result)
+  }
+
+  describe () {
     return <list items={[
       {text: 'today', value: {days: 0}},
       {text: 'tomorrow', value: {days: 1}},
@@ -374,7 +256,11 @@ class NamedDay extends Phrase {
 }
 
 class TimeOfDayModifier extends Phrase {
-  describe() {
+  getValue (result) {
+    return relativeDate(result)
+  }
+
+  describe () {
     return <list items={[
       {text: 'this', value: {days: 0}},
       {text: 'tomorrow', value: {days: 1}},
@@ -387,22 +273,20 @@ class RelativeNumbered extends Phrase {
   getValue(result) {
     if (!result) return
 
-    if (result.direction < 0) {
-      return _.mapValues(result.duration, num => -num)
-    } else {
-      return result.duration
-    }
+    const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
+
+    return relativeDate(duration)
   }
 
   describe() {
     return (
-    <choice>
-        {this.props.prepositions ?
-      <sequence>
+      <choice>
+        {this.props.prepositions ? (
+          <sequence>
             <literal text='in ' id='direction' value={1} />
             <DateDuration id='duration' />
           </sequence>
-      : null}
+        ) : null}
         <sequence>
           <DateDuration id='duration' />
           <literal text=' ago' id='direction' value={-1} />
@@ -416,7 +300,9 @@ class RelativeAdjacent extends Phrase {
   getValue(result) {
     if (!result) return
 
-    return {[result.type]: result.num * (result.multiplier || 1)}
+    const duration = {[result.type]: result.num * (result.multiplier || 1)}
+
+    return relativeDate(duration)
   }
 
   describe() {
@@ -440,18 +326,9 @@ class RelativeAdjacent extends Phrase {
 
 class RelativeWeekday extends Phrase {
   getValue(result) {
-    // const returnDate = new Date()
     const day = ((result.distance || 0) * 7) + result.weekday
-    const returnDate = moment().day(day)
-    // const currentDay = returnDate.getDay()
-    // let distance
-    // if (result.distance != null) {
-    //   distance = result.weekday - currentDay + (7 * result.distance)
-    // } else {
-    //   distance = (result.weekday + (7 - currentDay)) % 7
-    // }
-    // returnDate.setDate(returnDate.getDate() + distance)
-    return {year: returnDate.year(), month: returnDate.month(), day: returnDate.date()}
+
+    return moment().day(day).toDate()
   }
 
   describe() {
@@ -489,47 +366,56 @@ function leapYear (year) {
   return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)
 }
 
+class MonthNumber extends Phrase {
+  getValue (result) {
+    return parseInt(result, 10) - 1
+  }
+
+  describe () {
+    return <DigitString maxLength={2} max={12} min={1} descriptor='mm' />
+  }
+}
+
+class DayNumber extends Phrase {
+  getValue (result) {
+    return parseInt(result, 10)
+  }
+
+  describe () {
+    return <DigitString maxLength={2} max={31} min={1} descriptor='dd'/>
+  }
+}
+
 class AbsoluteDay extends Phrase {
-  getValue(result) {
-    const month = parseInt(result.month, 10) - 1
-    const day = parseInt(result.day, 10)
-    const returnVal = {month, day}
-    if (result.year) returnVal.year = result.year
-    return returnVal
+  getValue (result) {
+    return absoluteDate(result)
   }
 
-  // this is interesting, because the user must be able to specify Feburary 29 if they have not specified a year, and then it must be validated by the year. So use a leap year (2012)
-  filter(result) {
-    if (_.isUndefined(result) || _.isUndefined(result.month) || _.isUndefined(result.day)) return true
-
-    const year = _.isUndefined(result.year) || _.isEqual(result.year, {}) ? 2012 : parseInt(result.year, 10)
-    const month = parseInt(result.month, 10) - 1
-    const day = parseInt(result.day, 10)
-    const date = new Date(year, month, day, 0, 0, 0, 0)
-    return date.getMonth() === month
-  }
-
-  describe() {
+  describe () {
     return (
-      <filter function={this.filter.bind(this)}>
+      <filter function={validateDay}>
         <sequence>
-          <DigitString maxLength={2} descriptor='mm' id='month' />
+          <AmbiguousAbsoluteDay merge />
           <list items={['/']} limit={1} />
-          <DigitString maxLength={2} max={31} descriptor='dd' id='day' />
-          {this.props.year ? (
-            <sequence merge>
-              <list items={['/']} limit={1} />
-              <Year id='year' />
-            </sequence>
-          ) : null}
+          <Year id='year' />
         </sequence>
       </filter>
     )
   }
 }
 
-AbsoluteDay.defaultProps = {
-  year: true
+class AmbiguousAbsoluteDay extends Phrase {
+  describe () {
+    return (
+      <filter function={validateDay}>
+        <sequence>
+          <MonthNumber id='month' />
+          <list items={['/']} limit={1} />
+          <DayNumber id='day' />
+        </sequence>
+      </filter>
+    )
+  }
 }
 
 class Year extends Phrase {
@@ -551,7 +437,7 @@ class Year extends Phrase {
 
   describe() {
     return (
-    <argument displayWhen={this.displayWhen} text='year'>
+      <argument displayWhen={this.displayWhen} text='year'>
         <choice limit={1}>
           <sequence>
             <decorator text='20' />
@@ -568,18 +454,10 @@ class Year extends Phrase {
   }
 }
 
-class NamedMonthAbsolute extends Phrase {
-  // this is interesting, because the user must be able to specify Feburary 29 if they have not specified a year, and then it must be validated by the year. So use a leap year (2012)
-  filter(result) {
-    if (_.isUndefined(result) || _.isUndefined(result.month) || _.isUndefined(result.day)) return true
-    const year = _.isUndefined(result.year) || _.isEqual(result.year, {}) ? 2012 : parseInt(result.year, 10)
-    const date = new Date(year, result.month, result.day, 0, 0, 0, 0)
-    return date.getMonth() === result.month
-  }
-
+class AmbiguousAbsoluteNamedMonth extends Phrase {
   describe() {
     return (
-      <filter function={this.filter.bind(this)}>
+      <filter function={validateDay}>
         <choice>
           <sequence>
             <Month id='month' />
@@ -588,12 +466,6 @@ class NamedMonthAbsolute extends Phrase {
               <Integer max={31} min={1} />
               <Ordinal max={31} />
             </choice>
-            {/*this.props.year ? (
-              <sequence id='year' optional preffered={false}>
-                <list items={[', ', ' ']} limit={1} />
-                <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge />
-              </sequence>
-            ) : null*/}
           </sequence>
           <sequence>
             <literal text='the ' />
@@ -603,19 +475,9 @@ class NamedMonthAbsolute extends Phrase {
             </choice>
             <list items={[' of ', ' ']} limit={1} />
             <Month id='month' />
-            {/*this.props.year ? (
-              <sequence id='year' optional preffered={false}>
-                <list items={[', ', ' ']} limit={1} />
-                <DigitString descriptor='year' max={9999} allowLeadingZeros={false} merge />
-              </sequence>
-            ) : null*/}
           </sequence>
         </choice>
       </filter>
     )
   }
 }
-
-// NamedMonthAbsolute.defaultProps = {
-//   year: true
-// }

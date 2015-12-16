@@ -50,6 +50,25 @@ export function coerceAmbiguousTime (ambiguousTime, range) {
   } else {
     return {hour: ambiguousTime.hour < 12 ? ambiguousTime.hour + 12 : ambiguousTime.hour - 12, minute: ambiguousTime.minute, second: ambiguousTime.second}
   }
+}
+
+export function absoluteDate (absolute) {
+  return moment(absolute).toDate()
+}
+
+export function relativeDate (duration, now = {}) {
+  return moment(now).add(moment.duration(duration)).toDate()
+}
+
+export function relativeDay (duration, now = {}) {
+  const newMoment = moment(now).year(2010).add(moment.duration(duration)) // not leap year
+  return {month: newMoment.month(), day: newMoment.date()}
+}
 
 
+export function validateDay ({month, day, year = 2012} = {}) { //leap year
+  if (_.isUndefined(month) || _.isUndefined(day)) return true
+
+  const dateMoment = moment({year, month, day})
+  return dateMoment.month() === month
 }
