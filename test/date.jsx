@@ -176,7 +176,7 @@ describe('Date', () => {
       output: moment({year: 1991, month: 1, day: 28}).toDate()
     }, {
       input: '2 weeks before 3/14/2012',
-      output: moment({year: 2012, month: 1, day: 29}).toDate() // leap year
+      output: moment({year: 2012, month: 1, day: 29}).toDate()
     }, {
       input: '5/2',
       output: moment({year: 1991, month: 4, day: 2}).toDate()
@@ -213,6 +213,93 @@ describe('Date', () => {
     }, {
       input: 'May 2, 1991',
       output: moment({year: 1991, month: 4, day: 2}).toDate()
+    }]
+
+    _.forEach(testCases, test)
+  })
+
+  describe('future={false}', () => {
+    beforeEach(() => {
+      parser.grammar = <DatePhrase future={false} />
+    })
+
+    const testCases = [{
+      input: 'today',
+      output: moment({year: 1990, month: 9, day: 11}).toDate()
+    }, {
+      input: 'tomorrow',
+      length: 0
+    }, {
+      input: 'yesterday',
+      output: moment({year: 1990, month: 9, day: 10}).toDate()
+    }, {
+      input: '4 days from today',
+      length: 0
+    }, {
+      input: '4 days ago',
+      output: moment({year: 1990, month: 9, day: 7}).toDate()
+    }, {
+      input: '4 days after yesterday',
+      length: 0
+    }, {
+      input: 'next year',
+      length: 0,
+    }, {
+      input: 'next Monday',
+      length: 0
+    }, {
+      input: 'this Monday',
+      output: moment({year: 1990, month: 9, day: 8}).toDate()
+    }, {
+      input: 'Friday',
+      output: moment({year: 1990, month: 9, day: 5}).toDate()
+    }, {
+      input: 'Monday',
+      output: moment({year: 1990, month: 9, day: 8}).toDate()
+    }, {
+      input: 'last Monday',
+      output: moment({year: 1990, month: 9, day: 1}).toDate()
+    }, {
+      input: '2 weeks before 3/14',
+      output: moment({year: 1990, month: 1, day: 28}).toDate()
+    }, {
+      input: '2 weeks before 3/14/2012',
+      length: 0,
+    }, {
+      input: '5/2',
+      output: moment({year: 1990, month: 4, day: 2}).toDate()
+    }, {
+      input: '5/2 in 1984',
+      output: moment({year: 1984, month: 4, day: 2}).toDate()
+    }, {
+      input: '5/2 in 2004',
+      length: 0
+    }, {
+      input: '5/2/92',
+      length: 0
+    }, {
+      input: '5/2/84',
+      suggestion:'5/2/1984',
+      output: moment({year: 1984, month: 4, day: 2}).toDate()
+    }, {
+      input: '5/2/20',
+      suggestion: '5/2/1920',
+      output: moment({year: 1920, month: 4, day: 2}).toDate()
+    }, {
+      input: '5/2/1992',
+      length: 0
+    }, {
+      input: 'May 2nd',
+      output: moment({year: 1990, month: 4, day: 2}).toDate()
+    }, {
+      input: 'November 2nd',
+      output: moment({year: 1989, month: 10, day: 2}).toDate()
+    }, {
+      input: 'May 2, 1990',
+      output: moment({year: 1990, month: 4, day: 2}).toDate()
+    }, {
+      input: 'May 2, 1991',
+      length: 0
     }]
 
     _.forEach(testCases, test)
