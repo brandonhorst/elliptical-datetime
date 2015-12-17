@@ -1,6 +1,9 @@
 import _ from 'lodash'
 import moment from 'moment'
 
+// combine a the date components of a Date object and the time components of {hour, minute, second}
+// date: moment, Date, or {year, month, day}
+// time: {hour, minute, second}
 export function join (date, time) {
   return moment(date).set(time).toDate()
 }
