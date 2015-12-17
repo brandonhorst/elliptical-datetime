@@ -4,7 +4,7 @@ Phrases to allow Lacona to understand natural language dates, times, and more. M
 
 ## Usage Notes
 
-Complex phrases themselves allow for implied components. That is to say, "January 3rd" is a valid `DateTime`. The year is implied based upon the current year, and the time of day defaults to 8am. Beacuse of this, custom phrases making use of dates should never have a construct like this:
+Complex phrases themselves allow for implied components. That is to say, "January 3rd" is a valid `Day`, but it is also a valid `Date` and `DateTime`. The year is implied based upon the current year, and the time of day is assumed to be `defaultTime` (8:00 by default). Because of this, custom phrases making use of dates should never have a construct like this:
 
 ```xml
 <choice>
@@ -166,14 +166,9 @@ Fractional seconds are currently unsupported.
 
 - `seconds`: `Boolean` - Can the user input durations in seconds? (`TimeDuration` and `Duration` only)
 
-### `TimeRange` and `DateRange`
-
-Not yet implemented
-
-<!---
 ### `TimeRange`
 
-Represents a range of time, with a beginning Time and an ending Time.
+Reprents range that starts at a specific time and ends at a specific time, but is not tied to any particular date.
 
 #### Result
 
@@ -194,9 +189,27 @@ If `end` is an earlier time of day than `start`, `daysOffset` will always be gre
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'from 3pm to 4pm' vs '3pm to 4pm'
 - `seconds`: `Boolean` - defaults to `true`. Can the user input ranges that include seconds?
-- `future`: `Boolean` - defaults to `true`. Can the user input ranges that end in the future?
-- `past`: `Boolean` - defaults to `true`. Can the user input ranges that begin in the past?
---->
+
+### `DateRange`
+
+Represents a range of dates.
+
+#### Result
+
+An object of the form
+
+```js
+{
+  start: <Date> // Time is always 0:00 (midnight). Localtime zone.
+  end: <Date>
+}
+```
+
+#### Props
+
+- `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
+    * 'on January 2nd for 3 days' vs 'January 2nd for 3 days'
+    * 'from January 3 to January 5' vs 'January 3 to January 5'
 
 ### `Range`
 
