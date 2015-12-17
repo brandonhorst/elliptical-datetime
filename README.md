@@ -166,6 +166,11 @@ Fractional seconds are currently unsupported.
 
 - `seconds`: `Boolean` - Can the user input durations in seconds? (`TimeDuration` and `Duration` only)
 
+### `TimeRange` and `DateRange`
+
+Not yet implemented
+
+<!---
 ### `TimeRange`
 
 Represents a range of time, with a beginning Time and an ending Time.
@@ -191,6 +196,7 @@ If `end` is an earlier time of day than `start`, `daysOffset` will always be gre
 - `seconds`: `Boolean` - defaults to `true`. Can the user input ranges that include seconds?
 - `future`: `Boolean` - defaults to `true`. Can the user input ranges that end in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input ranges that begin in the past?
+--->
 
 ### `Range`
 

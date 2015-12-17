@@ -3,14 +3,11 @@
 
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import chai, { expect } from 'chai'
-import chaiDateTime from 'chai-datetime'
+import { expect } from 'chai'
 import { text } from './_util'
 import { TimeRange } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
-
-chai.use(chaiDateTime)
 
 describe('TimeRange', () => {
   let parser
@@ -20,7 +17,6 @@ describe('TimeRange', () => {
   })
 
   describe('default', () => {
-
     beforeEach(() => {
       parser.grammar = <TimeRange />
     })
@@ -68,8 +64,7 @@ describe('TimeRange', () => {
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)
-          expect(data[0].result.start).to.eql(output.start)
-          expect(data[0].result.end).to.eql(output.end)
+          expect(data[0].result).to.eql(output)
         }
       })
     })

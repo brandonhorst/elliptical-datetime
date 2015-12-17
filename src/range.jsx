@@ -4,180 +4,86 @@ import _ from 'lodash'
 import moment from 'moment'
 import { createElement, Phrase } from 'lacona-phrase'
 
+import { join, relativeDate } from './helpers'
 import { Date } from './date'
+import { DateRange } from './date-range'
 import { DateTime } from './datetime'
-import { Duration, TimeDuration, DateDuration } from './duration'
+import { Duration } from './duration'
 import { Time } from './time'
-import { join, timeIsBefore } from './helpers'
-
-export class TimeRange extends Phrase {
-  getValue (result) {
-    if (!result) return
-
-    if (result.start && result.duration) {
-      const startDate = moment.utc(result.start)
-      const endDate = startDate.add(moment.duration(result.duration))
-      const dayOffset = endDate.diff(startDate, 'days')
-      const end = {hour: endDate.hour(), minute: endDate.minute(), second: endDate.second()}
-      return {start: result.start, end, dayOffset}
-    }
-
-    if (result.start && result.end) {
-      return result
-    }
-  }
-
-  // validate (result) {
-  //   if (!result || !result.start || !result.end || result.dayOffset == null) return true
-  //
-  //   if (result.dayOffset > 0) return true
-  //
-  //   const startMoment = moment.utc(result.start)
-  //   return startMoment.isBefore(moment.utc(result.end))
-  // }
-
-  describe () {
-    return (
-      <choice>
-        <sequence>
-          {this.props.prepositions ? <literal text='from ' /> : null}
-          <Time id='start' />
-          <list items={[' to ', ' - ', '-']} limit={1} />
-          <Time id='end' />
-        </sequence>
-        {this.props.duration ?
-          <sequence>
-            <Time id='start' prepositions={this.props.prepositions} />
-            <literal text=' for ' />
-            <TimeDuration id='duration' max={{hours: 23, minutes: 59, seconds: 59}} />
-          </sequence>
-        : null}
-      </choice>
-    )
-  }
-}
-
-TimeRange.defaultProps = {
-  prepositions: false,
-  duration: true
-}
+import { TimeRange } from './time-range'
 
 export class Range extends Phrase {
-  getValue (result) {
-    if (!result) return
-
-    if (result.start) {
-      if (result.end) {
-        return {
-          start: result.start,
-          end: result.end,
-          allDay: false
-        }
-      } else if (result.duration) {
-        return {
-          start: result.start,
-          end: moment(result.start).add(moment.duration(result.duration)).toDate(),
-          allDay: false
-        }
-      } else {
-        return {
-          start: result.start,
-          end: moment(result.start).add(moment.duration(this.props.defaultDuration)).toDate(),
-          allDay: false
-        }
-      }
-    } else if (result.date && result.timeRange) {
-      if (timeIsBefore(result.timeRange.end, result.timeRange.start)) {
-        return {
-          start: join(result.date, result.timeRange.start),
-          end: join(moment(result.date).add(1, 'day').toDate(), result.timeRange.end),
-          allDay: false
-        }
-      } else {
-        return {
-          start: join(result.date, result.timeRange.start),
-          end: join(result.date, result.timeRange.end),
-          allDay: false
-        }
-      }
-    } else if (result.startDate) {
-      if (result.endDate) {
-        return {
-          start: result.startDate,
-          end: result.endDate,
-          allDay: true
-        }
-      } else {
-        return {
-          start: result.startDate,
-          end: result.startDate,
-          allDay: true
-        }
-      }
-    }
-  }
-
   validate (result) {
     if (!result || !result.start || !result.end) return true
 
     const startMoment = moment(result.start)
-    if (result.allDay) {
-      return startMoment.isBefore(result.end) || startMoment.isSame(result.end)
-    } else {
-      return startMoment.isBefore(result.end)
-    }
+    const endMoment = moment(result.end)
+
+    if (endMoment.isBefore(startMoment)) return false
+
+    const currentMoment = result.allDay ? moment({}) : moment()
+    if (!this.props.past && currentMoment.isAfter(startMoment)) return false
+    if (!this.props.future && currentMoment.isBefore(endMoment)) return false
+
+    return true
   }
+
+  /*
+    Monday                           D       Monday all day
+
+    Monday at 3pm                    DT      Monday at 3pm to Monday at 4pm
+    3pm                              TD      today at 3pm to today at 4pm
+
+    Monday to Tuesday                D  D    Monday to Tuesday all day
+
+    ---
+    Monday at 3pm to Tuesday at 4pm  DT DT   3pm Monday to 4pm Tuesday
+    3pm Monday to 4pm Tuesday        DT DT   3pm Monday to 4pm Tuesday
+    3pm Monday to Tuesday at 4pm     DT DT   3pm Monday to 4pm Tuesday
+    Monday at 3pm to 4pm Tuesday     DT DT   3pm Monday to 4pm Tuesday
+
+    Monday to Tuesday at 4pm         DT DT   8am Monday to 4pm Tuesday
+    Monday to 4pm Tuesday            DT DT   8am Monday to 4pm Tuesday
+
+    Monday at 3pm to Tuesday         DT DT   3pm Monday to 8am Tuesday
+    3pm Monday to Tuesday            DT DT   3pm Monday to 8am Tuesday
+
+    3pm to Tuesday at 4pm            DT DT   3pm today to 4pm Tuesday
+    3pm to 4pm Tuesday               T  DT   3pm Tuesday to 4pm Tuesday
+
+    Monday at 3pm to 4pm             DT T    3pm Monday to 4pm Monday
+    3pm Monday to 4pm                DT T    3pm Monday to 4pm Monday
+
+    3pm to 4pm                       T  T    3pm today to 4pm today
+    ---
+
+    ---
+    Monday from 3pm to 4pm           D  TR   3pm Monday to 4pm Monday
+    3pm to 4pm Monday                TR D    3pm Monday to 4pm Monday
+    ---
+
+    Monday at 3pm for 4 hours        DT Du   3pm Monday to 7pm Monday
+    3pm Monday for 4 hours           DT Du   3pm Monday to 7pm Monday
+    4 hours Monday at 3pm            Du DT   3pm Monday to 7pm Monday
+    4 hours 3pm Monday               Du DT   3pm Monday to 7pm Monday
+
+    3pm for 4 hours                  DT Du   3pm today to 7pm today
+    4 hours at 3pm                   Du DT   3pm today to 7pm today
+    Monday for 4 hours               DT Du   8am Monday to 12pm today
+    4 hours on Monday                DT Du   8am Monday to 12pm today
+  */
 
   describe () {
     return (
       <placeholder text='period of time'>
-        <choice>
-          <Date id='startDate' />
-
-          <DateTime id='start' _impliedTime={false} defaultTime={this.props.defaultTime} />
-
-          <choice limit={1}>
-            <sequence> {/* today to tomorrow */}
-              {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
-              <literal text='all day ' optional={true} limited={true} preferred={false} />
-              <Date id='startDate' />
-              <list items={[' to ', ' - ', '-']} limit={1} />
-              <literal text='all day ' optional={true} limited={true} preferred={false} />
-              <Date id='endDate' />
-            </sequence>
-
-            <sequence> {/* today at 3pm to tomorrow */}
-              {this.props.prepositions ? <literal text='from ' optional={true} limited={true} preferred={false} /> : null}
-              <DateTime id='start' _impliedDate={false} defaultTime={this.props.defaultTime} />
-              <list items={[' to ', ' - ', '-']} limit={1} />
-              <DateTime id='end' _impliedDate={false} defaultTime={this.props.defaultTime} />
-            </sequence>
-          </choice>
-
-          <sequence>
-            <Date id='date' prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <TimeRange id='timeRange' duration={false} prepositions />
-          </sequence>
-
-          <sequence>
-            <TimeRange id='timeRange' prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <Date id='date' prepositions />
-          </sequence>
-
-          <sequence>
-            {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
-            <Duration id='duration' seconds={this.props.seconds} />
-            <literal text=' ' />
-            <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
-          </sequence>
-
-          <sequence>
-            <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
-            <literal text=' for ' />
-            <Duration id='duration' seconds={this.props.seconds} />
-          </sequence>
+        <choice limit={1}>
+          <StartDateAlone prepositions={this.props.prepositions} />
+          <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} />
+          <TimeRangeAlone prepositions={this.props.prepositions} />
+          <DateRangeAlone prepositions={this.props.prepositions} />
+          <StartDateAndTimeRange prepositions={this.props.prepositions} />
+          <StartDateTimeAndDuration prepositions={this.props.prepositions} />
+          <StartDateTimeAndEndDateTime prepositions={this.props.prepositions} />
         </choice>
       </placeholder>
     )
@@ -191,4 +97,188 @@ Range.defaultProps = {
   defaultDuration: {hours: 1},
   future: true,
   past: true
+}
+
+class StartDateAlone extends Phrase {
+  getValue (result) {
+    return {
+      start: result,
+      end: result,
+      allDay: true
+    }
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <literal text='all day ' optional limited />
+        <Date merge prepositions={this.props.prepositions} />
+      </sequence>
+    )
+  }
+}
+
+StartDateAlone.defaultProps = {
+  prepositions: false
+}
+
+class StartDateTimeAlone extends Phrase {
+  getValue (result) {
+    return {
+      start: result,
+      end: moment(result).add(moment.duration(this.props.duration)).toDate(),
+      allDay: false
+    }
+  }
+
+  describe () {
+    return <DateTime _impliedTime={false} prepositions={this.props.prepositions} />
+  }
+}
+
+StartDateTimeAlone.defaultProps = {
+  prepositions: false,
+  duration: {hours: 1}
+}
+
+class TimeRangeAlone extends Phrase {
+  getValue (result) {
+    if (!result || !result.timeRange) return
+
+    const startDate = relativeDate(result.relative)
+    const endDate = moment(startDate).add(result.timeRange.dayOffset, 'day')
+    return {
+      start: join(startDate, result.timeRange.start),
+      end: join(moment(endDate), result.timeRange.end),
+      allDay: false
+    }
+  }
+
+  describe () {
+    return (
+      <sequence>
+        <choice id='relative' limit={1}>
+          <literal text='' value={{}} />
+          <literal text='' value={{days: 1}} />
+          <literal text='' value={{days: -1}} />
+        </choice>
+        <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
+      </sequence>
+    )
+  }
+}
+
+TimeRangeAlone.defaultProps = {
+  prepositions: false
+}
+
+class DateRangeAlone extends Phrase {
+  getValue (result) {
+    if (!result) return
+
+    return {
+      start: result.start,
+      end: result.end,
+      allDay: true
+    }
+  }
+
+  describe () {
+    return <DateRange prepositions={this.props.prepositions} _allDay />
+  }
+}
+
+class StartDateTimeAndEndDateTime extends Phrase {
+  getValue (result) {
+    if (!result) return
+
+    return {
+      start: result.start,
+      end: result.end,
+      allDay: false
+    }
+  }
+
+  describe () {
+    return (
+      <sequence>
+        {this.props.prepositions ? <literal text='from ' optional limited /> : null}
+        <DateTime id='start' defaultTime={this.props.defaultTime} />
+        <list items={[' to ', ' - ', '-']} limit={1} />
+        <DateTime id='end' defaultTime={this.props.defaultTime} />
+      </sequence>
+    )
+  }
+}
+
+StartDateTimeAndEndDateTime.defaultProps = {
+  prepositions: false
+}
+
+class StartDateTimeAndDuration extends Phrase {
+  getValue (result) {
+    if (!result) return
+
+    return {
+      start: result.start,
+      end: moment(result.start).add(moment.duration(result.duration)).toDate(),
+      allDay: false
+    }
+  }
+  describe () {
+    return (
+      <choice>
+        <sequence>
+          {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
+          <Duration id='duration' seconds={this.props.seconds} />
+          <literal text=' ' />
+          <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
+        </sequence>
+
+        <sequence>
+          <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
+          <literal text=' for ' />
+          <Duration id='duration' seconds={this.props.seconds} />
+        </sequence>
+      </choice>
+    )
+  }
+}
+
+StartDateTimeAndDuration.defaultProps = {
+  prepositions: false
+}
+
+class StartDateAndTimeRange extends Phrase {
+  getValue (result) {
+    if (!result || !result.timeRange) return
+
+    return {
+      start: join(result.date, result.timeRange.start),
+      end: join(moment(result.date).add(result.timeRange.dayOffset, 'day'), result.timeRange.end),
+      allDay: false
+    }
+  }
+
+  describe () {
+    return (
+      <choice>
+        <sequence>
+          <Date id='date' prepositions={this.props.prepositions} />
+          <literal text=' ' />
+          <TimeRange id='timeRange' _duration={false} prepositions />
+        </sequence>
+
+        <sequence>
+          <TimeRange id='timeRange' prepositions={this.props.prepositions} />
+          <literal text=' ' />
+          <Date id='date' prepositions />
+        </sequence>
+      </choice>
+    )
+  }
+}
+
+StartDateAndTimeRange.defaultProps = {
+  prepositions: false
 }
