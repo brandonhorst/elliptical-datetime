@@ -22,11 +22,13 @@ class BaseDuration extends Phrase {
 
   describe () {
     return (
-      <filter function={this.filter.bind(this)}>
-        <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
-          {this.childDescribe()}
-        </repeat>
-      </filter>
+      <map function={this.getValue.bind(this)}>
+        <filter function={this.filter.bind(this)}>
+          <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
+            {this.childDescribe()}
+          </repeat>
+        </filter>
+      </map>
     )
   }
 }
@@ -38,48 +40,50 @@ class InternalDuration extends Phrase {
 
   describe () {
     return (
-      <choice limit={1}>
-        <sequence>
-          <Integer max={1} min={1} id='num' />
-          <literal text=' ' />
-          <placeholder text='time period' merge={true}>
-            <choice>
-              {this.props.type !== 'time' ? [
-                <literal text='day' value={{id: 'days', type: 'days'}}  />,
-                <literal text='fortnight' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-                <literal text='week' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-                <literal text='month' value={{id: 'months', type: 'months'}} />,
-                <literal text='year' value={{id: 'years', type: 'years'}} />
-              ] : null}
-              {this.props.type !== 'date' ? [
-                <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
-                <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
-                this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
-              ] : null}
-            </choice>
-          </placeholder>
-        </sequence>
-        <sequence>
-          <Integer id='num' min={2} />
-          <literal text=' ' />
-          <placeholder text='time period' merge={true}>
-            <choice>
-              {this.props.type !== 'time' ? [
-                <literal text='days' value={{id: 'days', type: 'days'}}  />,
-                <literal text='fortnights' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-                <literal text='weeks' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-                <literal text='months' value={{id: 'months', type: 'months'}} />,
-                <literal text='years' value={{id: 'years', type: 'years'}} />
-              ] : null}
-              {this.props.type !== 'date' ? [
-                <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
-                <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
-                this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
-              ] : null}
-            </choice>
-          </placeholder>
-        </sequence>
-      </choice>
+      <map function={this.getValue.bind(this)}>
+        <choice limit={1}>
+          <sequence>
+            <Integer max={1} min={1} id='num' />
+            <literal text=' ' />
+            <label text='time period' merge>
+              <choice>
+                {this.props.type !== 'time' ? [
+                  <literal text='day' value={{id: 'days', type: 'days'}}  />,
+                  <literal text='fortnight' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
+                  <literal text='week' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
+                  <literal text='month' value={{id: 'months', type: 'months'}} />,
+                  <literal text='year' value={{id: 'years', type: 'years'}} />
+                ] : null}
+                {this.props.type !== 'date' ? [
+                  <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
+                  <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
+                  this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
+                ] : null}
+              </choice>
+            </label>
+          </sequence>
+          <sequence>
+            <Integer id='num' min={2} />
+            <literal text=' ' />
+            <label text='time period' merge>
+              <choice>
+                {this.props.type !== 'time' ? [
+                  <literal text='days' value={{id: 'days', type: 'days'}}  />,
+                  <literal text='fortnights' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
+                  <literal text='weeks' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
+                  <literal text='months' value={{id: 'months', type: 'months'}} />,
+                  <literal text='years' value={{id: 'years', type: 'years'}} />
+                ] : null}
+                {this.props.type !== 'date' ? [
+                  <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
+                  <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
+                  this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
+                ] : null}
+              </choice>
+            </label>
+          </sequence>
+        </choice>
+      </map>
     )
   }
 }

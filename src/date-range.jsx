@@ -24,24 +24,26 @@ export class DateRange extends Phrase {
 
   describe () {
     return (
-      <choice>
-        <sequence>
-          {this.props.prepositions ? <literal text='from ' optional limited /> : null}
-          {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-          <Date id='start' />
-          <list items={[' to ', ' - ', '-']} limit={1} />
-          {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-          <Date id='end' />
-        </sequence>
-        {this.props._duration ? (
+      <map function={this.getValue.bind(this)}>
+        <choice>
           <sequence>
+            {this.props.prepositions ? <literal text='from ' optional limited /> : null}
             {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-            <Date id='start' prepositions={this.props.prepositions} />
-            <literal text=' for ' />
-            <DateDuration id='duration' />
+            <Date id='start' />
+            <list items={[' to ', ' - ', '-']} limit={1} />
+            {this.props._allDay ? <literal text='all day ' optional limited /> : null}
+            <Date id='end' />
           </sequence>
-        ) : null}
-      </choice>
+          {this.props._duration ? (
+            <sequence>
+              {this.props._allDay ? <literal text='all day ' optional limited /> : null}
+              <Date id='start' prepositions={this.props.prepositions} />
+              <literal text=' for ' />
+              <DateDuration id='duration' />
+            </sequence>
+          ) : null}
+        </choice>
+      </map>
     )
   }
 }

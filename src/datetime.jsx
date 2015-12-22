@@ -23,7 +23,7 @@ export class DateTime extends Phrase {
 
   describe () {
     return (
-      <placeholder text='date and time' showForEmpty>
+      <label argument={false} text='date and time' showForEmpty>
         <choice>
           {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} /> : null}
 
@@ -33,7 +33,7 @@ export class DateTime extends Phrase {
 
           <DateWithTimeOfDayAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} />
         </choice>
-      </placeholder>
+      </label>
     )
   }
 }
@@ -57,19 +57,21 @@ class DateAndTime extends Phrase {
 
   describe () {
     return (
-      <choice>
-        <sequence>
-          <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
-          <literal text=' ' />
-          <Date id='date' recurse={false} prepositions />
-        </sequence>
+      <map function={this.getValue.bind(this)}>
+        <choice>
+          <sequence>
+            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
+            <literal text=' ' />
+            <Date id='date' recurse={false} prepositions />
+          </sequence>
 
-        <sequence>
-          <Date id='date' recurse={false} prepositions={this.props.prepositions} />
-          <literal text=' ' />
-          <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
-        </sequence>
-      </choice>
+          <sequence>
+            <Date id='date' recurse={false} prepositions={this.props.prepositions} />
+            <literal text=' ' />
+            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
+          </sequence>
+        </choice>
+      </map>
     )
 
   }
@@ -98,27 +100,29 @@ class DateWithTimeOfDayAndTime extends Phrase {
 
   describe () {
     return (
-      <filter function={this.filter.bind(this)}>
-        <choice>
-          <sequence>
-            <choice merge>
-              <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} seconds={this.props.seconds} />
-            </choice>
-            <literal text=' ' />
-            <DateWithTimeOfDay merge />
-          </sequence>
+      <map function={this.getValue.bind(this)}>
+        <filter function={this.filter.bind(this)}>
+          <choice>
+            <sequence>
+              <choice merge>
+                <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} seconds={this.props.seconds} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} seconds={this.props.seconds} />
+              </choice>
+              <literal text=' ' />
+              <DateWithTimeOfDay merge />
+            </sequence>
 
-          <sequence>
-            <DateWithTimeOfDay merge />
-            <literal text=' ' />
-            <choice limit={1} merge>
-              <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions seconds={this.props.seconds} />
-              <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions seconds={this.props.seconds} />
-            </choice>
-          </sequence>
-        </choice>
-      </filter>
+            <sequence>
+              <DateWithTimeOfDay merge />
+              <literal text=' ' />
+              <choice limit={1} merge>
+                <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions seconds={this.props.seconds} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions seconds={this.props.seconds} />
+              </choice>
+            </sequence>
+          </choice>
+        </filter>
+      </map>
     )
   }
 }
@@ -136,10 +140,12 @@ class DateAlone extends Phrase {
 
   describe () {
     return (
-      <choice limit={1}>
-        <Date id='date' prepositions={this.props.prepositions} />
-        <DateWithTimeOfDay prepositions={this.props.prepositions} />
-      </choice>
+      <map function={this.getValue.bind(this)}>
+        <choice limit={1}>
+          <Date id='date' prepositions={this.props.prepositions} />
+          <DateWithTimeOfDay prepositions={this.props.prepositions} />
+        </choice>
+      </map>
     )
   }
 }
@@ -154,14 +160,16 @@ class TimeAlone extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-        <choice id='relativeDate' limit={1}>
-          <literal text='' value={{}} />
-          <literal text='' value={{days: 1}} />
-          <literal text='' value={{days: -1}} />
-        </choice>
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} />
+          <choice id='relativeDate' limit={1}>
+            <literal text='' value={{}} />
+            <literal text='' value={{days: 1}} />
+            <literal text='' value={{days: -1}} />
+          </choice>
+        </sequence>
+      </map>
     )
   }
 }

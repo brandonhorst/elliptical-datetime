@@ -38,22 +38,24 @@ export class TimeRange extends Phrase {
 
   describe () {
     return (
-      <choice>
-        <sequence>
-          {this.props.prepositions ? <literal text='from ' /> : null}
-          <Time id='start' />
-          <list items={[' to ', ' - ', '-']} limit={1} />
-          <Time id='end' />
-        </sequence>
-
-        {this.props._duration ? (
+      <map function={this.getValue.bind(this)}>
+        <choice>
           <sequence>
-            <Time id='start' prepositions={this.props.prepositions} />
-            <literal text=' for ' />
-            <TimeDuration id='duration' max={{hours: 23, minutes: 59, seconds: 59}} />
+            {this.props.prepositions ? <literal text='from ' /> : null}
+            <Time id='start' />
+            <list items={[' to ', ' - ', '-']} limit={1} />
+            <Time id='end' />
           </sequence>
-        ) : null}
-      </choice>
+
+          {this.props._duration ? (
+            <sequence>
+              <Time id='start' prepositions={this.props.prepositions} />
+              <literal text=' for ' />
+              <TimeDuration id='duration' max={{hours: 23, minutes: 59, seconds: 59}} />
+            </sequence>
+          ) : null}
+        </choice>
+      </map>
     )
   }
 }

@@ -75,7 +75,7 @@ export class Range extends Phrase {
 
   describe () {
     return (
-      <placeholder text='period of time'>
+      <label argument={false} text='period of time'>
         <choice limit={1}>
           <StartDateAlone prepositions={this.props.prepositions} />
           <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} />
@@ -85,7 +85,7 @@ export class Range extends Phrase {
           <StartDateTimeAndDuration prepositions={this.props.prepositions} />
           <StartDateTimeAndEndDateTime prepositions={this.props.prepositions} />
         </choice>
-      </placeholder>
+      </label>
     )
   }
 }
@@ -110,10 +110,12 @@ class StartDateAlone extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <literal text='all day ' optional limited />
-        <Date merge prepositions={this.props.prepositions} />
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <literal text='all day ' optional limited />
+          <Date merge prepositions={this.props.prepositions} />
+        </sequence>
+      </map>
     )
   }
 }
@@ -132,7 +134,11 @@ class StartDateTimeAlone extends Phrase {
   }
 
   describe () {
-    return <DateTime _impliedTime={false} prepositions={this.props.prepositions} />
+    return (
+      <map function={this.getValue.bind(this)}>
+        <DateTime _impliedTime={false} prepositions={this.props.prepositions} />
+      </map>
+    )
   }
 }
 
@@ -156,14 +162,16 @@ class TimeRangeAlone extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <choice id='relative' limit={1}>
-          <literal text='' value={{}} />
-          <literal text='' value={{days: 1}} />
-          <literal text='' value={{days: -1}} />
-        </choice>
-        <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <choice id='relative' limit={1}>
+            <literal text='' value={{}} />
+            <literal text='' value={{days: 1}} />
+            <literal text='' value={{days: -1}} />
+          </choice>
+          <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
+        </sequence>
+      </map>
     )
   }
 }
@@ -184,7 +192,11 @@ class DateRangeAlone extends Phrase {
   }
 
   describe () {
-    return <DateRange prepositions={this.props.prepositions} _allDay />
+    return (
+      <map function={this.getValue.bind(this)}>
+        <DateRange prepositions={this.props.prepositions} _allDay />
+      </map>
+    )
   }
 }
 
@@ -201,12 +213,14 @@ class StartDateTimeAndEndDateTime extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        {this.props.prepositions ? <literal text='from ' optional limited /> : null}
-        <DateTime id='start' defaultTime={this.props.defaultTime} />
-        <list items={[' to ', ' - ', '-']} limit={1} />
-        <DateTime id='end' defaultTime={this.props.defaultTime} />
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          {this.props.prepositions ? <literal text='from ' optional limited /> : null}
+          <DateTime id='start' defaultTime={this.props.defaultTime} />
+          <list items={[' to ', ' - ', '-']} limit={1} />
+          <DateTime id='end' defaultTime={this.props.defaultTime} />
+        </sequence>
+      </map>
     )
   }
 }
@@ -227,20 +241,22 @@ class StartDateTimeAndDuration extends Phrase {
   }
   describe () {
     return (
-      <choice>
-        <sequence>
-          {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
-          <Duration id='duration' seconds={this.props.seconds} />
-          <literal text=' ' />
-          <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
-        </sequence>
+      <map function={this.getValue.bind(this)}>
+        <choice>
+          <sequence>
+            {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
+            <Duration id='duration' seconds={this.props.seconds} />
+            <literal text=' ' />
+            <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
+          </sequence>
 
-        <sequence>
-          <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
-          <literal text=' for ' />
-          <Duration id='duration' seconds={this.props.seconds} />
-        </sequence>
-      </choice>
+          <sequence>
+            <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
+            <literal text=' for ' />
+            <Duration id='duration' seconds={this.props.seconds} />
+          </sequence>
+        </choice>
+      </map>
     )
   }
 }
@@ -262,19 +278,21 @@ class StartDateAndTimeRange extends Phrase {
 
   describe () {
     return (
-      <choice>
-        <sequence>
-          <Date id='date' prepositions={this.props.prepositions} />
-          <literal text=' ' />
-          <TimeRange id='timeRange' _duration={false} prepositions />
-        </sequence>
+      <map function={this.getValue.bind(this)}>
+        <choice>
+          <sequence>
+            <Date id='date' prepositions={this.props.prepositions} />
+            <literal text=' ' />
+            <TimeRange id='timeRange' _duration={false} prepositions />
+          </sequence>
 
-        <sequence>
-          <TimeRange id='timeRange' prepositions={this.props.prepositions} />
-          <literal text=' ' />
-          <Date id='date' prepositions />
-        </sequence>
-      </choice>
+          <sequence>
+            <TimeRange id='timeRange' prepositions={this.props.prepositions} />
+            <literal text=' ' />
+            <Date id='date' prepositions />
+          </sequence>
+        </choice>
+      </map>
     )
   }
 }

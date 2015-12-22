@@ -11,14 +11,14 @@ import { TimeDuration } from './duration'
 export class TimeOfDay extends Phrase {
   describe () {
     return (
-    <placeholder text='time of day'>
-      <list items={[
-        {text: 'morning', value: {default: 8, range: [0, 12]}},
-        {text: 'afternoon', value: {default: 12, range: [12, 24]}},
-        {text: 'evening', value: {default: 17, range: [12, 24]}},
-        {text: 'night', value: {default: 20, range: [12, 24]}}
-      ]} />
-      </placeholder>
+      <label text='time of day'>
+        <list items={[
+          {text: 'morning', value: {default: 8, range: [0, 12]}},
+          {text: 'afternoon', value: {default: 12, range: [12, 24]}},
+          {text: 'evening', value: {default: 17, range: [12, 24]}},
+          {text: 'night', value: {default: 20, range: [12, 24]}}
+        ]} />
+      </label>
     )
   }
 }
@@ -28,12 +28,12 @@ export class AmbiguousTime extends Phrase {
     return (
       <sequence>
         {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
-        <argument text='time' showForEmpty merge>
+        <label text='time' showForEmpty merge>
           <choice>
             <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
             <AmbiguousAbsoluteRelativeHour />
           </choice>
-        </argument>
+        </label>
       </sequence>
     )
   }
@@ -42,7 +42,7 @@ export class AmbiguousTime extends Phrase {
 export class Time extends Phrase {
   describe () {
     return (
-      <argument text='time' showForEmpty>
+      <label text='time' showForEmpty>
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' /> : null}
@@ -57,7 +57,7 @@ export class Time extends Phrase {
           {this.props.relative ? <RelativeTime /> : null}
           {this.props.recurse ? <RecursiveTime /> : null}
         </choice>
-      </argument>
+      </label>
     )
   }
 }
@@ -81,34 +81,36 @@ class RelativeTime extends Phrase {
 
   describe() {
     return (
-      <choice>
-        <sequence>
-          <literal text='in ' id='direction' value={1} />
-          <TimeDuration id='duration' seconds={this.props.seconds} />
-        </sequence>
-        <sequence>
-          <TimeDuration id='duration' seconds={this.props.seconds} />
-          <literal text=' from now' id='direction' value={1} />
-        </sequence>
-        <sequence>
-          <TimeDuration id='duration' seconds={this.props.seconds} />
-          <literal text=' ago' id='direction' value={-1} />
-        </sequence>
-      </choice>
+      <map function={this.getValue.bind(this)}>
+        <choice>
+          <sequence>
+            <literal text='in ' id='direction' value={1} />
+            <TimeDuration id='duration' seconds={this.props.seconds} />
+          </sequence>
+          <sequence>
+            <TimeDuration id='duration' seconds={this.props.seconds} />
+            <literal text=' from now' id='direction' value={1} />
+          </sequence>
+          <sequence>
+            <TimeDuration id='duration' seconds={this.props.seconds} />
+            <literal text=' ago' id='direction' value={-1} />
+          </sequence>
+        </choice>
+      </map>
     )
   }
 }
 
 class RelativeNamed extends Phrase {
-  getValue (result) {
-    return relativeTime(result)
-  }
-
   describe () {
-    return <list items={[
-      {text: 'now', value: {}},
-      {text: 'right now', value: {}}
-    ]} limit={1} />
+    return (
+      <map function={relativeTime}>
+        <list items={[
+          {text: 'now', value: {}},
+          {text: 'right now', value: {}}
+        ]} limit={1} />
+      </map>
+    )
   }
 }
 
@@ -121,28 +123,30 @@ class AbsoluteTimeOfDay extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <choice id='ambiguousTime'>
-          <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
-          <AmbiguousAbsoluteRelativeHour />
-        </choice>
-        <literal text=' in the ' category='conjunction' />
-        <TimeOfDay id='timeOfDay' />
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <choice id='ambiguousTime'>
+            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
+            <AmbiguousAbsoluteRelativeHour />
+          </choice>
+          <literal text=' in the ' category='conjunction' />
+          <TimeOfDay id='timeOfDay' />
+        </sequence>
+      </map>
     )
   }
 }
 
 class AbsoluteNamed extends Phrase {
-  getValue (result) {
-    return absoluteTime(result)
-  }
-
   describe () {
-    return <list items={[
-      {text: 'midnight', value: {hour: 0}},
-      {text: 'noon', value: {hour: 12}}
-    ]} />
+    return (
+      <map function={absoluteTime}>
+        <list items={[
+          {text: 'midnight', value: {hour: 0}},
+          {text: 'noon', value: {hour: 12}}
+        ]} />
+      </map>
+    )
   }
 }
 
@@ -154,27 +158,29 @@ class AmbiguousAbsoluteNumeric extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <Hour id='hour' />
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <Hour id='hour' />
 
-        <choice optional limit={1} merge>
-          {this.props.minutes ?
-            <sequence>
-              <literal text=':' />
-              <MinutesOrSeconds id='minute' />
-            </sequence>
-          : null}
+          <choice optional limit={1} merge>
+            {this.props.minutes ?
+              <sequence>
+                <literal text=':' />
+                <MinutesOrSeconds id='minute' />
+              </sequence>
+            : null}
 
-          {this.props.minutes && this.props.seconds ?
-            <sequence>
-              <literal text=':' />
-              <MinutesOrSeconds id='minute' />
-              <literal text=':' />
-              <MinutesOrSeconds id='second' />
-            </sequence>
-          : null}
-        </choice>
-      </sequence>
+            {this.props.minutes && this.props.seconds ?
+              <sequence>
+                <literal text=':' />
+                <MinutesOrSeconds id='minute' />
+                <literal text=':' />
+                <MinutesOrSeconds id='second' />
+              </sequence>
+            : null}
+          </choice>
+        </sequence>
+      </map>
     )
   }
 }
@@ -193,14 +199,16 @@ class AbsoluteNumeric extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <AmbiguousAbsoluteNumeric id='ambiguousTime' minutes={this.props.minutes} seconds={this.props.seconds} />
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <AmbiguousAbsoluteNumeric id='ambiguousTime' minutes={this.props.minutes} seconds={this.props.seconds} />
 
-        <choice id='ampm'>
-          <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
-          <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
-        </choice>
-      </sequence>
+          <choice id='ampm'>
+            <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
+            <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
+          </choice>
+        </sequence>
+      </map>
     )
   }
 }
@@ -233,36 +241,38 @@ class BaseAbsoluteRelativeHour extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <placeholder text='number' showForEmpty={true} id='duration'>
-          <choice>
-            <literal id='minutes' text='quarter' value={15} />
-            <literal id='minutes' text='half' value={30} />
-            <Integer id='minutes' min={1} max={59} merge />
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <label argument={false} text='number' showForEmpty={true} id='duration'>
+            <choice>
+              <literal id='minutes' text='quarter' value={15} />
+              <literal id='minutes' text='half' value={30} />
+              <Integer id='minutes' min={1} max={59} merge />
+            </choice>
+          </label>
+          <choice id='direction'>
+            <choice limit={1} value={1}>
+              <literal text=' past '/>
+            </choice>
+            <choice limit={1} value={-1}>
+              <literal text=' to ' />
+              <literal text=' of ' />
+              <literal text=' til ' />
+              <literal text=' before ' />
+              <literal text=' from '/>
+            </choice>
           </choice>
-        </placeholder>
-        <choice id='direction'>
-          <choice limit={1} value={1}>
-            <literal text=' past '/>
-          </choice>
-          <choice limit={1} value={-1}>
-            <literal text=' to ' />
-            <literal text=' of ' />
-            <literal text=' til ' />
-            <literal text=' before ' />
-            <literal text=' from '/>
-          </choice>
-        </choice>
-        <placeholder text='hour' id='absolute'>
-          <choice>
-            {this.props.ambiguous ?
-              <AmbiguousAbsoluteNumeric minutes={false} seconds={false} /> :
-              <AbsoluteNumeric minutes={false} seconds={false} />
-            }
-            <AbsoluteNamed />
-          </choice>
-        </placeholder>
-      </sequence>
+          <label argument={false} text='hour' id='absolute'>
+            <choice>
+              {this.props.ambiguous ?
+                <AmbiguousAbsoluteNumeric minutes={false} seconds={false} /> :
+                <AbsoluteNumeric minutes={false} seconds={false} />
+              }
+              <AbsoluteNamed />
+            </choice>
+          </label>
+        </sequence>
+      </map>
     )
   }
 }
@@ -282,24 +292,26 @@ class RecursiveTime extends Phrase {
 
   describe () {
     return (
-      <sequence>
-        <argument text='offset' showForEmpty merge>
-          <sequence>
-            <TimeDuration id='duration' />
-            <list merge={true} id='direction' items={[
-              {text: ' before ', value: -1},
-              {text: ' after ', value: 1},
-              {text: ' from ', value: 1},
-              {text: ' past ', value: 1},
-              {text: ' to ', value: -1},
-              {text: ' of ', value: -1},
-              {text: ' til ', value: -1},
-              {text: ' from ', value: -1}
-            ]} limit={2} />
-          </sequence>
-        </argument>
-        <Time recurse={false} relative={false} id='time' />
-      </sequence>
+      <map function={this.getValue.bind(this)}>
+        <sequence>
+          <label text='offset' showForEmpty merge>
+            <sequence>
+              <TimeDuration id='duration' />
+              <list merge={true} id='direction' items={[
+                {text: ' before ', value: -1},
+                {text: ' after ', value: 1},
+                {text: ' from ', value: 1},
+                {text: ' past ', value: 1},
+                {text: ' to ', value: -1},
+                {text: ' of ', value: -1},
+                {text: ' til ', value: -1},
+                {text: ' from ', value: -1}
+              ]} limit={2} />
+            </sequence>
+          </label>
+          <Time recurse={false} relative={false} id='time' />
+        </sequence>
+      </map>
     )
   }
 }
@@ -310,7 +322,11 @@ class MinutesOrSeconds extends Phrase {
   }
 
   describe() {
-    return <DigitString descriptor='minutes' max={59} minLength={2} maxLength={2} />
+    return (
+      <map function={this.getValue.bind(this)}>
+        <DigitString descriptor='minutes' max={59} minLength={2} maxLength={2} />
+      </map>
+    )
   }
 }
 
@@ -320,7 +336,11 @@ class Hour extends Phrase {
   }
 
   describe() {
-    return <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} />
+    return (
+      <map function={this.getValue.bind(this)}>
+        <DigitString descriptor='hour' min={1} max={12} allowLeadingZeros={false} />
+      </map>
+    )
   }
 
 }

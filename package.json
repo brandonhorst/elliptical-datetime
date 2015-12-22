@@ -3,25 +3,24 @@
     "name": "@brandonhorst"
   },
   "bugs": {
-    "url": "https://github.com/brandonhorst/lacona-phrase-datetime/issues"
+    "url": "https://github.com/lacona/lacona-phrase-datetime/issues"
   },
   "dependencies": {
-    "lacona-phrase": "^0.7.0",
+    "lacona-phrase": "^0.9.1",
     "lodash": "^3.10.1",
     "moment": "^2.10.6"
   },
   "description": "Enable Lacona to parse natural language dates, times, and both together ",
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel": "^5.8.34",
     "chai": "^3.4.1",
     "chai-datetime": "^1.4.0",
-    "lacona": "^0.32.0",
+    "lacona": "^0.33.0",
     "lolex": "^1.4.0",
     "mocha": "^2.3.4",
     "rimraf": "^2.4.4"
   },
-  "gitHead": "8dcaa0e47d8e2e829f2f85c70323d2348923134f",
-  "homepage": "https://github.com/brandonhorst/lacona-phrase-datetime",
+  "homepage": "https://github.com/lacona/lacona-phrase-datetime",
   "keywords": [
     "date",
     "datetime",
@@ -34,13 +33,13 @@
   "name": "lacona-phrase-datetime",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brandonhorst/lacona-phrase-datetime.git"
+    "url": "git+https://github.com/lacona/lacona-phrase-datetime.git"
   },
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "babel --optional runtime --stage 0 src --out-dir lib",
     "clean": "rimraf lib tmp",
     "prepublish": "npm run build",
-    "pretest": "babel test --out-dir tmp",
+    "pretest": "babel --optional runtime --stage 0 test --out-dir tmp",
     "test": "mocha tmp",
     "validate": "npm run build && npm test"
   },
