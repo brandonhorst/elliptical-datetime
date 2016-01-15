@@ -7,18 +7,19 @@
   },
   "dependencies": {
     "lacona-phrase": "^0.9.1",
+    "lacona-phrase-number": "^0.6.0",
     "lodash": "^3.10.1",
-    "moment": "^2.10.6"
+    "moment": "^2.11.1"
   },
   "description": "Enable Lacona to parse natural language dates, times, and both together ",
   "devDependencies": {
     "babel": "^5.8.34",
     "chai": "^3.4.1",
     "chai-datetime": "^1.4.0",
-    "lacona": "^0.33.0",
+    "lacona": "^0.36.0",
     "lolex": "^1.4.0",
     "mocha": "^2.3.4",
-    "rimraf": "^2.4.4"
+    "rimraf": "^2.5.0"
   },
   "homepage": "https://github.com/lacona/lacona-phrase-datetime",
   "keywords": [

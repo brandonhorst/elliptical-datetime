@@ -9,8 +9,6 @@ import { Time } from './time'
 
 export class TimeRange extends Phrase {
   getValue (result) {
-    if (!result) return
-
     if (result.start && result.duration) {
       const startDate = moment.utc(result.start)
       const endDate = moment(startDate).add(moment.duration(result.duration))
@@ -28,8 +26,6 @@ export class TimeRange extends Phrase {
   }
 
   validate (result) {
-    if (!result || !result.start || !result.end || result.dayOffset == null) return true
-
     if (result.dayOffset > 0) return true
 
     const startMoment = moment.utc(result.start)

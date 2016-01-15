@@ -14,8 +14,6 @@ import { TimeRange } from './time-range'
 
 export class Range extends Phrase {
   validate (result) {
-    if (!result || !result.start || !result.end) return true
-
     const startMoment = moment(result.start)
     const endMoment = moment(result.end)
 
@@ -75,7 +73,7 @@ export class Range extends Phrase {
 
   describe () {
     return (
-      <label argument={false} text='period of time'>
+      <label argument={false} text='period of time' suppressIncomplete>
         <choice limit={1}>
           <StartDateAlone prepositions={this.props.prepositions} />
           <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} />
@@ -149,8 +147,6 @@ StartDateTimeAlone.defaultProps = {
 
 class TimeRangeAlone extends Phrase {
   getValue (result) {
-    if (!result || !result.timeRange) return
-
     const startDate = relativeDate(result.relative)
     const endDate = moment(startDate).add(result.timeRange.dayOffset, 'day')
     return {
@@ -164,11 +160,11 @@ class TimeRangeAlone extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <choice id='relative' limit={1}>
-            <literal text='' value={{}} />
-            <literal text='' value={{days: 1}} />
-            <literal text='' value={{days: -1}} />
-          </choice>
+          <list id='relative' limit={1} items={[
+            {text:'', value: {}},
+            {text:'', value: {days: 1}},
+            {text:'', value: {days: -1}}
+          ]} />
           <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
         </sequence>
       </map>
@@ -182,8 +178,6 @@ TimeRangeAlone.defaultProps = {
 
 class DateRangeAlone extends Phrase {
   getValue (result) {
-    if (!result) return
-
     return {
       start: result.start,
       end: result.end,
@@ -202,8 +196,6 @@ class DateRangeAlone extends Phrase {
 
 class StartDateTimeAndEndDateTime extends Phrase {
   getValue (result) {
-    if (!result) return
-
     return {
       start: result.start,
       end: result.end,
@@ -231,8 +223,6 @@ StartDateTimeAndEndDateTime.defaultProps = {
 
 class StartDateTimeAndDuration extends Phrase {
   getValue (result) {
-    if (!result) return
-
     return {
       start: result.start,
       end: moment(result.start).add(moment.duration(result.duration)).toDate(),
@@ -244,7 +234,7 @@ class StartDateTimeAndDuration extends Phrase {
       <map function={this.getValue.bind(this)}>
         <choice>
           <sequence>
-            {this.props.prepositions ? <literal text='for ' optional={true} limited={true} preferred={false} /> : null}
+            {this.props.prepositions ? <literal text='for ' optional limited /> : null}
             <Duration id='duration' seconds={this.props.seconds} />
             <literal text=' ' />
             <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
@@ -267,8 +257,6 @@ StartDateTimeAndDuration.defaultProps = {
 
 class StartDateAndTimeRange extends Phrase {
   getValue (result) {
-    if (!result || !result.timeRange) return
-
     return {
       start: join(result.date, result.timeRange.start),
       end: join(moment(result.date).add(result.timeRange.dayOffset, 'day'), result.timeRange.end),

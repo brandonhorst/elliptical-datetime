@@ -1,12 +1,13 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
+import moment from 'moment'
+
 import { DateDuration } from './duration'
 import { DigitString, Integer, Ordinal } from 'lacona-phrase-number'
 import { TimeOfDay } from './time'
-import moment from 'moment'
-import Month from './month'
-import Weekday from './weekday'
+import { Month } from './month'
+import { Weekday } from './weekday'
 import { absoluteDate, negateDuration, relativeDate, relativeDay, validateDay } from './helpers'
 
 export class Day extends Phrase {
@@ -16,14 +17,14 @@ export class Day extends Phrase {
     return (
       <choice>
         {this.props.recurse ? (
-          <label text='day' showForEmpty>
+          <label text='day'>
             <RecursiveDay />
           </label>
         ) : null}
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited category='conjunction' /> : null}
-          <label text='day' showForEmpty merge>
+          {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
+          <label text='day' merge>
             <choice>
               <AmbiguousAbsoluteDay />
               <AmbiguousAbsoluteNamedMonth />
@@ -41,8 +42,6 @@ Day.defaultProps = {
 
 export class Date extends Phrase {
   validate (result) {
-    if (!result) return true
-
     if (!this.props.past && moment({}).isAfter(result)) {
       return false
     }
@@ -58,7 +57,7 @@ export class Date extends Phrase {
 
     return (
       <choice>
-        <label text='date' showForEmpty>
+        <label text='date' suppressIncomplete>
           <choice>
             <RelativeNamed />
             <RelativeNumbered prepositions={this.props.prepositions} />
@@ -69,8 +68,8 @@ export class Date extends Phrase {
         </label>
 
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited category='conjunction' /> : null}
-          <label text='date' showForEmpty merge>
+          {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
+          <label text='date' merge>
             <choice>
               <RelativeWeekday />
               <AbsoluteDay />
@@ -95,8 +94,8 @@ export class DateWithTimeOfDay extends Phrase {
     return (
       <choice>
         <sequence>
-          {this.props.prepositions ? <literal text='on ' optional prefered limited /> : null}
-          <label argument={false} text='date' merge showForEmpty>
+          {this.props.prepositions ? <literal text='on ' optional preferred limited /> : null}
+          <label argument={false} text='date' merge>
             <sequence>
               <literal text='the ' />
               <TimeOfDay id='impliedTime' />
@@ -113,8 +112,8 @@ export class DateWithTimeOfDay extends Phrase {
             </sequence>
           </label>
         </sequence>
-
-        <label argument={false} text='date' showForEmpty>
+        
+        <label argument={false} text='date'>
           <sequence>
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
@@ -126,11 +125,11 @@ export class DateWithTimeOfDay extends Phrase {
           </sequence>
         </label>
 
-        <label argument={false} text='date' showForEmpty>
+        <label argument={false} text='date'>
           <DayWithYearAndTimeOfDay />
         </label>
 
-        <label argument={false} text='date' showForEmpty>
+        <label argument={false} text='date'>
           <sequence>
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
@@ -154,8 +153,6 @@ DateWithTimeOfDay.defaultProps = {
 
 class DayWithYear extends Phrase {
   getValue (result) {
-    if (!result) return
-
     if (result.duration) {
       return relativeDate(result.duration, result.day)
     } else {
@@ -169,11 +166,11 @@ class DayWithYear extends Phrase {
         <sequence>
           <Day prepositions={this.props.prepositions} id='day' recurse={false} />
           <choice merge>
-            <choice id='duration' limit={1}>
-              <literal text='' value={{}} />
-              <literal text='' value={{years: 1}} />
-              <literal text='' value={{years: -1}} />
-            </choice>
+            <list id='duration' limit={1} items={[
+              {text: '', value: {}},
+              {text: '', value: {years: 1}},
+              {text: '', value: {years: -1}}
+            ]} />
             <sequence>
               <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
               <Year id='year' />
@@ -225,13 +222,13 @@ class ExtraDateDuration extends Phrase {
             <literal text='the ' />
           </label>
           <label argument={false} text='time period' merge>
-            <choice>
-              <literal text='day' value={{type: 'days'}}  />,
-              <literal text='fortnight' value={{type: 'days', multiplier: 14}} />,
-              <literal text='week' value={{type: 'days', multiplier: 7}} />,
-              <literal text='month' value={{type: 'months'}} />,
-              <literal text='year' value={{type: 'years'}} />
-            </choice>
+            <list items={[
+              {text: 'day', value: {type: 'days'}},
+              {text: 'fortnight', value: {type: 'days', multiplier: 14}},
+              {text: 'week', value: {type: 'days', multiplier: 7}},
+              {text: 'month', value: {type: 'months'}},
+              {text: 'year', value: {type: 'years'}}
+            ]} />
           </label>
         </sequence>
       </map>
@@ -242,8 +239,6 @@ class ExtraDateDuration extends Phrase {
 
 class RecursiveDay extends Phrase {
   getValue(result) {
-    if (!result || !result.day) return
-
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
     return relativeDay(duration, result.day)
@@ -253,7 +248,7 @@ class RecursiveDay extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <label text='offset' showForEmpty merge>
+          <label text='offset' merge>
             <sequence>
               <choice id='duration'>
                 <ExtraDateDuration />
@@ -277,8 +272,6 @@ class RecursiveDay extends Phrase {
 
 class RecursiveDate extends Phrase {
   getValue(result) {
-    if (!result) return
-
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
     return relativeDate(duration, result.date)
@@ -288,7 +281,7 @@ class RecursiveDate extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <label text='offset' showForEmpty merge>
+          <label text='offset' merge>
             <sequence>
               <choice id='duration'>
                 <ExtraDateDuration />
@@ -348,8 +341,6 @@ class TimeOfDayModifier extends Phrase {
 
 class RelativeNumbered extends Phrase {
   getValue(result) {
-    if (!result) return
-
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
     return relativeDate(duration)
@@ -377,8 +368,6 @@ class RelativeNumbered extends Phrase {
 
 class RelativeAdjacent extends Phrase {
   getValue(result) {
-    if (!result) return
-
     const duration = {[result.type]: result.num * (result.multiplier || 1)}
 
     return relativeDate(duration)
@@ -387,19 +376,21 @@ class RelativeAdjacent extends Phrase {
   describe() {
     return (
       <map function={this.getValue.bind(this)}>
-        <sequence>
-          <choice id='num'>
-            <literal text='next ' value={1} />
-            <literal text='last ' value={-1} />
-          </choice>
-          <label argument={false} text='week, month, year' merge>
-            <choice>
-              <literal text='week' value={{type: 'days', multiplier: 7}} />
-              <literal text='month' value={{type: 'months'}} />
-              <literal text='year' value={{type: 'years'}} />
-            </choice>
-          </label>
-        </sequence>
+        <label text='time period'>
+          <sequence>
+            <list id='num' items={[
+              {text: 'next ', value: 1},
+              {text: 'last ', value: -1}
+            ]} />
+            <label argument={false} text='time period' merge>
+              <list items={[
+                {text: 'week', value: {type: 'days', multiplier: 7}},
+                {text: 'month', value: {type: 'months'}},
+                {text: 'year', value: {type: 'years'}}
+              ]} />
+            </label>
+          </sequence>
+        </label>
       </map>
     )
   }
@@ -418,13 +409,15 @@ class RelativeWeekday extends Phrase {
         <choice>
           <sequence>
             <choice id='distance'>
-              <choice limit={1}> {/* automatically handle past/present/future */}
-                <literal text='' value={0} />
-                <literal text='' value={1} />
-                <literal text='' value={-1} />
-              </choice>
-              <literal text='last ' value={-1} />
-              <literal text='this ' value={0} />
+              <list items={[
+                {text: '', value: 0},
+                {text: '', value: 1},
+                {text: '', value: -1}
+              ]} limit={1} /> {/* automatically handle past/present/future */}
+              <list items={[
+                {text: 'last ', value: -1},
+                {text: 'this ', value: 0}
+              ]} />
               <list items={['next ', 'this upcoming ']} limit={1} value={1} />
             </choice>
             <label argument={false} text='weekday' id='weekday'>
@@ -433,15 +426,19 @@ class RelativeWeekday extends Phrase {
           </sequence>
           <sequence>
             <literal text='the ' />
-            <label argument={false} text='weekday' id='weekday'>
-              <Weekday />
+            <label text='relative weekday' merge>
+              <sequence>
+                <label argument={false} text='weekday' id='weekday'>
+                  <Weekday />
+                </label>
+                <list id='distance' items={[
+                  {text: ' after next', value: 2},
+                  {text: ' after this', value: 1},
+                  {text: ' before this', value: -1},
+                  {text: ' before last', value: -2}
+                ]} />
+              </sequence>
             </label>
-            <choice id='distance'>
-              <literal text=' after next' value={2} />
-              <literal text=' after this' value={1} />
-              <literal text=' before this' value={-1} />
-              <literal text=' before last' value={-2} />
-            </choice>
           </sequence>
         </choice>
       </map>
@@ -461,7 +458,7 @@ class MonthNumber extends Phrase {
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
-        <DigitString maxLength={2} max={12} min={1} descriptor='mm' />
+        <DigitString maxLength={2} max={12} min={1} argument='mm' />
       </map>
     )
   }
@@ -475,7 +472,7 @@ class DayNumber extends Phrase {
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
-        <DigitString maxLength={2} max={31} min={1} descriptor='dd'/>
+        <DigitString maxLength={2} max={31} min={1} argument='dd'/>
       </map>
     )
   }
@@ -513,8 +510,6 @@ class AmbiguousAbsoluteDay extends Phrase {
 
 class Year extends Phrase {
   getValue(result) {
-    if (!result) return
-
     if (result.year20 != null) {
       return 2000 + parseInt(result.year20, 10)
     } else if (result.year19 != null) {
@@ -525,13 +520,13 @@ class Year extends Phrase {
   }
 
   suppressWhen(input) {
-    return /^(|\d|\d{3})$/.test(input)
+    return /^('\d|\d|\d{3})$/.test(input)
   }
 
   describe() {
     return (
-      <map function={this.getValue.bind(this)}>
-        <label suppressWhen={this.suppressWhen} text='year'>
+      <label suppressWhen={this.suppressWhen} text='year'>
+        <map function={this.getValue.bind(this)}>
           <choice limit={1}>
             <sequence>
               <literal text={'\''} />
@@ -542,24 +537,24 @@ class Year extends Phrase {
             </sequence>
 
             <sequence>
-              <literal text='20' decorate />
+              <literal text='20' decorate allowInput={false} />
               <DigitString minLength={2} maxLength={2} min={0} max={29} id='year20' />
             </sequence>
 
             <sequence>
-              <literal text='19' decorate />
+              <literal text='19' decorate allowInput={false} />
               <DigitString minLength={2} maxLength={2} min={0} max={99} id='year19' />
             </sequence>
 
             <sequence>
-              <literal text='20' decorate />
+              <literal text='20' decorate allowInput={false} />
               <DigitString minLength={2} maxLength={2} min={0} max={99} id='year20' />
             </sequence>
 
             <DigitString minLength={4} maxLength={4} id='year' />
           </choice>
-        </label>
-      </map>
+        </map>
+      </label>
     )
   }
 }

@@ -8,8 +8,6 @@ import { DateWithTimeOfDay, Date } from './date'
 
 export class DateTime extends Phrase {
   validate (result) {
-    if (!result) return true
-
     if (!this.props.past && moment().isAfter(result)) {
       return false
     }
@@ -23,11 +21,11 @@ export class DateTime extends Phrase {
 
   describe () {
     return (
-      <label argument={false} text='date and time' showForEmpty>
+      <label argument={false} text='date and time' suppressIncomplete>
         <choice>
           {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} /> : null}
 
-          {this.props._impliedTime ? <DateAlone time={this.props.defaultTime} /> : null}
+          {this.props._impliedTime ? <DateAlone prepositions={this.props.prepositions} time={this.props.defaultTime} /> : null}
 
           <DateAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} />
 
@@ -50,8 +48,6 @@ DateTime.defaultProps = {
 
 class DateAndTime extends Phrase {
   getValue (result) {
-    if (!result) return
-
     return join(result.date, result.time)
   }
 
@@ -79,8 +75,6 @@ class DateAndTime extends Phrase {
 
 class DateWithTimeOfDayAndTime extends Phrase {
   getValue (result) {
-    if (!result || !result.impliedTime) return
-
     if (result.ambiguousTime) {
       const time = coerceAmbiguousTime(result.ambiguousTime, result.impliedTime.range)
       return join(result.date, time)
@@ -91,11 +85,11 @@ class DateWithTimeOfDayAndTime extends Phrase {
   }
 
   filter (result) {
-    if (result && result.time && result.impliedTime) {
+    if (result.time && result.impliedTime) {
       return _.inRange(result.time.hour, ...result.impliedTime.range)
+    } else {
+      return true
     }
-
-    return true
   }
 
   describe () {
@@ -129,8 +123,6 @@ class DateWithTimeOfDayAndTime extends Phrase {
 
 class DateAlone extends Phrase {
   getValue (result) {
-    if (!result) return
-
     if (result.impliedTime) {
       return join(result.date, {hour: result.impliedTime.default})
     } else {
@@ -152,8 +144,6 @@ class DateAlone extends Phrase {
 
 class TimeAlone extends Phrase {
   getValue (result) {
-    if (!result) return
-
     const date = relativeDate(result.relativeDate)
     return join(date, result.time)
   }
@@ -163,11 +153,11 @@ class TimeAlone extends Phrase {
       <map function={this.getValue.bind(this)}>
         <sequence>
           <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-          <choice id='relativeDate' limit={1}>
-            <literal text='' value={{}} />
-            <literal text='' value={{days: 1}} />
-            <literal text='' value={{days: -1}} />
-          </choice>
+          <list id='relativeDate' limit={1} items={[
+            {text:'', value: {}},
+            {text:'', value: {days: 1}},
+            {text:'', value: {days: -1}}
+          ]} />
         </sequence>
       </map>
     )

@@ -22,13 +22,15 @@ class BaseDuration extends Phrase {
 
   describe () {
     return (
-      <map function={this.getValue.bind(this)}>
-        <filter function={this.filter.bind(this)}>
-          <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
-            {this.childDescribe()}
-          </repeat>
-        </filter>
-      </map>
+      <label text={this.props.argument}>
+        <map function={this.getValue}>
+          <filter function={this.filter}>
+            <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
+              {this.childDescribe()}
+            </repeat>
+          </filter>
+        </map>
+      </label>
     )
   }
 }
@@ -39,47 +41,46 @@ class InternalDuration extends Phrase {
   }
 
   describe () {
+    const singularDurations = (this.props.type !== 'time'
+      ? [
+        {text: 'day', value: {id: 'days', type: 'days'}},
+        {text: 'fortnight', value: {id: 'fortnights', type: 'days', multiplier: 14}},
+        {text: 'week', value: {id: 'weeks', type: 'days', multiplier: 7}},
+        {text: 'month', value: {id: 'months', type: 'months'}},
+        {text: 'year', value: {id: 'years', type: 'years'}}
+      ]
+      : []
+    ).concat(this.props.type !== 'date'
+      ? [
+        {text: 'hour', value: {id: 'hours', type: 'hours'}},
+        {text: 'minute', value: {id: 'minutes', type: 'minutes'}},
+      ]
+      : []
+    ).concat(this.props.type !== 'date' && this.props.seconds
+      ? [{text: 'second', value: {id: 'seconds', type: 'seconds'}}]
+      : []
+    )
+
+    const pluralDurations = _.map(singularDurations, ({text, value}) => ({
+      text: `${text}s`,
+      value
+    }))
+
     return (
-      <map function={this.getValue.bind(this)}>
+      <map function={this.getValue}>
         <choice limit={1}>
           <sequence>
             <Integer max={1} min={1} id='num' />
             <literal text=' ' />
             <label text='time period' merge>
-              <choice>
-                {this.props.type !== 'time' ? [
-                  <literal text='day' value={{id: 'days', type: 'days'}}  />,
-                  <literal text='fortnight' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-                  <literal text='week' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-                  <literal text='month' value={{id: 'months', type: 'months'}} />,
-                  <literal text='year' value={{id: 'years', type: 'years'}} />
-                ] : null}
-                {this.props.type !== 'date' ? [
-                  <literal text='hour' value={{id: 'hours', type: 'hours'}} />,
-                  <literal text='minute' value={{id: 'minutes', type: 'minutes'}} />,
-                  this.props.seconds ? <literal text='second' value={{id: 'seconds', type: 'seconds'}} /> : null
-                ] : null}
-              </choice>
+              <list items={singularDurations} />
             </label>
           </sequence>
           <sequence>
             <Integer id='num' min={2} />
             <literal text=' ' />
             <label text='time period' merge>
-              <choice>
-                {this.props.type !== 'time' ? [
-                  <literal text='days' value={{id: 'days', type: 'days'}}  />,
-                  <literal text='fortnights' value={{id: 'fortnights', type: 'days', multiplier: 14}} />,
-                  <literal text='weeks' value={{id: 'weeks', type: 'days', multiplier: 7}} />,
-                  <literal text='months' value={{id: 'months', type: 'months'}} />,
-                  <literal text='years' value={{id: 'years', type: 'years'}} />
-                ] : null}
-                {this.props.type !== 'date' ? [
-                  <literal text='hours' value={{id: 'hours', type: 'hours'}} />,
-                  <literal text='minutes' value={{id: 'minutes', type: 'minutes'}} />,
-                  this.props.seconds ? <literal text='seconds' value={{id: 'seconds', type: 'seconds'}} /> : null
-                ] : null}
-              </choice>
+              <list items={pluralDurations} />
             </label>
           </sequence>
         </choice>
@@ -89,27 +90,32 @@ class InternalDuration extends Phrase {
 }
 
 export class DateDuration extends BaseDuration {
+  static defaultProps = {
+    argument: 'date duration'
+  }
   childDescribe() {
-    return <InternalDuration type='date' />
+    return <InternalDuration argument={this.props.argument} type='date' />
   }
 }
 
 export class TimeDuration extends BaseDuration {
-  childDescribe() {
-    return <InternalDuration type='time' seconds={this.props.seconds} />
+  static defaultProps = {
+    seconds: true,
+    argument: 'time duration'
   }
-}
 
-TimeDuration.defaultProps = {
-  seconds: true
+  childDescribe() {
+    return <InternalDuration argument={this.props.argument} type='time' seconds={this.props.seconds} />
+  }
 }
 
 export class Duration extends BaseDuration {
-  childDescribe() {
-    return <InternalDuration seconds={this.props.seconds} />
+  static defaultProps = {
+    seconds: true,
+    argument: 'duration'
   }
-}
 
-Duration.defaultProps = {
-  seconds: true
+  childDescribe() {
+    return <InternalDuration argument={this.props.argument} seconds={this.props.seconds} />
+  }
 }

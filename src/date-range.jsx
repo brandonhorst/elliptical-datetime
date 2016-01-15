@@ -10,8 +10,6 @@ import { DateDuration } from './duration'
 
 export class DateRange extends Phrase {
   getValue (result) {
-    if (!result) return
-
     if (result.duration) {
       return {
         start: result.start,

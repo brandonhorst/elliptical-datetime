@@ -2,10 +2,14 @@
 
 import { createElement, Phrase } from 'lacona-phrase'
 
-export default class Weekday extends Phrase {
+export class Month extends Phrase {
+  static defaultProps = {
+    argument: 'month'
+  }
+
   describe() {
     return (
-      <label argument text='month' suppressEmpty>
+      <label text={this.props.argument}>
         <list items={[
           {text: 'January', value: 0},
           {text: 'Feburary', value: 1},
