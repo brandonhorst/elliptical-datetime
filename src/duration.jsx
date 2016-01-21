@@ -70,14 +70,14 @@ class InternalDuration extends Phrase {
       <map function={this.getValue}>
         <choice limit={1}>
           <sequence>
-            <Integer max={1} min={1} id='num' />
+            <Integer max={1} min={1} id='num' limit={1} />
             <literal text=' ' />
             <label text='time period' merge>
               <list items={singularDurations} />
             </label>
           </sequence>
           <sequence>
-            <Integer id='num' min={2} />
+            <Integer id='num' min={2} limit={1} />
             <literal text=' ' />
             <label text='time period' merge>
               <list items={pluralDurations} />

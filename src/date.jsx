@@ -57,7 +57,7 @@ export class Date extends Phrase {
 
     return (
       <choice>
-        <label text='date' suppressIncomplete>
+        <label text='date' suppressEmpty={false}>
           <choice>
             <RelativeNamed />
             <RelativeNumbered prepositions={this.props.prepositions} />
@@ -69,7 +69,7 @@ export class Date extends Phrase {
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <label text='date' merge>
+          <label text='date' merge suppressEmpty={false}>
             <choice>
               <RelativeWeekday />
               <AbsoluteDay />
@@ -255,12 +255,13 @@ class RecursiveDay extends Phrase {
                 <DateDuration />
               </choice>
               <list merge id='direction' items={[
-                {text: ' before ', value: -1},
-                {text: ' after ', value: 1},
-                {text: ' from ', value: 1}
+                {text: ' before', value: -1},
+                {text: ' after', value: 1},
+                {text: ' from', value: 1}
               ]} limit={2} />
             </sequence>
           </label>
+          <literal text=' ' />
           <label argument={false} text='day' id='day'>
             <Day recurse={false} prepositions={false} />
           </label>
@@ -288,12 +289,13 @@ class RecursiveDate extends Phrase {
                 <DateDuration />
               </choice>
               <list merge id='direction' items={[
-                {text: ' before ', value: -1},
-                {text: ' after ', value: 1},
-                {text: ' from ', value: 1}
+                {text: ' before', value: -1},
+                {text: ' after', value: 1},
+                {text: ' from', value: 1}
               ]} limit={2} />
             </sequence>
           </label>
+          <literal text=' ' />
           <Date id='date' recurse={false} prepositions={false} />
         </sequence>
       </map>
@@ -568,15 +570,15 @@ class AmbiguousAbsoluteNamedMonth extends Phrase {
             <Month id='month' />
             <list items={[' ', ' the ']} limit={1} />
             <choice id='day' limit={1}>
-              <Integer max={31} min={1} />
-              <Ordinal max={31} />
+              <Integer max={31} min={1} limit={1} />
+              <Ordinal max={31} limit={1} />
             </choice>
           </sequence>
           <sequence>
             <literal text='the ' />
             <choice id='day' limit={1}>
-              <Integer max={31} min={1} />
-              <Ordinal max={31} />
+              <Integer max={31} min={1} limit={1} />
+              <Ordinal max={31} limit={1} />
             </choice>
             <list items={[' of ', ' ']} limit={1} />
             <Month id='month' />

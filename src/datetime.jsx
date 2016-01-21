@@ -21,11 +21,11 @@ export class DateTime extends Phrase {
 
   describe () {
     return (
-      <label argument={false} text='date and time' suppressIncomplete>
+      <label argument={false} text='date and time' suppressEmpty={false}>
         <choice>
           {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} /> : null}
 
-          {this.props._impliedTime ? <DateAlone prepositions={this.props.prepositions} time={this.props.defaultTime} /> : null}
+          <DateAlone prepositions={this.props.prepositions} time={this.props.defaultTime} _impliedTime={this.props._impliedTime} />
 
           <DateAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} />
 
@@ -134,7 +134,7 @@ class DateAlone extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <choice limit={1}>
-          <Date id='date' prepositions={this.props.prepositions} />
+          {this.props._impliedTime ? <Date id='date' prepositions={this.props.prepositions} /> : null}
           <DateWithTimeOfDay prepositions={this.props.prepositions} />
         </choice>
       </map>

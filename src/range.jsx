@@ -73,7 +73,7 @@ export class Range extends Phrase {
 
   describe () {
     return (
-      <label argument={false} text='period of time' suppressIncomplete>
+      <label argument={false} text='period of time'>
         <choice limit={1}>
           <StartDateAlone prepositions={this.props.prepositions} />
           <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} />

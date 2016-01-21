@@ -51,7 +51,7 @@ export class Time extends Phrase {
 
   describe () {
     return (
-      <label text={this.props.argument} suppressIncomplete>
+      <label text={this.props.argument} suppressEmpty={false}>
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}
@@ -245,7 +245,7 @@ class BaseAbsoluteRelativeHour extends Phrase {
                 {text: 'quarter', value: 15},
                 {text: 'half', value: 30}
               ]} />
-              <Integer id='minutes' min={1} max={59} merge />
+              <Integer id='minutes' min={1} max={59} merge limit={1} />
             </choice>
           </label>
           <list limit={2} id='direction' items={[

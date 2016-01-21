@@ -171,6 +171,13 @@ describe('Range', () => {
         allDay: true
       }
     }, {
+      input: 'tomorrow afternoon',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12, hour: 12}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
+        allDay: false
+      }
+    }, {
       input: 'all day tomorrow',
       output: {
         start: moment({year: 1990, month: 9, day: 12}).toDate(),
