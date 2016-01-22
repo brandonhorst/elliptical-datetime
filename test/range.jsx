@@ -137,6 +137,20 @@ describe('Range', () => {
         allDay: false
       }
     }, {
+      input: '10a Friday to 6p Saturday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
+        end: moment({year: 1990, month: 9, day: 13, hour: 18}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Monday to 6p Wednesday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 8, hour: 10}).toDate(),
+        end: moment({year: 1990, month: 9, day: 10, hour: 18}).toDate(),
+        allDay: false
+      }
+    }, {
       input: 'this afternoon to tomorrow evening',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 12}).toDate(),
@@ -325,6 +339,27 @@ describe('Range', () => {
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Friday to 6p Saturday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
+        end: moment({year: 1990, month: 9, day: 13, hour: 18}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Monday to 6p Wednesday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 15, hour: 10}).toDate(),
+        end: moment({year: 1990, month: 9, day: 17, hour: 18}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Friday to 6p Monday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
+        end: moment({year: 1990, month: 9, day: 15, hour: 18}).toDate(),
         allDay: false
       }
     }, {

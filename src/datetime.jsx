@@ -21,7 +21,7 @@ export class DateTime extends Phrase {
 
   describe () {
     return (
-      <label argument={false} text='date and time' suppressEmpty={false}>
+      <label argument={false} text='date and time'>
         <choice>
           {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} /> : null}
 
@@ -37,7 +37,7 @@ export class DateTime extends Phrase {
 }
 
 DateTime.defaultProps = {
-  defaultTime: {hour: 8},
+  defaultTime: {hour: 8, minute: 0, second: 0},
   seconds: true,
   prepositions: false,
   _impliedTime: true,
@@ -124,7 +124,7 @@ class DateWithTimeOfDayAndTime extends Phrase {
 class DateAlone extends Phrase {
   getValue (result) {
     if (result.impliedTime) {
-      return join(result.date, {hour: result.impliedTime.default})
+      return join(result.date, {hour: result.impliedTime.default, minute: 0, second: 0})
     } else {
       return join(result.date, this.props.time)
     }

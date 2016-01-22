@@ -51,7 +51,7 @@ export class Time extends Phrase {
 
   describe () {
     return (
-      <label text={this.props.argument} suppressEmpty={false}>
+      <label text={this.props.argument}>
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}

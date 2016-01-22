@@ -57,7 +57,7 @@ export class Date extends Phrase {
 
     return (
       <choice>
-        <label text='date' suppressEmpty={false}>
+        <label text='date'>
           <choice>
             <RelativeNamed />
             <RelativeNumbered prepositions={this.props.prepositions} />
@@ -69,7 +69,7 @@ export class Date extends Phrase {
 
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <label text='date' merge suppressEmpty={false}>
+          <label text='date' merge>
             <choice>
               <RelativeWeekday />
               <AbsoluteDay />
@@ -118,7 +118,7 @@ export class DateWithTimeOfDay extends Phrase {
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
               <TimeOfDayModifier />
-              <RelativeWeekday prepositions={this.props.prepositions} />
+              <RelativeWeekday />
             </choice>
             <literal text=' ' />
             <TimeOfDay id='impliedTime' />
@@ -422,17 +422,13 @@ class RelativeWeekday extends Phrase {
               ]} />
               <list items={['next ', 'this upcoming ']} limit={1} value={1} />
             </choice>
-            <label argument={false} text='weekday' id='weekday'>
-              <Weekday />
-            </label>
+            <Weekday id='weekday' />
           </sequence>
           <sequence>
             <literal text='the ' />
             <label text='relative weekday' merge>
               <sequence>
-                <label argument={false} text='weekday' id='weekday'>
-                  <Weekday />
-                </label>
+                <Weekday id='weekday' />
                 <list id='distance' items={[
                   {text: ' after next', value: 2},
                   {text: ' after this', value: 1},
