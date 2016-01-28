@@ -11,6 +11,7 @@ export class DateTime extends Phrase {
     if (!this.props.past && moment().isAfter(result)) {
       return false
     }
+
     if (!this.props.future && moment().isBefore(result)) {
       return false
     }

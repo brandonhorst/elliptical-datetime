@@ -64,6 +64,9 @@ describe('DateTime', () => {
       input: '8am next Tuesday',
       output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
     }, {
+      input: 'tonight',
+      output: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate()
+    }, {
       input: '8am on next Tuesday',
       output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
     }, {
@@ -161,6 +164,9 @@ describe('DateTime', () => {
       input: '2pm',
       output: moment({year: 1990, month: 9, day: 11, hour: 14}).toDate()
     }, {
+      input: '8am',
+      output: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate()
+    }, {
       input: '2am',
       output: moment({year: 1990, month: 9, day: 12, hour: 2}).toDate()
     }, {
@@ -172,6 +178,9 @@ describe('DateTime', () => {
     }, {
       input: '8am on next Tuesday',
       output: moment({year: 1990, month: 9, day: 16, hour: 8}).toDate()
+    }, {
+      input: 'tonight',
+      output: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate()
     }, {
       input: '8am last Tuesday',
       length: 0
@@ -272,6 +281,9 @@ describe('DateTime', () => {
       }, {
         input: '8am on last Tuesday',
         output: moment({year: 1990, month: 9, day: 2, hour: 8}).toDate()
+      }, {
+        input: 'tonight',
+        length: 0
       }, {
         input: '8am next Tuesday',
         length: 0

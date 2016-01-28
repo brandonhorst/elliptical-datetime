@@ -51,22 +51,26 @@ export class Time extends Phrase {
 
   describe () {
     return (
-      <label text={this.props.argument}>
-        <choice>
-          <sequence>
-            {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}
-            <choice merge>
+      <choice>
+        <sequence>
+          {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}
+          <label text={this.props.argument} merge>
+            <choice>
               <AbsoluteNumeric seconds={this.props.seconds} />
               <AbsoluteRelativeHour />
               <AbsoluteNamed />
               <AbsoluteTimeOfDay seconds={this.props.seconds} />
             </choice>
-          </sequence>
-          {this.props.named ? <RelativeNamed /> : null}
-          {this.props.relative ? <RelativeTime /> : null}
-          {this.props.recurse ? <RecursiveTime /> : null}
-        </choice>
-      </label>
+          </label>
+        </sequence>
+        <label text={this.props.argument}>
+          <choice>
+            {this.props.named ? <RelativeNamed /> : null}
+            {this.props.relative ? <RelativeTime /> : null}
+            {this.props.recurse ? <RecursiveTime /> : null}
+          </choice>
+        </label>
+      </choice>
     )
   }
 }

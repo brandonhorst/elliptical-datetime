@@ -8,7 +8,7 @@ import { DigitString, Integer, Ordinal } from 'lacona-phrase-number'
 import { TimeOfDay } from './time'
 import { Month } from './month'
 import { Weekday } from './weekday'
-import { absoluteDate, negateDuration, relativeDate, relativeDay, validateDay } from './helpers'
+import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validateDay } from './helpers'
 
 export class Day extends Phrase {
   describe () {
@@ -95,7 +95,7 @@ export class DateWithTimeOfDay extends Phrase {
       <choice>
         <sequence>
           {this.props.prepositions ? <literal text='on ' optional preferred limited /> : null}
-          <label argument={false} text='date' merge>
+          <label text='date and time' merge>
             <sequence>
               <literal text='the ' />
               <TimeOfDay id='impliedTime' />
@@ -113,7 +113,7 @@ export class DateWithTimeOfDay extends Phrase {
           </label>
         </sequence>
         
-        <label argument={false} text='date'>
+        <label text='date and time'>
           <sequence>
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
@@ -124,12 +124,16 @@ export class DateWithTimeOfDay extends Phrase {
             <TimeOfDay id='impliedTime' />
           </sequence>
         </label>
+        
+        <label text='date and time'>
+          <NamedDateWithTimeOfDay />
+        </label>
 
-        <label argument={false} text='date'>
+        <label text='date and time'>
           <DayWithYearAndTimeOfDay />
         </label>
 
-        <label argument={false} text='date'>
+        <label text='date and time'>
           <sequence>
             <choice id='date'>
               <Date nullify prepositions={this.props.prepositions} />
@@ -149,6 +153,20 @@ export class DateWithTimeOfDay extends Phrase {
 DateWithTimeOfDay.defaultProps = {
   recurse: true,
   prepositions: false
+}
+
+class NamedDateWithTimeOfDay extends Phrase {
+  getValue () {
+    return {date: relativeDate({hour: 0}), impliedTime: {default: 20, range: [12, 24]}}
+  }
+
+  describe () {
+    return (
+      <map function={this.getValue}>
+        <literal text='tonight' />
+      </map>
+    )
+  }
 }
 
 class DayWithYear extends Phrase {
