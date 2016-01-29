@@ -36,13 +36,13 @@ function ampmHourToHour (hour, ampm) {
   }
 }
 
-export function coerceAmbiguousTime (ambiguousTime, range) {
-  if (_.inRange(ambiguousTime.hour, ...range)) {
-    return ambiguousTime
-  } else {
-    return {hour: ambiguousTime.hour < 12 ? ambiguousTime.hour + 12 : ambiguousTime.hour - 12, minute: ambiguousTime.minute, second: ambiguousTime.second}
-  }
-}
+// export function coerceAmbiguousTime (ambiguousTime, range) {
+//   if (_.inRange(ambiguousTime.hour, ...range)) {
+//     return ambiguousTime
+//   } else {
+//     return {hour: ambiguousTime.hour < 12 ? ambiguousTime.hour + 12 : ambiguousTime.hour - 12, minute: ambiguousTime.minute, second: ambiguousTime.second}
+//   }
+// }
 
 export function absoluteDate (absolute) {
   return moment(absolute).toDate()

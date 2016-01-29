@@ -3,13 +3,14 @@
 
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
 import lolex from 'lolex'
 import { text } from './_util'
 import { Date as DatePhrase } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
+chai.use(require('chai-datetime'))
 
 describe('Date', () => {
   let parser
