@@ -159,7 +159,9 @@ export class DateTime extends Phrase {
                     <literal id='impliedDate' text='this ' value={{day: 0}} />
                     <TimeOfDay id='timeOfDay' />
                   </sequence>
-                  <literal text='tonight' value={{impliedDate: {day: 0}, time: {hour: 20}}} />
+                  <label text='date'>
+                    <literal text='tonight' value={{impliedDate: {day: 0}, time: {hour: 20}}} />
+                  </label>
                 </choice>
 
                 <sequence id='timeOfDay' optional limited ellipsis>
