@@ -1,7 +1,7 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { createElement, Phrase } from 'lacona-phrase'
 import { DigitString, Integer } from 'lacona-phrase-number'
 
@@ -30,8 +30,8 @@ export class AmbiguousTime extends Phrase {
         {this.props.prepositions ? <literal text='at ' category='conjunction' optional limited preferred /> : null}
         <label text='time' merge>
           <choice>
-            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
-            <AmbiguousAbsoluteRelativeHour />
+            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} timeZone={this.props.timeZone} />
+            <AmbiguousAbsoluteRelativeHour timeZone={this.props.timeZone} />
           </choice>
         </label>
       </sequence>
@@ -56,15 +56,15 @@ export class Time extends Phrase {
           <sequence>
             {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}
             <choice merge>
-              <AbsoluteNumeric seconds={this.props.seconds} />
-              <AbsoluteRelativeHour />
-              <AbsoluteNamed />
-              <AbsoluteTimeOfDay seconds={this.props.seconds} />
+              <AbsoluteNumeric seconds={this.props.seconds} timeZone={this.props.timeZone} />
+              <AbsoluteRelativeHour timeZone={this.props.timeZone} />
+              <AbsoluteNamed timeZone={this.props.timeZone} />
+              <AbsoluteTimeOfDay seconds={this.props.seconds} timeZone={this.props.timeZone} />
             </choice>
           </sequence>
-          {this.props.named ? <RelativeNamed /> : null}
-          {this.props.relative ? <RelativeTime /> : null}
-          {this.props.recurse ? <RecursiveTime /> : null}
+          {this.props.named ? <RelativeNamed timeZone={this.props.timeZone} /> : null}
+          {this.props.relative ? <RelativeTime timeZone={this.props.timeZone} /> : null}
+          {this.props.recurse ? <RecursiveTime timeZone={this.props.timeZone} /> : null}
         </choice>
       </label>
     )
@@ -75,7 +75,7 @@ class RelativeTime extends Phrase {
   getValue(result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeTime(duration)
+    return relativeTime(duration, undefined, this.props.timeZone)
   }
 
   describe() {
@@ -123,11 +123,11 @@ class AbsoluteTimeOfDay extends Phrase {
       <map function={this.getValue.bind(this)}>
         <sequence>
           <choice id='ambiguousTime'>
-            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
-            <AmbiguousAbsoluteRelativeHour />
+            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} timeZone={this.props.timeZone} />
+            <AmbiguousAbsoluteRelativeHour timeZone={this.props.timeZone} />
           </choice>
           <literal text=' in the ' category='conjunction' />
-          <TimeOfDay id='timeOfDay' />
+          <TimeOfDay id='timeOfDay' timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )
@@ -195,7 +195,7 @@ class AbsoluteNumeric extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <AmbiguousAbsoluteNumeric id='ambiguousTime' minutes={this.props.minutes} seconds={this.props.seconds} />
+          <AmbiguousAbsoluteNumeric id='ambiguousTime' minutes={this.props.minutes} seconds={this.props.seconds} timeZone={this.props.timeZone} />
 
           <choice id='ampm'>
             <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
@@ -214,13 +214,13 @@ AbsoluteNumeric.defaultProps = {
 
 class AmbiguousAbsoluteRelativeHour extends Phrase {
   describe () {
-    return <BaseAbsoluteRelativeHour ambiguous />
+    return <BaseAbsoluteRelativeHour ambiguous timeZone={this.props.timeZone} />
   }
 }
 
 class AbsoluteRelativeHour extends Phrase {
   describe () {
-    return <BaseAbsoluteRelativeHour />
+    return <BaseAbsoluteRelativeHour timeZone={this.props.timeZone} />
   }
 }
 
@@ -232,7 +232,7 @@ class BaseAbsoluteRelativeHour extends Phrase {
   getValue (result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeTime(duration, result.absolute)
+    return relativeTime(duration, result.absolute, this.props.timeZone)
   }
 
   describe () {
@@ -259,8 +259,8 @@ class BaseAbsoluteRelativeHour extends Phrase {
           <label argument={false} text='hour' id='absolute'>
             <choice>
               {this.props.ambiguous ?
-                <AmbiguousAbsoluteNumeric minutes={false} seconds={false} /> :
-                <AbsoluteNumeric minutes={false} seconds={false} />
+                <AmbiguousAbsoluteNumeric minutes={false} seconds={false} timeZone={this.props.timeZone} /> :
+                <AbsoluteNumeric minutes={false} seconds={false} timeZone={this.props.timeZone} />
               }
               <AbsoluteNamed />
             </choice>
@@ -275,7 +275,7 @@ class RecursiveTime extends Phrase {
   getValue (result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeTime(duration, result.time)
+    return relativeTime(duration, result.time, this.props.timeZone)
   }
 
   describe () {
@@ -294,7 +294,7 @@ class RecursiveTime extends Phrase {
               {text: ' til ', value: -1}
             ]} limit={2} />
           </sequence>
-          <Time recurse={false} relative={false} id='time' />
+          <Time recurse={false} relative={false} id='time' timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )

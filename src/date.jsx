@@ -1,7 +1,7 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 import { DateDuration } from './duration'
 import { DigitString, Integer, Ordinal } from 'lacona-phrase-number'
@@ -18,7 +18,7 @@ export class Day extends Phrase {
       <choice>
         {this.props.recurse ? (
           <label text='day'>
-            <RecursiveDay />
+            <RecursiveDay timeZone={this.props.timeZone} />
           </label>
         ) : null}
 
@@ -26,8 +26,8 @@ export class Day extends Phrase {
           {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
           <label text='day' merge>
             <choice>
-              <AmbiguousAbsoluteDay />
-              <AmbiguousAbsoluteNamedMonth />
+              <AmbiguousAbsoluteDay timeZone={this.props.timeZone} />
+              <AmbiguousAbsoluteNamedMonth timeZone={this.props.timeZone} />
             </choice>
           </label>
         </sequence>
@@ -59,11 +59,11 @@ export class Date extends Phrase {
       <choice>
         <label text='date' suppressEmpty={false}>
           <choice>
-            <RelativeNamed />
-            <RelativeNumbered prepositions={this.props.prepositions} />
-            <DayWithYear prepositions={this.props.prepositions} />
-            <RelativeAdjacent />
-            {this.props.recurse ? <RecursiveDate /> : null }
+            <RelativeNamed timeZone={this.props.timeZone} />
+            <RelativeNumbered prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+            <DayWithYear prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+            <RelativeAdjacent timeZone={this.props.timeZone} />
+            {this.props.recurse ? <RecursiveDate timeZone={this.props.timeZone} /> : null }
           </choice>
         </label>
 
@@ -71,8 +71,8 @@ export class Date extends Phrase {
           {this.props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
           <label text='date' merge suppressEmpty={false}>
             <choice>
-              <RelativeWeekday />
-              <AbsoluteDay />
+              <RelativeWeekday timeZone={this.props.timeZone} />
+              <AbsoluteDay timeZone={this.props.timeZone} />
             </choice>
           </label>
         </sequence>
@@ -98,16 +98,16 @@ export class DateWithTimeOfDay extends Phrase {
           <label argument={false} text='date' merge>
             <sequence>
               <literal text='the ' />
-              <TimeOfDay id='impliedTime' />
+              <TimeOfDay id='impliedTime' timeZone={this.props.timeZone} />
               <literal text=' of ' />
               <choice id='date'>
                 <Date nullify />
-                <RelativeWeekday />
-                <RelativeAdjacent />
-                <RelativeNumbered />
-                <AbsoluteDay />
-                <DayWithYear />
-                {this.props.recurse ? <RecursiveDate /> : null}
+                <RelativeWeekday timeZone={this.props.timeZone} />
+                <RelativeAdjacent timeZone={this.props.timeZone} />
+                <RelativeNumbered timeZone={this.props.timeZone} />
+                <AbsoluteDay timeZone={this.props.timeZone} />
+                <DayWithYear timeZone={this.props.timeZone} timeZone={this.props.timeZone} />
+                {this.props.recurse ? <RecursiveDate timeZone={this.props.timeZone} /> : null}
               </choice>
             </sequence>
           </label>
@@ -116,29 +116,29 @@ export class DateWithTimeOfDay extends Phrase {
         <label argument={false} text='date'>
           <sequence>
             <choice id='date'>
-              <Date nullify prepositions={this.props.prepositions} />
-              <TimeOfDayModifier />
-              <RelativeWeekday prepositions={this.props.prepositions} />
+              <Date nullify prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+              <TimeOfDayModifier timeZone={this.props.timeZone} />
+              <RelativeWeekday prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
             </choice>
             <literal text=' ' />
-            <TimeOfDay id='impliedTime' />
+            <TimeOfDay id='impliedTime' timeZone={this.props.timeZone} />
           </sequence>
         </label>
 
         <label argument={false} text='date'>
-          <DayWithYearAndTimeOfDay />
+          <DayWithYearAndTimeOfDay timeZone={this.props.timeZone} />
         </label>
 
         <label argument={false} text='date'>
           <sequence>
             <choice id='date'>
-              <Date nullify prepositions={this.props.prepositions} />
-              <DayWithYear prepositions={this.props.prepositions} />
-              <RelativeNumbered prepositions={this.props.prepositions} />
-              {this.props.recurse ? <RecursiveDate prepositions={this.props.prepositions} /> : null}
+              <Date nullify prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+              <DayWithYear prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+              <RelativeNumbered prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+              {this.props.recurse ? <RecursiveDate prepositions={this.props.prepositions} timeZone={this.props.timeZone} /> : null}
             </choice>
             <literal text=' in the ' />
-            <TimeOfDay id='impliedTime' />
+            <TimeOfDay id='impliedTime' timeZone={this.props.timeZone} />
           </sequence>
         </label>
       </choice>
@@ -154,9 +154,9 @@ DateWithTimeOfDay.defaultProps = {
 class DayWithYear extends Phrase {
   getValue (result) {
     if (result.duration) {
-      return relativeDate(result.duration, result.day)
+      return relativeDate(result.duration, result.day, this.props.timeZone)
     } else {
-      return absoluteDate(_.assign({year: result.year}, result.day))
+      return absoluteDate(_.assign({year: result.year}, result.day), this.props.timeZone)
     }
   }
 
@@ -164,7 +164,7 @@ class DayWithYear extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <Day prepositions={this.props.prepositions} id='day' recurse={false} />
+          <Day prepositions={this.props.prepositions} id='day' recurse={false} timeZone={this.props.timeZone} />
           <choice merge>
             <list id='duration' limit={1} items={[
               {text: '', value: {}},
@@ -173,7 +173,7 @@ class DayWithYear extends Phrase {
             ]} />
             <sequence>
               <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
-              <Year id='year' />
+              <Year id='year' timeZone={this.props.timeZone} />
             </sequence>
           </choice>
         </sequence>
@@ -185,19 +185,19 @@ class DayWithYear extends Phrase {
 class DayWithYearAndTimeOfDay extends Phrase {
   getValue (result) {
     const absolute = _.assign({year: result.year}, result.day)
-    return {date: absoluteDate(absolute), impliedTime: result.impliedTime}
+    return {date: absoluteDate(absolute, this.props.timeZone), impliedTime: result.impliedTime}
   }
 
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <Day id='day' prepositions={this.props.prepositions} />
+          <Day id='day' prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
           <literal text=' ' />
-          <TimeOfDay id='impliedTime' />
+          <TimeOfDay id='impliedTime' timeZone={this.props.timeZone} />
           <sequence optional merge>
             <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
-            <Year id='year' />
+            <Year id='year' timeZone={this.props.timeZone} />
           </sequence>
         </sequence>
       </map>
@@ -241,7 +241,7 @@ class RecursiveDay extends Phrase {
   getValue(result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeDay(duration, result.day)
+    return relativeDay(duration, result.day, this.props.timeZone)
   }
 
   describe() {
@@ -275,7 +275,7 @@ class RecursiveDate extends Phrase {
   getValue(result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeDate(duration, result.date)
+    return relativeDate(duration, result.date, this.props.timeZone)
   }
 
   describe() {
@@ -296,7 +296,7 @@ class RecursiveDate extends Phrase {
             </sequence>
           </label>
           <literal text=' ' />
-          <Date id='date' recurse={false} prepositions={false} />
+          <Date id='date' recurse={false} prepositions={false} timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )
@@ -305,7 +305,7 @@ class RecursiveDate extends Phrase {
 
 class RelativeNamed extends Phrase {
   getValue (result) {
-    return relativeDate(result)
+    return relativeDate(result, {}, this.props.timeZone)
   }
 
   describe () {
@@ -325,7 +325,7 @@ class RelativeNamed extends Phrase {
 
 class TimeOfDayModifier extends Phrase {
   getValue (result) {
-    return relativeDate(result)
+    return relativeDate(result, {}, this.props.timeZone)
   }
 
   describe () {
@@ -345,7 +345,7 @@ class RelativeNumbered extends Phrase {
   getValue(result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return relativeDate(duration)
+    return relativeDate(duration, {}, this.props.timeZone)
   }
 
   describe() {
@@ -372,7 +372,7 @@ class RelativeAdjacent extends Phrase {
   getValue(result) {
     const duration = {[result.type]: result.num * (result.multiplier || 1)}
 
-    return relativeDate(duration)
+    return relativeDate(duration, {}, this.props.timeZone)
   }
 
   describe() {
@@ -474,7 +474,7 @@ class DayNumber extends Phrase {
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
-        <DigitString maxLength={2} max={31} min={1} argument='dd'/>
+        <DigitString maxLength={2} max={31} min={1} argument='dd' />
       </map>
     )
   }
@@ -483,12 +483,12 @@ class DayNumber extends Phrase {
 class AbsoluteDay extends Phrase {
   describe () {
     return (
-      <map function={absoluteDate}>
+      <map function={absoluteDate} timeZone={this.props.timeZone} >
         <filter function={validateDay}>
           <sequence>
-            <AmbiguousAbsoluteDay merge />
+            <AmbiguousAbsoluteDay merge timeZone={this.props.timeZone} />
             <list items={['/']} limit={1} />
-            <Year id='year' />
+            <Year id='year' timeZone={this.props.timeZone} />
           </sequence>
         </filter>
       </map>
@@ -501,9 +501,9 @@ class AmbiguousAbsoluteDay extends Phrase {
     return (
       <filter function={validateDay}>
         <sequence>
-          <MonthNumber id='month' />
+          <MonthNumber id='month' timeZone={this.props.timeZone} />
           <list items={['/']} limit={1} />
-          <DayNumber id='day' />
+          <DayNumber id='day' timeZone={this.props.timeZone} />
         </sequence>
       </filter>
     )

@@ -8,7 +8,7 @@ import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
 import { text } from './_util'
 import { Range } from '..'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)

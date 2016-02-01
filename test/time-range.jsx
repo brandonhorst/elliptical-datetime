@@ -6,7 +6,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { expect } from 'chai'
 import { text } from './_util'
 import { TimeRange } from '..'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 describe('TimeRange', () => {

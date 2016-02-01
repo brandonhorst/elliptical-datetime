@@ -2,7 +2,7 @@
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
 import { AmbiguousTime, Time } from './time'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { coerceAmbiguousTime, join, relativeDate } from './helpers'
 import { DateWithTimeOfDay, Date } from './date'
 
@@ -23,13 +23,13 @@ export class DateTime extends Phrase {
     return (
       <label argument={false} text='date and time' suppressEmpty={false}>
         <choice>
-          {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} /> : null}
+          {this.props._impliedDate ? <TimeAlone prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} /> : null}
 
-          <DateAlone prepositions={this.props.prepositions} time={this.props.defaultTime} _impliedTime={this.props._impliedTime} />
+          <DateAlone prepositions={this.props.prepositions} time={this.props.defaultTime} _impliedTime={this.props._impliedTime} timeZone={this.props.timeZone} />
 
-          <DateAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} />
+          <DateAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} />
 
-          <DateWithTimeOfDayAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} />
+          <DateWithTimeOfDayAndTime prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} />
         </choice>
       </label>
     )
@@ -48,7 +48,7 @@ DateTime.defaultProps = {
 
 class DateAndTime extends Phrase {
   getValue (result) {
-    return join(result.date, result.time)
+    return join(result.date, result.time, this.props.timeZone)
   }
 
   describe () {
@@ -56,15 +56,15 @@ class DateAndTime extends Phrase {
       <map function={this.getValue.bind(this)}>
         <choice>
           <sequence>
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
+            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
             <literal text=' ' />
-            <Date id='date' recurse={false} prepositions />
+            <Date id='date' recurse={false} prepositions timeZone={this.props.timeZone} />
           </sequence>
 
           <sequence>
-            <Date id='date' recurse={false} prepositions={this.props.prepositions} />
+            <Date id='date' recurse={false} prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
             <literal text=' ' />
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
+            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions timeZone={this.props.timeZone} />
           </sequence>
         </choice>
       </map>
@@ -77,10 +77,10 @@ class DateWithTimeOfDayAndTime extends Phrase {
   getValue (result) {
     if (result.ambiguousTime) {
       const time = coerceAmbiguousTime(result.ambiguousTime, result.impliedTime.range)
-      return join(result.date, time)
+      return join(result.date, time, this.props.timeZone)
     } else {
       const time = result.time || {hour: result.impliedTime.default}
-      return join(result.date, time)
+      return join(result.date, time, this.props.timeZone)
     }
   }
 
@@ -99,19 +99,19 @@ class DateWithTimeOfDayAndTime extends Phrase {
           <choice>
             <sequence>
               <choice merge>
-                <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} seconds={this.props.seconds} />
+                <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} />
               </choice>
               <literal text=' ' />
-              <DateWithTimeOfDay merge />
+              <DateWithTimeOfDay merge timeZone={this.props.timeZone} />
             </sequence>
 
             <sequence>
-              <DateWithTimeOfDay merge />
+              <DateWithTimeOfDay merge timeZone={this.props.timeZone} />
               <literal text=' ' />
               <choice limit={1} merge>
-                <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions seconds={this.props.seconds} />
-                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions seconds={this.props.seconds} />
+                <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions seconds={this.props.seconds} timeZone={this.props.timeZone} />
+                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions seconds={this.props.seconds} timeZone={this.props.timeZone} />
               </choice>
             </sequence>
           </choice>
@@ -124,9 +124,9 @@ class DateWithTimeOfDayAndTime extends Phrase {
 class DateAlone extends Phrase {
   getValue (result) {
     if (result.impliedTime) {
-      return join(result.date, {hour: result.impliedTime.default})
+      return join(result.date, {hour: result.impliedTime.default}, this.props.timeZone)
     } else {
-      return join(result.date, this.props.time)
+      return join(result.date, this.props.time, this.props.timeZone)
     }
   }
 
@@ -134,8 +134,8 @@ class DateAlone extends Phrase {
     return (
       <map function={this.getValue.bind(this)}>
         <choice limit={1}>
-          {this.props._impliedTime ? <Date id='date' prepositions={this.props.prepositions} /> : null}
-          <DateWithTimeOfDay prepositions={this.props.prepositions} />
+          {this.props._impliedTime ? <Date id='date' prepositions={this.props.prepositions} timeZone={this.props.timeZone} /> : null}
+          <DateWithTimeOfDay prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
         </choice>
       </map>
     )
@@ -144,15 +144,15 @@ class DateAlone extends Phrase {
 
 class TimeAlone extends Phrase {
   getValue (result) {
-    const date = relativeDate(result.relativeDate)
-    return join(date, result.time)
+    const date = relativeDate(result.relativeDate, {}, this.props.timeZone)
+    return join(date, result.time, this.props.timeZone)
   }
 
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} />
+          <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} timeZone={this.props.timeZone} />
           <list id='relativeDate' limit={1} items={[
             {text:'', value: {}},
             {text:'', value: {days: 1}},

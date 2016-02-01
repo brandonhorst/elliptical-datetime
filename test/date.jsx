@@ -7,7 +7,7 @@ import { expect } from 'chai'
 import lolex from 'lolex'
 import { text } from './_util'
 import { Date as DatePhrase } from '..'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 

@@ -1,7 +1,7 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { createElement, Phrase } from 'lacona-phrase'
 
 import { relativeDate } from './helpers'
@@ -13,7 +13,7 @@ export class DateRange extends Phrase {
     if (result.duration) {
       return {
         start: result.start,
-        end: relativeDate(result.duration, result.start)
+        end: relativeDate(result.duration, result.start, this.props.timeZone)
       }
     } else {
       return result
@@ -27,15 +27,15 @@ export class DateRange extends Phrase {
           <sequence>
             {this.props.prepositions ? <literal text='from ' optional limited /> : null}
             {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-            <Date id='start' />
+            <Date id='start' timeZone={this.props.timeZone} />
             <list items={[' to ', ' - ', '-']} limit={1} />
             {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-            <Date id='end' />
+            <Date id='end' timeZone={this.props.timeZone} />
           </sequence>
           {this.props._duration ? (
             <sequence>
               {this.props._allDay ? <literal text='all day ' optional limited /> : null}
-              <Date id='start' prepositions={this.props.prepositions} />
+              <Date id='start' prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
               <literal text=' for ' />
               <DateDuration id='duration' />
             </sequence>
