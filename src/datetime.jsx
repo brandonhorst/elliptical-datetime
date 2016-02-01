@@ -31,6 +31,54 @@ export class DateTime extends Phrase {
     return true
   }
 
+  * getValues (result) {
+    let dates
+    if (result.date) {
+      if (result._ambiguousWeek) {
+        dates = _.map([0, 1, -1], (weeks) => moment(result.date).add(weeks, 'weeks').toDate())
+      } else if (result._ambiguousCentury) {
+        dates = _.map([0, 100, -100], (years) => moment(result.date).add(years, 'years').toDate())
+      } else if (result._ambiguousYear) {
+        dates = _.map([0, 1, -1], (years) => moment(result.date).add(years, 'years').toDate())
+      } else {
+        dates = [result.date]
+      }
+    } else {
+      dates = [undefined]
+    }
+
+    for (let date of dates) {
+      if (date && result.time) {
+        yield join(date, result.time)
+      } else if (result.time && result.relativeDate) {
+        yield join(relativeDate(result.relativeDate), result.time)
+      } else if (date) {
+        yield join(date, this.props.defaultTime)
+      } else if (result.time) {
+        for (let i of [0, 1, -1]) {
+          yield join(relativeDate({days: i}), result.time)
+        }
+      }
+    }
+  }
+
+  describe () {
+    return this.props.nullify ? null : (
+      <map iteratorFunction={this.getValues.bind(this)} limit={1}>
+        <InternalDateTime {...this.props} _allowAmbiguity={false} />
+      </map>
+    )
+  }
+}
+
+DateTime.defaultProps = {
+  defaultTime: {hour: 8, minute: 0, second: 0},
+  past: true,
+  future: true,
+  prepositions: false
+}
+
+export class InternalDateTime extends Phrase {
   /*
 
   RelativeNamed []
@@ -65,7 +113,7 @@ export class DateTime extends Phrase {
     # DATE AND TIME AND TIME OF DAY
   */
 
-  * getValues (result) {
+  getValue (result) {
     let time = result.time
     if (result.timeOfDay && result.time && result.time._ambiguousAMPM) {
       time = ambiguousTime(result.time, result.timeOfDay.impliedAMPM)
@@ -73,33 +121,17 @@ export class DateTime extends Phrase {
       time = {hour: result.timeOfDay.default}
     }
 
-    let dates
-    if (result.date && result.date.date) {
-      if (result.date._ambiguousWeek) {
-        dates = _.map([0, 1, -1], (weeks) => moment(result.date.date).add(weeks, 'weeks').toDate())
-      } else if (result.date._ambiguousCentury) {
-        dates = _.map([0, 100, -100], (years) => moment(result.date.date).add(years, 'years').toDate())
-      } else if (result.date._ambiguousYear) {
-        dates = _.map([0, 1, -1], (years) => moment(result.date.date).add(years, 'years').toDate())
-      } else {
-        dates = [result.date.date]
-      }
-    } else {
-      dates = [undefined]
+    let date = result.date && result.date.date
+    if (result.relativeDate) {
+      date = relativeDate(result.relativeDate)
     }
 
-    for (let date of dates) {
-      if (date && time) {
-        yield join(date, time)
-      } else if (date) {
-        yield join(date, this.props.defaultTime)
-      } else if (time && result.impliedDate) {
-        yield join(relativeDate(result.impliedDate), time)
-      } else if (time) {
-        for (let i of [0, 1, -1]) {
-          yield join(relativeDate({days: i}), time)
-        }
-      }
+    return {
+      date,
+      time,
+      _ambiguousYear: result.date && result.date._ambiguousYear,
+      _ambiguousCentury: result.date && result.date._ambiguousCentury,
+      _ambiguousWeek: result.date && result.date._ambiguousWeek
     }
   }
 
@@ -110,16 +142,15 @@ export class DateTime extends Phrase {
       return false
     } else if (result.time && result.timeOfDay && !result.time._ambiguousAMPM && !timeIsInAMPM(result.time, result.timeOfDay.impliedAMPM)) {
       return false 
-    } else if ((!result.time || !result.timeOfDay) && !this.props._impliedTime) {
-      return false
     }
+
     return true
   }
 
   describe () {
     return (
       <label argument={false} text='date and time'>
-        <map iteratorFunction={this.getValues.bind(this)} limit={1}>
+        <map function={this.getValue.bind(this)} limit={1}>
           <filter function={this.filter.bind(this)}>
             <choice>
               <sequence unique>
@@ -156,11 +187,11 @@ export class DateTime extends Phrase {
                 <choice merge ellipsis>
                   <Date id='date' prepositions={this.props.prepositions} />
                   <sequence>
-                    <literal id='impliedDate' text='this ' value={{day: 0}} />
+                    <literal id='relativeDate' text='this ' value={{day: 0}} />
                     <TimeOfDay id='timeOfDay' />
                   </sequence>
                   <label text='date'>
-                    <literal text='tonight' value={{impliedDate: {day: 0}, time: {hour: 20}}} />
+                    <literal text='tonight' value={{relativeDate: {day: 0}, time: {hour: 20}}} />
                   </label>
                 </choice>
 
@@ -187,17 +218,7 @@ export class DateTime extends Phrase {
   }
 }
 
-DateTime.defaultProps = {
-  defaultTime: {hour: 8, minute: 0, second: 0},
-  seconds: true,
-  prepositions: false,
-  _impliedTime: true,
-  _impliedDate: true,
-  past: true,
-  future: true
-}
-
-{/*class DateAndTime extends Phrase {
+/*class DateAndTime extends Phrase {
   getValue (result) {
     return join(result.date, result.time)
   }
@@ -314,4 +335,4 @@ class TimeAlone extends Phrase {
     )
   }
 }
-*/}
+*/

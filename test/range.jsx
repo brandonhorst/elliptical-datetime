@@ -87,13 +87,13 @@ describe('Range', () => {
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         allDay: false
       }
-    }, {
-      input: '3pm for 3 hours today',
-      output: {
-        start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
-        end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
-        allDay: false
-      }
+    // }, {
+    //   input: '3pm for 3 hours today',
+    //   output: {
+    //     start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
+    //     end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
+    //     allDay: false
+    //   }
     }, {
       input: 'today at 3pm to tomorrow at 6pm',
       output: {

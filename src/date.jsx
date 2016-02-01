@@ -42,6 +42,10 @@ Day.defaultProps = {
 
 export class Date extends Phrase {
   // validate (result) {
+  //   console.log('date', result)
+  //   return true
+  // }
+  // validate (result) {
   //   if (!this.props.past && moment({}).isAfter(result)) {
   //     return false
   //   }
