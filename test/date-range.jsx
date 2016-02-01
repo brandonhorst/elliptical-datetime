@@ -6,7 +6,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 import { text } from './_util'

@@ -8,7 +8,7 @@ import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
 import { Day, DateTime } from '..'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
@@ -135,6 +135,106 @@ describe('DateTime', () => {
     }, {
       input: 'the afternoon of 2/3/2003',
       output: moment({year: 2003, month: 1, day: 3, hour: 12}).toDate()
+    }]
+
+    _.forEach(testCases, test)
+  })
+
+  describe('custom timezones', () => {
+    beforeEach(() => {
+      parser.grammar = <DateTime timeZone='Pacific/Honolulu' />
+    })
+
+    const testCases = [{
+      input: '2:00pm 2/3/2003',
+      output: moment.tz({year: 2003, month: 1, day: 3, hour: 14}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: '2/3/2003 at 2pm',
+      output: moment.tz({year: 2003, month: 1, day: 3, hour: 14}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: '2:00pm',
+      output: moment.tz({year: 1990, month: 9, day: 11, hour: 14}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: '2am',
+      output: moment.tz({year: 1990, month: 9, day: 11, hour: 2}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'next Tuesday at 8am',
+      output: moment.tz({year: 1990, month: 9, day: 16, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: '8am next Tuesday',
+      output: moment.tz({year: 1990, month: 9, day: 16, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: '8am on next Tuesday',
+      output: moment.tz({year: 1990, month: 9, day: 16, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'this morning',
+      output: moment.tz({year: 1990, month: 9, day: 11, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'this afternoon',
+      output: moment.tz({year: 1990, month: 9, day: 11, hour: 12}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow morning',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow afternoon',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 12}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow evening',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 17}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow night',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 20}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow at 3pm',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 15}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow morning at 9',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 9}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow afternoon at 9',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 21}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow at 9 in the afternoon',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 21}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow evening at 9',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 21}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow night at 9',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 21}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow morning at noon',
+      length: 0
+    }, {
+      input: 'tomorrow afternoon at midnight',
+      length: 0
+    }, {
+      input: 'the day after tomorrow',
+      output: moment.tz({year: 1990, month: 9, day: 13, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'the afternoon of the day after tomorrow',
+      output: moment.tz({year: 1990, month: 9, day: 13, hour: 12}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'the day after tomorrow in the afternoon',
+      output: moment.tz({year: 1990, month: 9, day: 13, hour: 12}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'this Monday morning',
+      output: moment.tz({year: 1990, month: 9, day: 8, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow afternoon at 3pm',
+      output: moment.tz({year: 1990, month: 9, day: 12, hour: 15}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'tomorrow morning at 3pm',
+      length: 0
+    }, {
+      input: 'next Monday morning',
+      output: moment.tz({year: 1990, month: 9, day: 15, hour: 8}, 'Pacific/Honolulu').toDate()
+    }, {
+      input: 'the afternoon of 2/3/2003',
+      output: moment.tz({year: 2003, month: 1, day: 3, hour: 12}, 'Pacific/Honolulu').toDate()
     }]
 
     _.forEach(testCases, test)

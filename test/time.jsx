@@ -7,7 +7,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { expect } from 'chai'
 import lolex from 'lolex'
 import { Time } from '..'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { Parser } from 'lacona'
 
 function momentToTime (mom) {

@@ -1,7 +1,7 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { createElement, Phrase } from 'lacona-phrase'
 
 import { TimeDuration } from './duration'
@@ -38,14 +38,14 @@ export class TimeRange extends Phrase {
         <choice>
           <sequence>
             {this.props.prepositions ? <literal text='from ' /> : null}
-            <Time id='start' />
+            <Time id='start' timeZone={this.props.timeZone} />
             <list items={[' to ', ' - ', '-']} limit={1} />
-            <Time id='end' />
+            <Time id='end' timeZone={this.props.timeZone} />
           </sequence>
 
           {this.props._duration ? (
             <sequence>
-              <Time id='start' prepositions={this.props.prepositions} />
+              <Time id='start' prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
               <literal text=' for ' />
               <TimeDuration id='duration' max={{hours: 23, minutes: 59, seconds: 59}} />
             </sequence>

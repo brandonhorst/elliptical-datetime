@@ -1,7 +1,7 @@
 /** @jsx createElement */
 
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import { createElement, Phrase } from 'lacona-phrase'
 
 import { join, relativeDate } from './helpers'
@@ -75,13 +75,13 @@ export class Range extends Phrase {
     return (
       <label argument={false} text='period of time'>
         <choice limit={1}>
-          <StartDateAlone prepositions={this.props.prepositions} />
-          <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} />
-          <TimeRangeAlone prepositions={this.props.prepositions} />
-          <DateRangeAlone prepositions={this.props.prepositions} />
-          <StartDateAndTimeRange prepositions={this.props.prepositions} />
-          <StartDateTimeAndDuration prepositions={this.props.prepositions} />
-          <StartDateTimeAndEndDateTime prepositions={this.props.prepositions} />
+          <StartDateAlone prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+          <StartDateTimeAlone prepositions={this.props.prepositions} duration={this.props.defaultDuration} timeZone={this.props.timeZone} />
+          <TimeRangeAlone prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+          <DateRangeAlone prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+          <StartDateAndTimeRange prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+          <StartDateTimeAndDuration prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
+          <StartDateTimeAndEndDateTime prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
         </choice>
       </label>
     )
@@ -111,7 +111,7 @@ class StartDateAlone extends Phrase {
       <map function={this.getValue.bind(this)}>
         <sequence>
           <literal text='all day ' optional limited />
-          <Date merge prepositions={this.props.prepositions} />
+          <Date merge prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )
@@ -134,7 +134,7 @@ class StartDateTimeAlone extends Phrase {
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
-        <DateTime _impliedTime={false} prepositions={this.props.prepositions} />
+        <DateTime _impliedTime={false} prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
       </map>
     )
   }
@@ -147,11 +147,11 @@ StartDateTimeAlone.defaultProps = {
 
 class TimeRangeAlone extends Phrase {
   getValue (result) {
-    const startDate = relativeDate(result.relative)
+    const startDate = relativeDate(result.relative, {}, this.props.timeZone)
     const endDate = moment(startDate).add(result.timeRange.dayOffset, 'day')
     return {
-      start: join(startDate, result.timeRange.start),
-      end: join(moment(endDate), result.timeRange.end),
+      start: join(startDate, result.timeRange.start, this.props.timeZone),
+      end: join(moment(endDate), result.timeRange.end, this.props.timeZone),
       allDay: false
     }
   }
@@ -165,7 +165,7 @@ class TimeRangeAlone extends Phrase {
             {text:'', value: {days: 1}},
             {text:'', value: {days: -1}}
           ]} />
-          <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
+          <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )
@@ -188,7 +188,7 @@ class DateRangeAlone extends Phrase {
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
-        <DateRange prepositions={this.props.prepositions} _allDay />
+        <DateRange prepositions={this.props.prepositions} _allDay timeZone={this.props.timeZone} />
       </map>
     )
   }
@@ -210,7 +210,7 @@ class StartDateTimeAndEndDateTime extends Phrase {
           {this.props.prepositions ? <literal text='from ' optional limited /> : null}
           <DateTime id='start' defaultTime={this.props.defaultTime} />
           <list items={[' to ', ' - ', '-']} limit={1} />
-          <DateTime id='end' defaultTime={this.props.defaultTime} />
+          <DateTime id='end' defaultTime={this.props.defaultTime} timeZone={this.props.timeZone} />
         </sequence>
       </map>
     )
@@ -237,11 +237,11 @@ class StartDateTimeAndDuration extends Phrase {
             {this.props.prepositions ? <literal text='for ' optional limited /> : null}
             <Duration id='duration' seconds={this.props.seconds} />
             <literal text=' ' />
-            <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
+            <DateTime id='start' prepositions defaultTime={this.props.defaultTime} timeZone={this.props.timeZone} />
           </sequence>
 
           <sequence>
-            <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
+            <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} timeZone={this.props.timeZone} />
             <literal text=' for ' />
             <Duration id='duration' seconds={this.props.seconds} />
           </sequence>
@@ -258,8 +258,8 @@ StartDateTimeAndDuration.defaultProps = {
 class StartDateAndTimeRange extends Phrase {
   getValue (result) {
     return {
-      start: join(result.date, result.timeRange.start),
-      end: join(moment(result.date).add(result.timeRange.dayOffset, 'day'), result.timeRange.end),
+      start: join(result.date, result.timeRange.start, this.props.timeZone),
+      end: join(moment(result.date).add(result.timeRange.dayOffset, 'day'), result.timeRange.end, this.props.timeZone),
       allDay: false
     }
   }
@@ -269,15 +269,15 @@ class StartDateAndTimeRange extends Phrase {
       <map function={this.getValue.bind(this)}>
         <choice>
           <sequence>
-            <Date id='date' prepositions={this.props.prepositions} />
+            <Date id='date' prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
             <literal text=' ' />
-            <TimeRange id='timeRange' _duration={false} prepositions />
+            <TimeRange id='timeRange' _duration={false} prepositions timeZone={this.props.timeZone} />
           </sequence>
 
           <sequence>
-            <TimeRange id='timeRange' prepositions={this.props.prepositions} />
+            <TimeRange id='timeRange' prepositions={this.props.prepositions} timeZone={this.props.timeZone} />
             <literal text=' ' />
-            <Date id='date' prepositions />
+            <Date id='date' prepositions timeZone={this.props.timeZone} />
           </sequence>
         </choice>
       </map>
