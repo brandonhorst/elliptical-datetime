@@ -5,12 +5,8 @@ import moment from 'moment'
 import { createElement, Phrase } from 'lacona-phrase'
 
 import { join, relativeDate } from './helpers'
-// import { Date } from './date'
-// import { DateRange } from './date-range'
 import { DateTime, InternalDateTime } from './datetime'
 import { Duration } from './duration'
-// import { Time } from './time'
-// import { TimeRange } from './time-range'
 
 class TrueDateTime extends Phrase {
   describe () {
@@ -221,7 +217,7 @@ export class Range extends Phrase {
           <filter function={this.filter}>
             <sequence unique>
               <sequence id='duration' optional limited>
-                {this.props.prepositions ? <literal text='for ' /> : null}
+                {this.props.prepositions ? <literal text='for ' optional limited preferred /> : null}
                 <Duration merge />
                 <list items={[' ', ' starting ']} limit={1} />
               </sequence>
@@ -230,7 +226,7 @@ export class Range extends Phrase {
 
               <choice merge>
                 <sequence id='end'>
-                  <literal text=' to ' />
+                  <list items={[' to ', ' - ', '-']} limit={1} category='conjunction' />
 
                   <TrueDateTime merge />
                 </sequence>

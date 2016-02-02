@@ -137,6 +137,20 @@ describe('Range', () => {
         allDay: false
       }
     }, {
+      input: '6pm-9pm',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
+        end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '6pm - 9pm',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
+        end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
+        allDay: false
+      }
+    }, {
       input: '10a Friday to 6p Saturday',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),

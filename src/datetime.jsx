@@ -4,7 +4,7 @@ import { createElement, Phrase } from 'lacona-phrase'
 import { Time, TimeOfDay } from './time'
 import moment from 'moment'
 import { ambiguousTime, join, relativeDate } from './helpers'
-import { DateWithTimeOfDay, Date } from './date'
+import { InternalDate, Date as DatePhrase } from './date'
 
 function isNoonOrMidnight (time) {
   return (time.hour === 12 || time.hour === 0) && !time.minute && !time.second
@@ -17,6 +17,22 @@ function timeIsInAMPM(time, ampm) {
     return time.hour >= 12 && time.hour < 24
   }
 }
+
+class TrueDate extends Phrase {
+  describe () {
+    return (
+      <sequence>
+        <choice merge>
+          <InternalDate {...this.props} id={undefined} />
+          <map function={(result) => ({date: result})}>
+            <DatePhrase {...this.props} nullify />
+          </map>
+        </choice>
+      </sequence>
+    )
+  }
+}
+
 
 export class DateTime extends Phrase {
   validate (result) {
@@ -166,7 +182,7 @@ export class InternalDateTime extends Phrase {
 
                     <sequence id='date'>
                       <literal text=' ' />
-                      <Date merge prepositions />
+                      <TrueDate merge prepositions />
                     </sequence>
                   </sequence>
 
@@ -185,7 +201,7 @@ export class InternalDateTime extends Phrase {
                 </sequence>
 
                 <choice merge ellipsis>
-                  <Date id='date' prepositions={this.props.prepositions} />
+                  <TrueDate id='date' prepositions={this.props.prepositions} />
                   <sequence>
                     <literal id='relativeDate' text='this ' value={{day: 0}} />
                     <TimeOfDay id='timeOfDay' />

@@ -41,20 +41,26 @@ Day.defaultProps = {
 }
 
 export class Date extends Phrase {
-  // validate (result) {
-  //   console.log('date', result)
-  //   return true
-  // }
-  // validate (result) {
-  //   if (!this.props.past && moment({}).isAfter(result)) {
-  //     return false
-  //   }
-  //   if (!this.props.future && moment({}).isBefore(result)) {
-  //     return false
-  //   }
+  describe () {
+    return this.props.nullify ? null : (
+      <map function={result => result.date}>
+        <InternalDate {...this.props} />
+      </map>
+    )
+  }
+}
 
-  //   return true
-  // }
+export class InternalDate extends Phrase {
+  validate (result) {
+    if (!this.props.past && moment(result.date.date).isAfter(result)) {
+      return false
+    }
+    if (!this.props.future && moment(result.date.date).isBefore(result)) {
+      return false
+    }
+
+    return true
+  }
 
   describe() {
     if (this.props.nullify) return
@@ -85,7 +91,7 @@ export class Date extends Phrase {
   }
 }
 
-Date.defaultProps = {
+InternalDate.defaultProps = {
   recurse: true,
   prepositions: false,
   nullify: false,
@@ -312,7 +318,7 @@ class RecursiveDate extends Phrase {
             </sequence>
           </label>
           <literal text=' ' />
-          <Date id='date' recurse={false} prepositions={false} />
+          <InternalDate id='date' recurse={false} prepositions={false} />
         </sequence>
       </map>
     )

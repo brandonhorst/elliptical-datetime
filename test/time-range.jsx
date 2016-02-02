@@ -9,14 +9,14 @@ import { TimeRange } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
-describe('TimeRange', () => {
+describe.skip('TimeRange', () => {
   let parser
 
   beforeEach(() => {
     parser = new Parser()
   })
 
-  describe('default', () => {
+  describe.skip('default', () => {
     beforeEach(() => {
       parser.grammar = <TimeRange />
     })
