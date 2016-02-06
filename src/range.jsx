@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { createElement, Phrase } from 'lacona-phrase'
 
-import { join, relativeDate } from './helpers'
+import { join, relativeDate, possibleDates } from './helpers'
 import { DateTime, InternalDateTime } from './datetime'
 import { Duration } from './duration'
 
@@ -42,88 +42,29 @@ export class Range extends Phrase {
   * getValues (result) {
     if (result.start && result.end) {
       if (!result.start.time && !result.end.time) {
-        yield {
-          start: join(result.start.date, {hour: 0, minute: 0, second: 0}),
-          end: join(result.end.date, {hour: 0, minute: 0, second: 0}),
-          allDay: true
-        }
-      } else if (!result.start.date && !result.end.date) {
-        for (let i of [0, 1, -1]) {
-          for (let j of [0, 1, -1, 2, -2]) {
+        for (let startDate of possibleDates(result.start)) {
+          for (let endDate of possibleDates(result.end)) {
             yield {
-              start: moment({}).set(result.start.time).add(i, 'days').toDate(),
-              end: moment({}).set(result.end.time).add(j, 'days').toDate(),
+              start: join(startDate, {hour: 0, minute: 0, second: 0}),
+              end: join(endDate, {hour: 0, minute: 0, second: 0}),
+              allDay: true
+            }
+          }
+        }
+      } else {
+        for (let startDate of possibleDates(result.start, result.end.date)) {
+          for (let endDate of possibleDates(result.end, startDate)) {
+            yield {
+              start: join(startDate, result.start.time || this.props.defaultTime),
+              end: join(endDate, result.end.time || this.props.defaultTime),
               allDay: false
             }
           }
         }
-      } else if (!result.start.time) {
-        yield {
-          start: join(result.start.date, this.props.defaultTime),
-          end: join(result.end.date, result.end.time),
-          allDay: false
-        }
-      } else if (!result.end.time) {
-        yield {
-          start: join(result.start.date, result.start.time),
-          end: join(result.end.date, this.props.defaultTime),
-          allDay: false
-        }
-      } else if (!result.end.date) {
-        for (let i of [0, 1, -1]) {
-          yield {
-            start: join(result.start.date, result.start.time),
-            end: join(moment(result.start.date).add(i, 'days'), result.end.time),
-            allDay: false
-          }
-        }
-      } else if (!result.start.date) {
-        for (let i of [0, 1, -1]) {
-          yield {
-            start: join(moment(result.end.date).add(i, 'days'), result.start.time),
-            end: join(result.end.date, result.end.time),
-            allDay: false
-          }
-        }
-      } else {
-        if (result.start._ambiguousWeek && result.end._ambiguousWeek) {
-          for (let i of [0, 7, -7]) {
-            for (let j of [0, 7, -7, 14, -14]) {
-              yield {
-                start: moment(result.start.date).set(result.start.time).add(i, 'days').toDate(),
-                end: moment(result.end.date).set(result.end.time).add(j, 'days').toDate(),
-                allDay: false
-              }
-            }
-          } 
-        } else {
-          yield {
-            start: join(result.start.date, result.start.time),
-            end: join(result.end.date, result.end.time),
-            allDay: false
-          }
-        }
       }
     } else if (result.start && result.duration) {
-      if (!result.start.date) {
-        for (let i of [0, 1, -1]) {
-          const start = join(relativeDate({days: i}), result.start.time)
-          yield {
-            start,
-            end: moment(start).add(result.duration).toDate(),
-            allDay: false
-          }
-        }
-      } else if (!result.start.time) {
-        const start = join(result.start.time, this.props.defaultTime)
-        yield {
-          start,
-          end: moment(start).add(result.duration).toDate(),
-          allDay: false
-        }
-
-      } else {
-        const start = join(result.start.date, result.start.time)
+      for (let startDate of possibleDates(result.start)) {
+        const start = join(startDate, result.start.time || this.props.defaultTime)
         yield {
           start,
           end: moment(start).add(result.duration).toDate(),
@@ -132,26 +73,21 @@ export class Range extends Phrase {
       }
     } else if (result.start) {
       if (!result.start.time) {
-        yield {
-          start: result.start.date,
-          end: result.start.date,
-          allDay: true
+        for (let startDate of possibleDates(result.start)) {
+          yield {
+            start: startDate,
+            end: startDate,
+            allDay: true
+          }
         }
-      } else if (!result.start.date) {
-        for (let i of [0, 1, -1]) {
-          const start = join(relativeDate({days: i}), result.start.time)
+      } else {
+        for (let startDate of possibleDates(result.start)) {
+          const start = join(startDate, result.start.time)
           yield {
             start: start,
             end: moment(start).add(this.props.defaultDuration).toDate(),
             allDay: false
           }
-        }
-      } else {
-        const start = join(result.start.date, result.start.time)
-        yield {
-          start,
-          end: moment(start).add(this.props.defaultDuration).toDate(),
-          allDay: false
         }
       }
     }
@@ -254,194 +190,3 @@ Range.defaultProps = {
   argument: 'period of time'
 }
 
-// class StartDateAlone extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: result,
-//       end: result,
-//       allDay: true
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <sequence>
-//           <literal text='all day ' optional limited />
-//           <Date merge prepositions={this.props.prepositions} />
-//         </sequence>
-//       </map>
-//     )
-//   }
-// }
-
-// StartDateAlone.defaultProps = {
-//   prepositions: false
-// }
-
-// class StartDateTimeAlone extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: result,
-//       end: moment(result).add(moment.duration(this.props.duration)).toDate(),
-//       allDay: false
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <DateTime _impliedTime={false} prepositions={this.props.prepositions} />
-//       </map>
-//     )
-//   }
-// }
-
-// StartDateTimeAlone.defaultProps = {
-//   prepositions: false,
-//   duration: {hours: 1}
-// }
-
-// class TimeRangeAlone extends Phrase {
-//   getValue (result) {
-//     const startDate = relativeDate(result.relative)
-//     const endDate = moment(startDate).add(result.timeRange.dayOffset, 'day')
-//     return {
-//       start: join(startDate, result.timeRange.start),
-//       end: join(moment(endDate), result.timeRange.end),
-//       allDay: false
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <sequence>
-//           <list id='relative' limit={1} items={[
-//             {text:'', value: {}},
-//             {text:'', value: {days: 1}},
-//             {text:'', value: {days: -1}}
-//           ]} />
-//           <TimeRange id='timeRange' _duration={false} prepositions={this.props.prepositions} />
-//         </sequence>
-//       </map>
-//     )
-//   }
-// }
-
-// TimeRangeAlone.defaultProps = {
-//   prepositions: false
-// }
-
-// class DateRangeAlone extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: result.start,
-//       end: result.end,
-//       allDay: true
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <DateRange prepositions={this.props.prepositions} _allDay />
-//       </map>
-//     )
-//   }
-// }
-
-// class StartDateTimeAndEndDateTime extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: result.start,
-//       end: result.end,
-//       allDay: false
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <sequence>
-//           {this.props.prepositions ? <literal text='from ' optional limited /> : null}
-//           <DateTime id='start' defaultTime={this.props.defaultTime} />
-//           <list items={[' to ', ' - ', '-']} limit={1} />
-//           <DateTime id='end' defaultTime={this.props.defaultTime} />
-//         </sequence>
-//       </map>
-//     )
-//   }
-// }
-
-// StartDateTimeAndEndDateTime.defaultProps = {
-//   prepositions: false
-// }
-
-// class StartDateTimeAndDuration extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: result.start,
-//       end: moment(result.start).add(moment.duration(result.duration)).toDate(),
-//       allDay: false
-//     }
-//   }
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <choice>
-//           <sequence>
-//             {this.props.prepositions ? <literal text='for ' optional limited /> : null}
-//             <Duration id='duration' seconds={this.props.seconds} />
-//             <literal text=' ' />
-//             <DateTime id='start' prepositions defaultTime={this.props.defaultTime} />
-//           </sequence>
-
-//           <sequence>
-//             <DateTime id='start' prepositions={this.props.prepositions} defaultTime={this.props.defaultTime} />
-//             <literal text=' for ' />
-//             <Duration id='duration' seconds={this.props.seconds} />
-//           </sequence>
-//         </choice>
-//       </map>
-//     )
-//   }
-// }
-
-// StartDateTimeAndDuration.defaultProps = {
-//   prepositions: false
-// }
-
-// class StartDateAndTimeRange extends Phrase {
-//   getValue (result) {
-//     return {
-//       start: join(result.date, result.timeRange.start),
-//       end: join(moment(result.date).add(result.timeRange.dayOffset, 'day'), result.timeRange.end),
-//       allDay: false
-//     }
-//   }
-
-//   describe () {
-//     return (
-//       <map function={this.getValue.bind(this)}>
-//         <choice>
-//           <sequence>
-//             <Date id='date' prepositions={this.props.prepositions} />
-//             <literal text=' ' />
-//             <TimeRange id='timeRange' _duration={false} prepositions />
-//           </sequence>
-
-//           <sequence>
-//             <TimeRange id='timeRange' prepositions={this.props.prepositions} />
-//             <literal text=' ' />
-//             <Date id='date' prepositions />
-//           </sequence>
-//         </choice>
-//       </map>
-//     )
-//   }
-// }
-
-// StartDateAndTimeRange.defaultProps = {
-//   prepositions: false
-// }

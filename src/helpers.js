@@ -63,3 +63,27 @@ export function validateDay ({month, day, year = 2012} = {}) { //leap year
   const dateMoment = moment({year, month, day})
   return dateMoment.month() === month
 }
+
+export function * possibleDates(obj, referenceDate) {
+  if (obj.date) {
+    if (obj._ambiguousWeek) {
+      for (let i of [0, 7, -7]) {
+        yield moment(obj.date).add(i, 'days').toDate()
+      }
+    } else if (obj._ambiguousYear) {
+      for (let i of [0, 1, -1]) {
+        yield moment(obj.date).add(i, 'years').toDate()
+      }
+    } else if (obj._ambiguousCentury) {
+      for (let i of [0, 100, -100]) {
+        yield moment(obj.date).add(i, 'years').toDate()
+      }
+    } else {
+      yield obj.date
+    }
+  } else {
+    for (let i of [0, 1, -1]) {
+      yield moment(referenceDate).add(i, 'days').toDate()
+    }
+  }
+}

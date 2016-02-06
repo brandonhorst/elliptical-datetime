@@ -19,6 +19,7 @@ describe('DateTime', () => {
   function test ({input, output, length = 1}) {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      // console.log(require('util').inspect(data, {depth: 8}))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)
@@ -94,19 +95,23 @@ describe('DateTime', () => {
       output: moment({year: 1990, month: 9, day: 12, hour: 15}).toDate()
     }, {
       input: 'tomorrow morning at 9',
-      output: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate()
+      output: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow afternoon at 9',
-      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow at 9 in the afternoon',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
     }, {
       input: 'tomorrow evening at 9',
-      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow night at 9',
-      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
+      output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow morning at noon',
       length: 0
