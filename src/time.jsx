@@ -56,7 +56,7 @@ export class Time extends Phrase {
     return (
       <choice>
         <sequence>
-          {this.props.prepositions ? <list items={['at ', 'from ']} category='conjunction' optional preferred limited /> : null}
+          {this.props.prepositions ? <list items={['at ', 'from ']} limit={1} category='conjunction' optional preferred limited /> : null}
           <label text={this.props.argument} merge>
             <choice>
               <AbsoluteNumeric />
