@@ -6,7 +6,7 @@
     "url": "https://github.com/lacona/lacona-phrase-datetime/issues"
   },
   "dependencies": {
-    "lacona": "^0.37.0",
+    "lacona": "^0.39.0",
     "lacona-phrase": "^0.9.1",
     "lacona-phrase-number": "^0.6.0",
     "lodash": "^3.10.1",
