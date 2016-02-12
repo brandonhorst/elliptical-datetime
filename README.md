@@ -61,7 +61,6 @@ A phrase that represents a specific time of day.
 
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'at 3pm' vs '3pm'
-- `seconds`: `Boolean` - defaults to `true`. Can the user input times that include seconds? If not, `result.seconds` will always be 0.
 
 ### `Day`
 
@@ -123,7 +122,6 @@ Date //Standard Javascript Date object. Local timezone.
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'on January 2nd at 3pm' vs 'January 2nd at 3pm'
     * 'at 3pm tomorrow' vs '3pm tomorrow'
-- `seconds`: `Boolean` - defaults to `true`. Can the user input times that include seconds?
 - `future`: `Boolean` - defaults to `true`. Can the user input points in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input points in the past?
 
@@ -164,9 +162,9 @@ Fractional seconds are currently unsupported.
 
 #### Props
 
-- `seconds`: `Boolean` - Can the user input durations in seconds? (`TimeDuration` and `Duration` only)
+- None
 
-### `TimeRange`
+### `TimeRange` - **NOT IMPLEMENTED**
 
 Reprents range that starts at a specific time and ends at a specific time, but is not tied to any particular date.
 
@@ -188,9 +186,8 @@ If `end` is an earlier time of day than `start`, `daysOffset` will always be gre
 
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'from 3pm to 4pm' vs '3pm to 4pm'
-- `seconds`: `Boolean` - defaults to `true`. Can the user input ranges that include seconds?
 
-### `DateRange`
+### `DateRange` -- **NOT IMPLEMENTED**
 
 Represents a range of dates.
 
@@ -241,6 +238,5 @@ An object of the form
 - `prepositions`: `Boolean` - defaults to `false`. Allow the user to input standard prepositions, in applicable languages. In English, this means things like:
     * 'from 3pm to 4pm' vs '3pm to 4pm'
     * 'on January 2nd for 3 hours' vs 'January 2nd for 3 hours'
-- `seconds`: `Boolean` - defaults to `true`. Can the user input ranges that include seconds?
 - `future`: `Boolean` - defaults to `true`. Can the user input ranges that end in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input ranges that begin in the past?
