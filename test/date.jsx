@@ -3,24 +3,25 @@
 
 import _ from 'lodash'
 import { createElement, Phrase } from 'lacona-phrase'
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
 import lolex from 'lolex'
 import { text } from './_util'
 import { Date as DatePhrase } from '..'
 import moment from 'moment'
 import { Parser } from 'lacona'
 
+chai.use(require('chai-datetime'))
 
 describe('Date', () => {
   let parser
   let clock
 
-  function test ({input, output, suggestion, length = 1 }) {
+  function test ({input, output, length = 1 }) {
     it(input, () => {
       const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
-        expect(text(data[0])).to.equal(suggestion || input)
+        expect(text(data[0])).to.equal(input)
         expect(data[0].result).to.equalDate(output)
       }
     })
@@ -100,19 +101,16 @@ describe('Date', () => {
       input: '5/2 in 2004'
     }, {
       output: moment({year: 2004, month: 4, day: 2}).toDate(),
-      input: '5/2 in 04',
-      suggestion: '5/2 in 2004'
+      input: '5/2 in 04'
     }, {
       output: moment({year: 2004, month: 4, day: 2}).toDate(),
       input: '5/2 in \'04'
     }, {
       output: moment({year: 1992, month: 4, day: 2}).toDate(),
-      input: '5/2/92',
-      suggestion:'5/2/1992'
+      input: '5/2/92'
     }, {
       output: moment({year: 2020, month: 4, day: 2}).toDate(),
-      input: '5/2/20',
-      suggestion: '5/2/2020'
+      input: '5/2/20'
     }, {
       output: moment({year: 1992, month: 4, day: 2}).toDate(),
       input: '5/2/1992'
@@ -188,15 +186,12 @@ describe('Date', () => {
       length: 0
     }, {
       input: '5/2/92',
-      suggestion:'5/2/1992',
       output: moment({year: 1992, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/84',
-      suggestion:'5/2/2084',
       output: moment({year: 2084, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/20',
-      suggestion: '5/2/2020',
       output: moment({year: 2020, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/1992',
@@ -276,14 +271,12 @@ describe('Date', () => {
       length: 0
     }, {
       input: '5/2/92',
-      length: 0
+      output: moment({year: 1892, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/84',
-      suggestion:'5/2/1984',
       output: moment({year: 1984, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/20',
-      suggestion: '5/2/1920',
       output: moment({year: 1920, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/1992',

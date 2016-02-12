@@ -34,12 +34,6 @@ describe('Time', () => {
     output: {hour: 15, minute: 0, second: 0},
     input: '3pm'
   }, {
-    output: {hour: 15, minute: 0, second: 0},
-    input: '3 in the afternoon'
-  }, {
-    output: {hour: 15, minute: 0, second: 0},
-    input: '3:00 in the afternoon'
-  }, {
     output: {hour: 0, minute: 0, second: 0},
     input: 'midnight'
   }, {
@@ -54,6 +48,9 @@ describe('Time', () => {
   }, {
     output: {hour: 15, minute: 30, second: 0},
     input: 'half past 3pm'
+  }, {
+    output: {hour: 21, minute: 0, second: 0},
+    input: '9pm'
   }, {
     output: {hour: 15, minute: 50, second: 0},
     input: '10 til 4pm'

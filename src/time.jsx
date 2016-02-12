@@ -13,31 +13,34 @@ export class TimeOfDay extends Phrase {
     return (
       <label text='time of day'>
         <list items={[
-          {text: 'morning', value: {default: 8, range: [0, 12]}},
-          {text: 'afternoon', value: {default: 12, range: [12, 24]}},
-          {text: 'evening', value: {default: 17, range: [12, 24]}},
-          {text: 'night', value: {default: 20, range: [12, 24]}}
+          {text: 'early morning', value: {default: 6, impliedAMPM: 'am'}},
+          {text: 'morning', value: {default: 8, impliedAMPM: 'am'}},
+          {text: 'late morning', value: {default: 10, impliedAMPM: 'am'}},
+          {text: 'afternoon', value: {default: 12, impliedAMPM: 'pm'}},
+          {text: 'late afternoon', value: {default: 15, impliedAMPM: 'pm'}},
+          {text: 'evening', value: {default: 17, impliedAMPM: 'pm'}},
+          {text: 'night', value: {default: 20, impliedAMPM: 'pm'}}
         ]} />
       </label>
     )
   }
 }
 
-export class AmbiguousTime extends Phrase {
-  describe () {
-    return (
-      <sequence>
-        {this.props.prepositions ? <literal text='at ' category='conjunction' optional limited preferred /> : null}
-        <label text='time' merge>
-          <choice>
-            <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
-            <AmbiguousAbsoluteRelativeHour />
-          </choice>
-        </label>
-      </sequence>
-    )
-  }
-}
+// export class AmbiguousTime extends Phrase {
+//   describe () {
+//     return (
+//       <sequence>
+//         {this.props.prepositions ? <literal text='at ' category='conjunction' optional limited preferred /> : null}
+//         <label text='time' merge>
+//           <choice>
+//             <AmbiguousAbsoluteNumeric seconds={this.props.seconds} />
+//             <AmbiguousAbsoluteRelativeHour />
+//           </choice>
+//         </label>
+//       </sequence>
+//     )
+//   }
+// }
 
 export class Time extends Phrase {
   static defaultProps = {
@@ -51,22 +54,26 @@ export class Time extends Phrase {
 
   describe () {
     return (
-      <label text={this.props.argument} suppressEmpty={false}>
-        <choice>
-          <sequence>
-            {this.props.prepositions ? <literal text='at ' category='conjunction' optional preferred limited /> : null}
-            <choice merge>
-              <AbsoluteNumeric seconds={this.props.seconds} />
+      <choice>
+        <sequence>
+          {this.props.prepositions ? <list items={['at ', 'from ']} limit={1} category='conjunction' optional preferred limited /> : null}
+          <label text={this.props.argument} merge>
+            <choice>
+              <AbsoluteNumeric />
               <AbsoluteRelativeHour />
               <AbsoluteNamed />
-              <AbsoluteTimeOfDay seconds={this.props.seconds} />
+              {/*<AbsoluteTimeOfDay seconds={this.props.seconds} />*/}
             </choice>
-          </sequence>
-          {this.props.named ? <RelativeNamed /> : null}
-          {this.props.relative ? <RelativeTime /> : null}
-          {this.props.recurse ? <RecursiveTime /> : null}
-        </choice>
-      </label>
+          </label>
+        </sequence>
+        <label text={this.props.argument}>
+          <choice>
+            {this.props.named ? <RelativeNamed /> : null}
+            {this.props.relative ? <RelativeTime /> : null}
+            {this.props.recurse ? <RecursiveTime /> : null}
+          </choice>
+        </label>
+      </choice>
     )
   }
 }
@@ -147,55 +154,47 @@ class AbsoluteNamed extends Phrase {
   }
 }
 
-class AmbiguousAbsoluteNumeric extends Phrase {
-  getValue (result) {
-    return ambiguousTime(result)
-  }
+// class AmbiguousAbsoluteNumeric extends Phrase {
+//   getValue (result) {
+//     return ambiguousTime(result)
+//   }
 
-  describe () {
-    return (
-      <map function={this.getValue.bind(this)}>
-        <sequence>
-          <Hour id='hour' />
+//   describe () {
+//     return (
+//       <map function={this.getValue.bind(this)}>
 
-          <choice optional limit={1} merge>
-            {this.props.minutes ?
-              <sequence>
-                <literal text=':' />
-                <MinutesOrSeconds id='minute' />
-              </sequence>
-            : null}
+//       </map>
+//     )
+//   }
+// }
 
-            {this.props.minutes && this.props.seconds ?
-              <sequence>
-                <literal text=':' />
-                <MinutesOrSeconds id='minute' />
-                <literal text=':' />
-                <MinutesOrSeconds id='second' />
-              </sequence>
-            : null}
-          </choice>
-        </sequence>
-      </map>
-    )
-  }
-}
-
-AmbiguousAbsoluteNumeric.defaultProps = {
-  minutes: true,
-  seconds: false
-}
+// AmbiguousAbsoluteNumeric.defaultProps = {
+//   minutes: true,
+//   seconds: false
+// }
 
 class AbsoluteNumeric extends Phrase {
   getValue (result) {
-    return ambiguousTime(result.ambiguousTime, result.ampm)
+    if (result.ampm) {
+      return ambiguousTime(result, result.ampm)
+    } else {
+      return _.assign({}, result, {_ambiguousAMPM: true})
+      // const returnValue = _.clone(result)
+      // Object.defineProperty(returnValue, 'ambiguousAMPM', {value: true})
+      // return returnValue
+    }
   }
 
   describe () {
     return (
       <map function={this.getValue.bind(this)}>
         <sequence>
-          <AmbiguousAbsoluteNumeric id='ambiguousTime' minutes={this.props.minutes} seconds={this.props.seconds} />
+          <Hour id='hour' ellipsis />
+
+          <sequence ellipsis optional limited merge>
+            <literal text=':' />
+            <MinutesOrSeconds id='minute' />
+          </sequence>
 
           <choice id='ampm'>
             <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
@@ -258,10 +257,7 @@ class BaseAbsoluteRelativeHour extends Phrase {
           ]} />
           <label argument={false} text='hour' id='absolute'>
             <choice>
-              {this.props.ambiguous ?
-                <AmbiguousAbsoluteNumeric minutes={false} seconds={false} /> :
-                <AbsoluteNumeric minutes={false} seconds={false} />
-              }
+              <AbsoluteNumeric minutes={false} />
               <AbsoluteNamed />
             </choice>
           </label>
