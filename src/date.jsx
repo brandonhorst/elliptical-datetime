@@ -8,7 +8,7 @@ import { DigitString, Integer, Ordinal } from 'lacona-phrase-number'
 import { TimeOfDay } from './time'
 import { Month } from './month'
 import { Weekday } from './weekday'
-import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validateDay } from './helpers'
+import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validateDay, possibleDates } from './helpers'
 
 export class Day extends Phrase {
   describe () {
@@ -41,9 +41,24 @@ Day.defaultProps = {
 }
 
 export class Date extends Phrase {
+  validate (result) {
+    if (!this.props.past && moment(result).isBefore(moment())) {
+      return false
+    }
+    if (!this.props.future && moment(result).isAfter(moment())) {
+      return false
+    }
+
+    return true
+  }
+
+  * getValues (result) {
+    yield* possibleDates(result)
+  }
+
   describe () {
-    return this.props.nullify ? null : (
-      <map function={result => result.date}>
+    return (
+      <map iteratorFunction={this.getValues} limit={1}>
         <InternalDate {...this.props} />
       </map>
     )
@@ -51,17 +66,6 @@ export class Date extends Phrase {
 }
 
 export class InternalDate extends Phrase {
-  validate (result) {
-    if (!this.props.past && moment(result.date.date).isAfter(result)) {
-      return false
-    }
-    if (!this.props.future && moment(result.date.date).isBefore(result)) {
-      return false
-    }
-
-    return true
-  }
-
   describe() {
     if (this.props.nullify) return
 
@@ -297,7 +301,7 @@ class RecursiveDate extends Phrase {
   getValue(result) {
     const duration = result.direction === -1 ? negateDuration(result.duration) : result.duration
 
-    return {date: relativeDate(duration, result.date.date)}
+    return _.assign({}, result.date, {date: relativeDate(duration, result.date.date)})
   }
 
   describe() {
@@ -549,7 +553,7 @@ class Year extends Phrase {
   getValue(result) {
     if (result.twoDigitYear) {
       const decade = parseInt(result.twoDigitYear, 10)
-      const year = decade > 29 ? 2000 + decade : 1900 + decade
+      const year = decade < 29 ? 2000 + decade : 1900 + decade
       return {year, _ambiguousCentury: true}
     } else if (result.fourDigitYear) {
       return {year: parseInt(result.fourDigitYear, 10)}

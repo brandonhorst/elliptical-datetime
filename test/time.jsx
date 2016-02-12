@@ -14,7 +14,7 @@ function momentToTime (mom) {
   return {hour: mom.hour(), minutes: mom.minute()}
 }
 
-describe.skip('Time', () => {
+describe('Time', () => {
   let parser
   let clock
 
@@ -33,12 +33,6 @@ describe.skip('Time', () => {
   }, {
     output: {hour: 15, minute: 0, second: 0},
     input: '3pm'
-  }, {
-    output: {hour: 15, minute: 0, second: 0},
-    input: '3 in the afternoon'
-  }, {
-    output: {hour: 15, minute: 0, second: 0},
-    input: '3:00 in the afternoon'
   }, {
     output: {hour: 0, minute: 0, second: 0},
     input: 'midnight'

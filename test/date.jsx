@@ -12,7 +12,7 @@ import { Parser } from 'lacona'
 
 chai.use(require('chai-datetime'))
 
-describe.skip('Date', () => {
+describe('Date', () => {
   let parser
   let clock
 
@@ -271,7 +271,7 @@ describe.skip('Date', () => {
       length: 0
     }, {
       input: '5/2/92',
-      length: 0
+      output: moment({year: 1892, month: 4, day: 2}).toDate()
     }, {
       input: '5/2/84',
       output: moment({year: 1984, month: 4, day: 2}).toDate()
