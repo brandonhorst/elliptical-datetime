@@ -67,7 +67,7 @@ export function validateDay ({month, day, year = 2012} = {}) { //leap year
 export function * possibleDates(obj, referenceDate) {
   if (obj.date) {
     if (obj._ambiguousWeek) {
-      for (let i of [0, 7, -7]) {
+      for (let i of [0, 7, -7, 14, -14]) {
         yield moment(obj.date).add(i, 'days').toDate()
       }
     } else if (obj._ambiguousYear) {
