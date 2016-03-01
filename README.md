@@ -124,6 +124,7 @@ Date //Standard Javascript Date object. Local timezone.
     * 'at 3pm tomorrow' vs '3pm tomorrow'
 - `future`: `Boolean` - defaults to `true`. Can the user input points in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input points in the past?
+- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if lacona is being used on a server - set this prop to the timezoneOffset sent from the client.
 
 ### `Duration`, `TimeDuration`, and `DateDuration`
 
@@ -240,3 +241,4 @@ An object of the form
     * 'on January 2nd for 3 hours' vs 'January 2nd for 3 hours'
 - `future`: `Boolean` - defaults to `true`. Can the user input ranges that end in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input ranges that begin in the past?
+- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if lacona is being used on a server - set this prop to the timezoneOffset sent from the client.

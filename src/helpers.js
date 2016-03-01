@@ -4,8 +4,15 @@ import moment from 'moment'
 // combine a the date components of a Date object and the time components of {hour, minute, second}
 // date: moment, Date, or {year, month, day}
 // time: {hour, minute, second}
-export function join (date, time) {
-  return moment(date).set(time).toDate()
+// timezoneOffset = new Date().getTimezoneOffset() from the user's system
+export function join (date, time, timezoneOffset) {
+  if (timezoneOffset == null) {
+    return moment(date).set(time).toDate()
+  } else {
+    const mom = moment(date)
+    const yearComponents = {year: mom.year(), month: mom.month(), date: mom.date()}
+    return moment().utcOffset(-timezoneOffset).set(yearComponents).set(time).toDate()
+  }
 }
 
 export function negateDuration (duration) {
@@ -13,7 +20,7 @@ export function negateDuration (duration) {
 }
 
 export function relativeTime (duration, now) {
-  const newTime = moment(now).utc().add(moment.duration(duration)).local()
+  const newTime = moment(now).add(moment.duration(duration))
 
   return {hour: newTime.hour(), minute: newTime.minute(), second: newTime.second()}
 }

@@ -65,14 +65,14 @@ export class DateTime extends Phrase {
 
     for (let date of dates) {
       if (date && result.time) {
-        yield join(date, result.time)
+        yield join(date, result.time, this.props.timezoneOffset)
       } else if (result.time && result.relativeDate) {
-        yield join(relativeDate(result.relativeDate), result.time)
+        yield join(relativeDate(result.relativeDate), result.time, this.props.timezoneOffset)
       } else if (date) {
-        yield join(date, this.props.defaultTime)
+        yield join(date, this.props.defaultTime, this.props.timezoneOffset)
       } else if (result.time) {
         for (let i of [0, 1, -1]) {
-          yield join(relativeDate({days: i}), result.time)
+          yield join(relativeDate({days: i}), result.time, this.props.timezoneOffset)
         }
       }
     }
@@ -95,40 +95,6 @@ DateTime.defaultProps = {
 }
 
 export class InternalDateTime extends Phrase {
-  /*
-
-  RelativeNamed []
-
-    # DATE ALONE
-    date nullify
-    relative named (tomorrow)
-    relative numbered (in 3 days, 3 days ago)
-    absolute named month (january 23rd)
-    absolute numbered (1/23)
-    relative adjacent (next week)
-    relative weekday (next tuesday)
-
-    # TIME ALONE
-    time nullify
-    absolute named (midnight)
-    absolute numeric (3:34pm)
-    absolute relative hour (quarter to 3pm)
-    absolute time of day with absolute numeric (3:34 in the morning)
-    absolute time of day with relative hour (quarter to 3 in the morning)
-    relative named (now, right now)
-    relative time (in 4 minutes)
-    recursive time (3 hours before 4:00pm)
-
-    # DATE AND TIME
-    date nullify time nullify
-    time nullify date nullify
-
-    # DATE AND TIME OF DAY
-
-
-    # DATE AND TIME AND TIME OF DAY
-  */
-
   getValue (result) {
     let time = result.time
     if (result.timeOfDay && result.time && result.time._ambiguousAMPM) {
@@ -233,122 +199,3 @@ export class InternalDateTime extends Phrase {
     )
   }
 }
-
-/*class DateAndTime extends Phrase {
-  getValue (result) {
-    return join(result.date, result.time)
-  }
-
-  describe () {
-    return (
-      <map function={this.getValue.bind(this)}>
-        <choice>
-          <sequence>
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <Date id='date' recurse={false} prepositions />
-          </sequence>
-
-          <sequence>
-            <Date id='date' recurse={false} prepositions={this.props.prepositions} />
-            <literal text=' ' />
-            <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions />
-          </sequence>
-        </choice>
-      </map>
-    )
-
-  }
-}
-
-class DateWithTimeOfDayAndTime extends Phrase {
-  getValue (result) {
-    if (result.ambiguousTime) {
-      const time = coerceAmbiguousTime(result.ambiguousTime, result.impliedTime.range)
-      return join(result.date, time)
-    } else {
-      const time = result.time || {hour: result.impliedTime.default}
-      return join(result.date, time)
-    }
-  }
-
-  filter (result) {
-    if (result.time && result.impliedTime) {
-      return _.inRange(result.time.hour, ...result.impliedTime.range)
-    } else {
-      return true
-    }
-  }
-
-  describe () {
-    return (
-      <map function={this.getValue.bind(this)}>
-        <filter function={this.filter.bind(this)}>
-          <choice>
-            <sequence>
-              <choice merge>
-                <AmbiguousTime id='ambiguousTime' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions={this.props.prepositions} seconds={this.props.seconds} />
-              </choice>
-              <literal text=' ' />
-              <DateWithTimeOfDay merge />
-            </sequence>
-
-            <sequence>
-              <DateWithTimeOfDay merge />
-              <literal text=' ' />
-              <choice limit={1} merge>
-                <AmbiguousTime id='ambiguousTime' seconds={this.props.seconds} prepositions seconds={this.props.seconds} />
-                <Time id='time' seconds={this.props.seconds} relative={false} recurse={false} prepositions seconds={this.props.seconds} />
-              </choice>
-            </sequence>
-          </choice>
-        </filter>
-      </map>
-    )
-  }
-}
-
-class DateAlone extends Phrase {
-  getValue (result) {
-    if (result.impliedTime) {
-      return join(result.date, {hour: result.impliedTime.default, minute: 0, second: 0})
-    } else {
-      return join(result.date, this.props.time)
-    }
-  }
-
-  describe () {
-    return (
-      <map function={this.getValue.bind(this)}>
-        <choice limit={1}>
-          {this.props._impliedTime ? <Date id='date' prepositions={this.props.prepositions} /> : null}
-          <DateWithTimeOfDay prepositions={this.props.prepositions} />
-        </choice>
-      </map>
-    )
-  }
-}
-
-class TimeAlone extends Phrase {
-  getValue (result) {
-    const date = relativeDate(result.relativeDate)
-    return join(date, result.time)
-  }
-
-  describe () {
-    return (
-      <map function={this.getValue.bind(this)}>
-        <sequence>
-          <Time id='time' prepositions={this.props.prepositions} seconds={this.props.seconds} />
-          <list id='relativeDate' limit={1} items={[
-            {text:'', value: {}},
-            {text:'', value: {days: 1}},
-            {text:'', value: {days: -1}}
-          ]} />
-        </sequence>
-      </map>
-    )
-  }
-}
-*/

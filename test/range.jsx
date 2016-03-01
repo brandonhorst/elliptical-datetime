@@ -87,13 +87,6 @@ describe('Range', () => {
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         allDay: false
       }
-    // }, {
-    //   input: '3pm for 3 hours today',
-    //   output: {
-    //     start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
-    //     end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
-    //     allDay: false
-    //   }
     }, {
       input: 'today at 3pm to tomorrow at 6pm',
       output: {
@@ -538,6 +531,225 @@ describe('Range', () => {
       output: {
         start: moment({year: 1990, month: 9, day: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 11}).toDate(),
+        allDay: true
+      }
+    }]
+
+    _.forEach(testCases, test)
+  })
+
+  describe('timezoneOffset', () => {
+    beforeEach(() => {
+      parser.grammar = <Range timezoneOffset={420} /> // pdt
+    })
+
+    const testCases = [{
+      input: 'today from 3pm to 6pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today from 3pm to 7am',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 14}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today at 3pm for 3 hours',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '3 hours today at 3pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '3pm to 6pm today',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today at 3pm to tomorrow at 6pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 13, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today to tomorrow at 6pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 13, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today at 6pm to tomorrow',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 15}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '2 days before yesterday to the day before yesterday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 8}).toDate(),
+        end: moment({year: 1990, month: 9, day: 9}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'today at 6pm to tomorrow afternoon',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 19}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '6pm to 9pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '6pm-9pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '6pm - 9pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Friday to 6p Saturday',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 17}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 14, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '10a Monday to 6p Wednesday',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 8, hour: 17}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 11, hour: 1}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'this afternoon to tomorrow evening',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 11, hour: 19}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 13, hour: 0}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'today to tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'tomorrow to the day after tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12}).toDate(),
+        end: moment({year: 1990, month: 9, day: 13}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'the day after tomorrow to tomorrow',
+      length: 0
+    }, {
+      input: 'tomorrow to yesterday',
+      length: 0
+    }, {
+      input: 'tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'tomorrow afternoon',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 19}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 20}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'all day tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 12}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'October 18',
+      output: {
+        start: moment({year: 1990, month: 9, day: 18}).toDate(),
+        end: moment({year: 1990, month: 9, day: 18}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'January 18',
+      output: {
+        start: moment({year: 1990, month: 0, day: 18}).toDate(),
+        end: moment({year: 1990, month: 0, day: 18}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'next Friday to Sunday',
+      output: {
+        start: moment({year: 1990, month: 9, day: 19}).toDate(),
+        end: moment({year: 1990, month: 9, day: 21}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'tomorrow at 8pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 13, hour: 3}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 13, hour: 4}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '8pm',
+      output: {
+        start: moment.utc({year: 1990, month: 9, day: 12, hour: 3}).toDate(),
+        end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'all day today to all day tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'today to all day tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'all day today to tomorrow',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11}).toDate(),
+        end: moment({year: 1990, month: 9, day: 12}).toDate(),
         allDay: true
       }
     }]

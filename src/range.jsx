@@ -45,8 +45,8 @@ export class Range extends Phrase {
         for (let startDate of possibleDates(result.start)) {
           for (let endDate of possibleDates(result.end)) {
             yield {
-              start: join(startDate, {hour: 0, minute: 0, second: 0}),
-              end: join(endDate, {hour: 0, minute: 0, second: 0}),
+              start: join(startDate, {hour: 0, minute: 0, second: 0}, this.props.timezoneOffset),
+              end: join(endDate, {hour: 0, minute: 0, second: 0}, this.props.timezoneOffset),
               allDay: true
             }
           }
@@ -55,8 +55,8 @@ export class Range extends Phrase {
         for (let startDate of possibleDates(result.start, result.end.date)) {
           for (let endDate of possibleDates(result.end, startDate)) {
             yield {
-              start: join(startDate, result.start.time || this.props.defaultTime),
-              end: join(endDate, result.end.time || this.props.defaultTime),
+              start: join(startDate, result.start.time || this.props.defaultTime, this.props.timezoneOffset),
+              end: join(endDate, result.end.time || this.props.defaultTime, this.props.timezoneOffset),
               allDay: false
             }
           }
@@ -64,7 +64,7 @@ export class Range extends Phrase {
       }
     } else if (result.start && result.duration) {
       for (let startDate of possibleDates(result.start)) {
-        const start = join(startDate, result.start.time || this.props.defaultTime)
+        const start = join(startDate, result.start.time || this.props.defaultTime, this.props.timezoneOffset)
         yield {
           start,
           end: moment(start).add(result.duration).toDate(),
@@ -82,7 +82,7 @@ export class Range extends Phrase {
         }
       } else {
         for (let startDate of possibleDates(result.start)) {
-          const start = join(startDate, result.start.time)
+          const start = join(startDate, result.start.time, this.props.timezoneOffset)
           yield {
             start: start,
             end: moment(start).add(this.props.defaultDuration).toDate(),
