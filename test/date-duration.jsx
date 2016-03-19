@@ -2,18 +2,16 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
 import { expect } from 'chai'
 import { text } from './_util'
-import { DateDuration } from '..'
-import { Parser } from 'lacona'
+import { DateDuration } from '../src/duration'
+import { createElement, compile } from 'elliptical'
 
 describe('DateDuration', () => {
-  let parser
+  let parse
 
   beforeEach(() => {
-    parser = new Parser()
-    parser.grammar = <DateDuration />
+    parse = compile(<DateDuration />)
   })
 
   const testCases = [
@@ -36,7 +34,7 @@ describe('DateDuration', () => {
 
   _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
-      const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)

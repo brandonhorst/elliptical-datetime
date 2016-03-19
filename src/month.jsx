@@ -1,15 +1,14 @@
 /** @jsx createElement */
 
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement} from 'elliptical'
 
-export class Month extends Phrase {
-  static defaultProps = {
+export const Month = {
+  defaultProps: {
     argument: 'month'
-  }
-
-  describe() {
+  },
+  describe ({props}) {
     return (
-      <label text={this.props.argument}>
+      <label text={props.argument}>
         <list items={[
           {text: 'January', value: 0},
           {text: 'Feburary', value: 1},

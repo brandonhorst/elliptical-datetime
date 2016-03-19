@@ -3,47 +3,63 @@
     "name": "@brandonhorst"
   },
   "bugs": {
-    "url": "https://github.com/lacona/lacona-phrase-datetime/issues"
+    "url": "https://github.com/laconalabs/elliptical-datetime/issues"
   },
   "dependencies": {
-    "babel-runtime": "^5.8.35",
-    "lacona-phrase": "^0.9.1",
-    "lacona-phrase-number": "^0.6.0",
-    "lodash": "^3.10.1",
-    "moment": "^2.11.1"
+    "babel-runtime": "^6.6.1",
+    "elliptical": "^1.0.0-rc5",
+    "elliptical-number": "^1.0.0-rc2",
+    "lodash": "^4.6.1",
+    "moment": "^2.12.0"
   },
-  "description": "Enable Lacona to parse natural language dates, times, and both together ",
+  "description": "Elliptical phrases to handle natural language dates and times",
   "devDependencies": {
-    "babel": "^5.8.34",
-    "chai": "^3.4.1",
-    "chai-datetime": "^1.4.0",
-    "lacona": "^0.39.0",
+    "babel-cli": "^6.6.5",
+    "babel-plugin-transform-react-jsx": "^6.6.5",
+    "babel-plugin-transform-runtime": "^6.6.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-register": "^6.7.2",
+    "chai": "^3.5.0",
+    "chai-datetime": "^1.4.1",
     "lolex": "^1.4.0",
-    "mocha": "^2.3.4",
-    "rimraf": "^2.5.0"
+    "mocha": "^2.4.5",
+    "rimraf": "^2.5.2"
   },
-  "homepage": "https://github.com/lacona/lacona-phrase-datetime",
+  "homepage": "https://github.com/laconalabs/elliptical-datetime",
   "keywords": [
     "date",
     "datetime",
-    "lacona",
+    "elliptical",
     "phrase",
     "time"
   ],
   "license": "MIT",
   "main": "lib/index.js",
-  "name": "lacona-phrase-datetime",
+  "name": "elliptical-datetime",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lacona/lacona-phrase-datetime.git"
+    "url": "git+https://github.com/laconalabs/elliptical-datetime.git"
   },
   "scripts": {
-    "build": "babel --optional runtime --stage 0 src --out-dir lib",
-    "clean": "rimraf lib tmp",
-    "prepublish": "npm run build",
-    "pretest": "babel --optional runtime --stage 0 test --out-dir tmp",
-    "test": "mocha tmp",
-    "validate": "npm run build && npm test"
+    "test": "mocha --compilers jsx:babel-register --watch-extensions jsx",
+    "build": "mkdir -p build; babel src --out-dir lib",
+    "clean": "rimraf lib",
+    "prepublish": "npm run clean && npm run build"
   },
-  "version": "0.9.0"
+  "version": "1.0.0-rc1",
+  "babel": {
+    "presets": [
+      "es2015"
+    ],
+    "plugins": [
+      "transform-react-jsx",
+      [
+        "transform-runtime",
+        {
+          "polyfill": false,
+          "regenerator": true
+        }
+      ]
+    ]
+  }
 }

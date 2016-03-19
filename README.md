@@ -1,6 +1,6 @@
-# `lacona-phrase-datetime`
+# `elliptical-datetime`
 
-Phrases to allow Lacona to understand natural language dates, times, and more. Maintained as part of the Lacona core. While multiple languages will be supported in the future, only the Gregorian calendar will be supported (no historical or Lunar calendars).
+Phrases to allow elliptical to understand natural language dates, times, and more. Maintained as part of the elliptical core. While multiple languages will be supported in the future, only the Gregorian calendar will be supported (no historical or Lunar calendars).
 
 ## Usage Notes
 
@@ -19,10 +19,12 @@ The `DateTime` itself allows `Date`s and `Time`s to be entered alone, so such a 
 ## Example
 
 ```js
-import { DateTime } from 'lacona-phrase-datetime'
-import { String } from 'lacona-phrase-string'
+/** @jsx createElement */
+import {DateTime} from 'elliptical-datetime'
+import {String} from 'elliptical-string'
+import {createElement, compile} from 'elliptical'
 
-lacona.grammar = (
+const parse = compile(
   <sequence>
     <literal text='remind me to ' />
     <String id='title' />
@@ -31,7 +33,7 @@ lacona.grammar = (
 )
 
 /*
-  Lacona will now understand:
+  parse will understand:
     - remind me to wash the car tomorrow [implies 8am]
     - remind me to wash the car this afternoon at 5
     - remind me to wash the car at 6:32pm [implies today, unless it is currently after 6:32pm, in which case it implies tomorrow]
@@ -124,7 +126,7 @@ Date //Standard Javascript Date object. Local timezone.
     * 'at 3pm tomorrow' vs '3pm tomorrow'
 - `future`: `Boolean` - defaults to `true`. Can the user input points in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input points in the past?
-- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if lacona is being used on a server - set this prop to the timezoneOffset sent from the client.
+- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if elliptical is being used on a server - set this prop to the timezoneOffset sent from the client.
 
 ### `Duration`, `TimeDuration`, and `DateDuration`
 
@@ -241,4 +243,4 @@ An object of the form
     * 'on January 2nd for 3 hours' vs 'January 2nd for 3 hours'
 - `future`: `Boolean` - defaults to `true`. Can the user input ranges that end in the future?
 - `past`: `Boolean` - defaults to `true`. Can the user input ranges that begin in the past?
-- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if lacona is being used on a server - set this prop to the timezoneOffset sent from the client.
+- `timezoneOffset`: `Number`. The timezone offset in which to interpret the user's input, as returned from `new Date().getTimezoneOffset()`. If not specified, defaults to the current timezoneOffset of the javascript context. This is useful if elliptical is being used on a server - set this prop to the timezoneOffset sent from the client.

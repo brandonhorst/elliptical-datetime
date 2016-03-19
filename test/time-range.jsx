@@ -2,23 +2,18 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
-import { expect } from 'chai'
-import { text } from './_util'
-import { TimeRange } from '..'
+import {createElement, compile} from 'elliptical'
+import {expect} from 'chai'
+import {text} from './_util'
+import {TimeRange} from '../src/time-range'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 describe.skip('TimeRange', () => {
-  let parser
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
+  let parse
 
   describe.skip('default', () => {
     beforeEach(() => {
-      parser.grammar = <TimeRange />
+      parse = compile(<TimeRange />)
     })
 
     const testCases = [{
@@ -60,7 +55,7 @@ describe.skip('TimeRange', () => {
 
     _.forEach(testCases, ({input, output, length = 1 }) => {
       it(input, () => {
-        const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+        const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)

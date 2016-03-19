@@ -2,23 +2,22 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
+import { createElement, compile } from 'elliptical'
 import chai, { expect } from 'chai'
 import lolex from 'lolex'
 import { text } from './_util'
-import { Date as DatePhrase } from '..'
+import { Date as DatePhrase } from '../src/date'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 chai.use(require('chai-datetime'))
 
 describe('Date', () => {
-  let parser
+  let parse
   let clock
 
   function test ({input, output, length = 1 }) {
     it(input, () => {
-      const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)
@@ -26,10 +25,6 @@ describe('Date', () => {
       }
     })
   }
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
 
   before(() => {
     clock = lolex.install(global, moment({year: 1990, month: 9, day: 11}).toDate())
@@ -40,9 +35,8 @@ describe('Date', () => {
   })
 
   describe('default', () => {
-
     beforeEach(() => {
-      parser.grammar = <DatePhrase />
+      parse = compile(<DatePhrase />)
     })
 
     const testCases = [{
@@ -133,7 +127,7 @@ describe('Date', () => {
 
   describe('past={false}', () => {
     beforeEach(() => {
-      parser.grammar = <DatePhrase past={false} />
+      parse = compile(<DatePhrase past={false} />)
     })
 
     const testCases = [{
@@ -215,7 +209,7 @@ describe('Date', () => {
 
   describe('future={false}', () => {
     beforeEach(() => {
-      parser.grammar = <DatePhrase future={false} />
+      parse = compile(<DatePhrase future={false} />)
     })
 
     const testCases = [{

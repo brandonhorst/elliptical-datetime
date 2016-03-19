@@ -2,24 +2,19 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
+import { createElement, compile } from 'elliptical'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 import { text } from './_util'
-import { DateRange } from '..'
+import { DateRange } from '../src/date-range'
 
 chai.use(chaiDateTime)
 
 describe.skip('DateRange', () => {
-  let parser, clock
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
+  let parse, clock
 
   before(() => {
     clock = lolex.install(global, moment({year: 1990, month: 9, day: 11}).toDate())
@@ -31,7 +26,7 @@ describe.skip('DateRange', () => {
 
   describe('default', () => {
     beforeEach(() => {
-      parser.grammar = <DateRange />
+      parse = compile(<DateRange />)
     })
 
     const testCases = [{
@@ -62,7 +57,7 @@ describe.skip('DateRange', () => {
 
     _.forEach(testCases, ({input, output, length = 1 }) => {
       it(input, () => {
-        const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+        const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(input)

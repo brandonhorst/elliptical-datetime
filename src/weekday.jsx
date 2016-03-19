@@ -1,15 +1,15 @@
 /** @jsx createElement */
 
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement} from 'elliptical'
 
-export class Weekday extends Phrase {
-  static defaultProps = {
+export const Weekday = {
+  defaultProps: {
     argument: 'day of the week'
-  }
+  },
 
-  describe() {
+  describe ({props}) {
     return (
-      <label text={this.props.argument}>
+      <label text={props.argument}>
         <list items={[
           {text: 'Sunday', value: 0},
           {text: 'Monday', value: 1},

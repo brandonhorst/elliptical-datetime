@@ -2,23 +2,22 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { text } from './_util'
-import { createElement, Phrase } from 'lacona-phrase'
+import {text} from './_util'
+import {createElement, compile} from 'elliptical'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
-import { Day, DateTime } from '..'
+import {DateTime} from '../src/datetime'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
 describe('DateTime', () => {
-  let parser, clock
+  let parse, clock
 
   function test ({input, output, length = 1}) {
     it(input, () => {
-      const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)
@@ -26,10 +25,6 @@ describe('DateTime', () => {
       }
     })
   }
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
 
   before(() => {
     clock = lolex.install(global, new Date(1990, 9, 11, 12, 0, 0, 0))
@@ -41,7 +36,7 @@ describe('DateTime', () => {
 
   describe('default', () => {
     beforeEach(() => {
-      parser.grammar = <DateTime />
+      parse = compile(<DateTime />)
     })
 
     const testCases = [{
@@ -95,22 +90,18 @@ describe('DateTime', () => {
     }, {
       input: 'tomorrow morning at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow afternoon at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow at 9 in the afternoon',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
     }, {
       input: 'tomorrow evening at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow night at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow morning at noon',
       length: 0
@@ -148,7 +139,7 @@ describe('DateTime', () => {
 
   describe ('past={false}', () => {
     beforeEach(() => {
-      parser.grammar = <DateTime past={false} />
+      parse = compile(<DateTime past={false} />)
     })
 
     const testCases = [{
@@ -255,7 +246,7 @@ describe('DateTime', () => {
 
     describe ('future={false}', () => {
       beforeEach(() => {
-        parser.grammar = <DateTime future={false} />
+        parse = compile(<DateTime future={false} />)
       })
 
       const testCases = [{
@@ -353,69 +344,69 @@ describe('DateTime', () => {
       _.forEach(testCases, test)
     })
 
-  describe('extended', () => {
-    class SpecialDay extends Phrase {
-      describe () {
-        return (
-          <choice>
-            <literal text='christmas' value={{month: 11, day: 25}} />
-            <literal text='new years' value={{month: 0, day: 1}} />
-          </choice>
-        )
-      }
-    }
+  // describe('extended', () => {
+  //   class SpecialDay extends Phrase {
+  //     describe () {
+  //       return (
+  //         <choice>
+  //           <literal text='christmas' value={{month: 11, day: 25}} />
+  //           <literal text='new years' value={{month: 0, day: 1}} />
+  //         </choice>
+  //       )
+  //     }
+  //   }
 
-    SpecialDay.extends = [Day]
+  //   SpecialDay.extends = [Day]
 
-    beforeEach(() => {
-      parser.grammar = <DateTime />
-      parser.extensions = [SpecialDay]
-    })
+  //   beforeEach(() => {
+  //     parser.grammar = <DateTime />
+  //     parser.extensions = [SpecialDay]
+  //   })
 
-    const testCases = [{
-      input: 'christmas',
-      output: moment({year: 1990, month: 11, day: 25, hour: 8}).toDate()
-    }, {
-      input: 'new years',
-      output: moment({year: 1990, month: 0, day: 1, hour: 8}).toDate()
-    }, {
-      input: 'christmas at 2pm',
-      output: moment({year: 1990, month: 11, day: 25, hour: 14}).toDate()
-    }, {
-      input: 'christmas evening',
-      output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
-    }, {
-      input: 'christmas in the evening',
-      output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
-    }, {
-      input: 'the evening of christmas',
-      output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
-    }, {
-      input: '3 days before christmas',
-      output: moment({year: 1990, month: 11, day: 22, hour: 8}).toDate()
-    }, {
-      input: '1 day before new years',
-      output: moment({year: 1989, month: 11, day: 31, hour: 8}).toDate()
-    }, {
-      input: 'the afternoon of 1 day before new years',
-      output: moment({year: 1989, month: 11, day: 31, hour: 12}).toDate()
-    }, {
-    //   input: 'new years, 2008 afternoon',
-    //   length: 0
-    // }, {
-      input: 'the afternoon of new years, 2008',
-      output: moment({year: 2008, month: 0, day: 1, hour: 12}).toDate()
-    // }, {
-    //   input: 'new years afternoon, 2008',
-    //   output: moment({year: 2008, month: 0, day: 1, hour: 12}).toDate()
-    }]
+  //   const testCases = [{
+  //     input: 'christmas',
+  //     output: moment({year: 1990, month: 11, day: 25, hour: 8}).toDate()
+  //   }, {
+  //     input: 'new years',
+  //     output: moment({year: 1990, month: 0, day: 1, hour: 8}).toDate()
+  //   }, {
+  //     input: 'christmas at 2pm',
+  //     output: moment({year: 1990, month: 11, day: 25, hour: 14}).toDate()
+  //   }, {
+  //     input: 'christmas evening',
+  //     output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
+  //   }, {
+  //     input: 'christmas in the evening',
+  //     output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
+  //   }, {
+  //     input: 'the evening of christmas',
+  //     output: moment({year: 1990, month: 11, day: 25, hour: 17}).toDate()
+  //   }, {
+  //     input: '3 days before christmas',
+  //     output: moment({year: 1990, month: 11, day: 22, hour: 8}).toDate()
+  //   }, {
+  //     input: '1 day before new years',
+  //     output: moment({year: 1989, month: 11, day: 31, hour: 8}).toDate()
+  //   }, {
+  //     input: 'the afternoon of 1 day before new years',
+  //     output: moment({year: 1989, month: 11, day: 31, hour: 12}).toDate()
+  //   }, {
+  //   //   input: 'new years, 2008 afternoon',
+  //   //   length: 0
+  //   // }, {
+  //     input: 'the afternoon of new years, 2008',
+  //     output: moment({year: 2008, month: 0, day: 1, hour: 12}).toDate()
+  //   // }, {
+  //   //   input: 'new years afternoon, 2008',
+  //   //   output: moment({year: 2008, month: 0, day: 1, hour: 12}).toDate()
+  //   }]
 
-    _.forEach(testCases, test)
-  })
+  //   _.forEach(testCases, test)
+  // })
 
   describe('timezoneOffset', () => {
     beforeEach(() => {
-      parser.grammar = <DateTime timezoneOffset={-480} /> // beijing time
+      parse = compile(<DateTime timezoneOffset={-480} />) //chinast
     })
 
     const testCases = [{
@@ -469,22 +460,18 @@ describe('DateTime', () => {
     }, {
       input: 'tomorrow morning at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow afternoon at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow at 9 in the afternoon',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate()
     }, {
       input: 'tomorrow evening at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow night at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
-      length: 2
     }, {
       input: 'tomorrow morning at noon',
       length: 0

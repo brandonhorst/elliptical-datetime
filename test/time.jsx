@@ -3,19 +3,18 @@
 
 import _ from 'lodash'
 import { text } from './_util'
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement, compile} from 'elliptical'
 import { expect } from 'chai'
 import lolex from 'lolex'
-import { Time } from '..'
+import { Time } from '../src'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 function momentToTime (mom) {
   return {hour: mom.hour(), minutes: mom.minute()}
 }
 
 describe('Time', () => {
-  let parser
+  let parse
   let clock
 
   const testCases = [{
@@ -86,13 +85,12 @@ describe('Time', () => {
   })
 
   beforeEach(() => {
-    parser = new Parser()
-    parser.grammar = <Time />
+    parse = compile(<Time />)
   })
 
   _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
-      const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)

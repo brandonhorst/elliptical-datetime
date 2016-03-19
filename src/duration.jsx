@@ -1,47 +1,52 @@
 /** @jsx createElement */
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
-import { Integer } from 'lacona-phrase-number'
+import {createElement} from 'elliptical'
+import {Integer} from 'elliptical-number'
 
 function isUnique (array) {
   return _.uniq(array).length === array.length
 }
 
-class BaseDuration extends Phrase {
-  getValue (result) {
-    const output = {}
+function filterBase (option) {
+  return isUnique(_.map(option.result, 'id'))
+}
+
+const BaseDuration = {
+  mapResult (result) {
+    const newResult = {}
     _.forEach(result, ({num, type}) => {
-      output[type] = (output[type] || 0) + num
+      newResult[type] = (newResult[type] || 0) + num
     })
-    return output
-  }
+    return newResult
+  },
 
-  filter (results) {
-    return isUnique(_.map(results, 'id'))
-  }
-
-  describe () {
+  describe ({props, children}) {
     return (
-      <label text={this.props.argument}>
-        <map function={this.getValue}>
-          <filter function={this.filter}>
-            <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
-              {this.childDescribe()}
-            </repeat>
-          </filter>
-        </map>
+      <label text={props.argument}>
+        <filter outbound={filterBase} skipIncomplete>
+          <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
+            {children}
+          </repeat>
+        </filter>
       </label>
     )
   }
 }
 
-class InternalDuration extends Phrase {
-  getValue ({id, type, num, multiplier = 1 }) {
-    return {id, type, num: num * multiplier}
-  }
+function mapInternalDuration (option) {
+}
 
-  describe () {
-    const singularDurations = (this.props.type !== 'time'
+const InternalDuration = {
+  mapResult (result) {
+    return {
+      id: result.id,
+      type: result.type,
+      num: result.num * (result.multiplier || 1)
+    }
+  },
+
+  describe ({props}) {
+    const singularDurations = (props.type !== 'time'
       ? [
         {text: 'day', value: {id: 'days', type: 'days'}},
         {text: 'fortnight', value: {id: 'fortnights', type: 'days', multiplier: 14}},
@@ -50,13 +55,13 @@ class InternalDuration extends Phrase {
         {text: 'year', value: {id: 'years', type: 'years'}}
       ]
       : []
-    ).concat(this.props.type !== 'date'
+    ).concat(props.type !== 'date'
       ? [
         {text: 'hour', value: {id: 'hours', type: 'hours'}},
         {text: 'minute', value: {id: 'minutes', type: 'minutes'}},
       ]
       : []
-    ).concat(this.props.type !== 'date' && this.props.seconds
+    ).concat(props.type !== 'date' && props.seconds
       ? [{text: 'second', value: {id: 'seconds', type: 'seconds'}}]
       : []
     )
@@ -67,55 +72,64 @@ class InternalDuration extends Phrase {
     }))
 
     return (
-      <map function={this.getValue}>
-        <choice limit={1}>
-          <sequence>
-            <Integer max={1} min={1} id='num' limit={1} />
-            <literal text=' ' />
-            <label text='time period' merge>
-              <list items={singularDurations} />
-            </label>
-          </sequence>
-          <sequence>
-            <Integer id='num' min={2} limit={1} />
-            <literal text=' ' />
-            <label text='time period' merge>
-              <list items={pluralDurations} />
-            </label>
-          </sequence>
-        </choice>
-      </map>
+      <choice limit={1}>
+        <sequence>
+          <Integer max={1} min={1} id='num' limit={1} />
+          <literal text=' ' />
+          <label text='time period' merge>
+            <list items={singularDurations} />
+          </label>
+        </sequence>
+        <sequence>
+          <Integer id='num' min={2} limit={1} />
+          <literal text=' ' />
+          <label text='time period' merge>
+            <list items={pluralDurations} />
+          </label>
+        </sequence>
+      </choice>
     )
   }
 }
 
-export class DateDuration extends BaseDuration {
-  static defaultProps = {
+export const DateDuration = {
+  defaultProps: {
     argument: 'date duration'
-  }
-  childDescribe() {
-    return <InternalDuration argument={this.props.argument} type='date' />
+  },
+  describe ({props}) {
+    return (
+      <BaseDuration argument={props.argument}>
+        <InternalDuration type='date' seconds={props.seconds} />
+      </BaseDuration>
+    )
   }
 }
 
-export class TimeDuration extends BaseDuration {
-  static defaultProps = {
+export const TimeDuration = {
+  defaultProps: {
     seconds: true,
     argument: 'time duration'
-  }
+  },
 
-  childDescribe() {
-    return <InternalDuration argument={this.props.argument} type='time' seconds={this.props.seconds} />
+  describe ({props}) {
+    return (
+      <BaseDuration argument={props.argument}>
+        <InternalDuration type='time' seconds={props.seconds} />
+      </BaseDuration>
+    )
   }
 }
 
-export class Duration extends BaseDuration {
-  static defaultProps = {
-    seconds: true,
+export const Duration = {
+  defaultProps: {
+    seconds: false,
     argument: 'duration'
-  }
-
-  childDescribe() {
-    return <InternalDuration argument={this.props.argument} seconds={this.props.seconds} />
+  },
+  describe ({props}) {
+    return (
+      <BaseDuration argument={props.argument}>
+        <InternalDuration seconds={props.seconds} />
+      </BaseDuration>
+    )
   }
 }

@@ -2,22 +2,16 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement, compile} from 'elliptical'
 import { expect } from 'chai'
 import lolex from 'lolex'
 import { text } from './_util'
-import { Day } from '..'
+import { Day } from '../src/date'
 import moment from 'moment'
-import { Parser } from 'lacona'
-
 
 describe('Day', () => {
-  let parser
+  let parse
   let clock
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
 
   before(() => {
     clock = lolex.install(global, moment({year: 1990, month: 9, day: 11}).toDate())
@@ -28,9 +22,8 @@ describe('Day', () => {
   })
 
   describe('default', () => {
-
     beforeEach(() => {
-      parser.grammar = <Day />
+      parse = compile(<Day />)
     })
 
     const testCases = [
@@ -42,7 +35,7 @@ describe('Day', () => {
 
     _.forEach(testCases, ({input, output, suggestion, length = 1 }) => {
       it(input, () => {
-        const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+        const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
         expect(data).to.have.length(length)
         if (length > 0) {
           expect(text(data[0])).to.equal(suggestion || input)

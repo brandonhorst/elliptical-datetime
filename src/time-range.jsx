@@ -2,12 +2,18 @@
 
 import _ from 'lodash'
 import moment from 'moment'
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement} from 'elliptical'
 
 import { TimeDuration } from './duration'
 import { Time } from './time'
 
-export class TimeRange extends Phrase {
+export const TimeRange = {
+
+  defaultProps: {
+    prepositions: false,
+    _duration: true
+  },
+
   getValue (result) {
     if (result.start && result.duration) {
       const startDate = moment.utc(result.start)
@@ -23,14 +29,14 @@ export class TimeRange extends Phrase {
       const dayOffset = moment(result.end).diff(result.start, 'ms') < 0 ? 1 : 0
       return {start: result.start, end: result.end, dayOffset}
     }
-  }
+  },
 
   validate (result) {
     if (result.dayOffset > 0) return true
 
     const startMoment = moment.utc(result.start)
     return startMoment.isBefore(moment.utc(result.end))
-  }
+  },
 
   describe () {
     return (
@@ -54,9 +60,4 @@ export class TimeRange extends Phrase {
       </map>
     )
   }
-}
-
-TimeRange.defaultProps = {
-  prepositions: false,
-  _duration: true
 }

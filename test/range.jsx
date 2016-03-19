@@ -2,27 +2,22 @@
 /* eslint-env mocha */
 
 import _ from 'lodash'
-import { createElement, Phrase } from 'lacona-phrase'
+import {createElement, compile} from 'elliptical'
 import chai, { expect } from 'chai'
 import chaiDateTime from 'chai-datetime'
 import lolex from 'lolex'
 import { text } from './_util'
-import { Range } from '..'
+import { Range } from '../src/range'
 import moment from 'moment'
-import { Parser } from 'lacona'
 
 chai.use(chaiDateTime)
 
 describe('Range', () => {
-  let parser, clock
-
-  beforeEach(() => {
-    parser = new Parser()
-  })
+  let parse, clock
 
   function test({input, output, length = 1, suggestion }) {
     it(input, () => {
-      const data = _.filter(parser.parseArray(input), output => !_.some(output.words, 'placeholder'))
+      const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(suggestion || input)
@@ -49,7 +44,7 @@ describe('Range', () => {
 
   describe('default', () => {
     beforeEach(() => {
-      parser.grammar = <Range />
+      parse = compile(<Range />)
     })
 
     const testCases = [{
@@ -268,7 +263,7 @@ describe('Range', () => {
 
   describe('past={false}', () => {
     beforeEach(() => {
-      parser.grammar = <Range past={false} />
+      parse = compile(<Range past={false} />)
     })
 
     const testCases = [{
@@ -427,7 +422,7 @@ describe('Range', () => {
     var clock
 
     beforeEach(() => {
-      parser.grammar = <Range future={false} />
+      parse = compile(<Range future={false} />)
     })
 
     const testCases = [{
@@ -540,7 +535,7 @@ describe('Range', () => {
 
   describe('timezoneOffset', () => {
     beforeEach(() => {
-      parser.grammar = <Range timezoneOffset={420} /> // pdt
+      parse = compile(<Range timezoneOffset={420} />) // pdt
     })
 
     const testCases = [{
