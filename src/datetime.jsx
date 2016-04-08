@@ -24,7 +24,7 @@ const TrueDate = {
       <sequence>
         <choice merge>
           <InternalDate {...props} id={undefined} />
-          <map function={(result) => ({date: result})}>
+          <map function={(result) => ({date: result})} skipIncomplete>
             <DatePhrase {...props} nullify />
           </map>
         </choice>
@@ -92,7 +92,8 @@ export const DateTime = {
 
   describe ({props}) {
     return props.nullify ? null : (
-      <map outbound={(option) => getDateTimeOptions(option, props)} limit={1}>
+      <map outbound={(option) => getDateTimeOptions(option, props)} limit={1}
+        skipIncomplete>
         <InternalDateTime {...props} _allowAmbiguity={false} />
       </map>
     )

@@ -24,7 +24,7 @@ const BaseDuration = {
     return (
       <label text={props.argument}>
         <filter outbound={filterBase} skipIncomplete>
-          <repeat separator={<list items={[', and ', ' and ', ', ']} limit={1} category='conjunction' />}>
+          <repeat separator={<list items={[', ', ' and ', ', and ']} limit={1} category='conjunction' />}>
             {children}
           </repeat>
         </filter>
