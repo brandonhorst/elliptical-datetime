@@ -46,7 +46,7 @@
     "clean": "rimraf lib",
     "prepublish": "npm run clean && npm run build"
   },
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "babel": {
     "presets": [
       "es2015"
