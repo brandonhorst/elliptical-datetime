@@ -5,9 +5,6 @@
   "bugs": {
     "url": "https://github.com/laconalabs/elliptical-datetime/issues"
   },
-  "peerDependencies": {
-    "elliptical": "^1.0.0-rc5"
-  },
   "dependencies": {
     "babel-runtime": "^6.6.1",
     "elliptical-number": "^1.0.0-rc2",
