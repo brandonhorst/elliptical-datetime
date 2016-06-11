@@ -90,18 +90,22 @@ describe('DateTime', () => {
     }, {
       input: 'tomorrow morning at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow afternoon at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow at 9 in the afternoon',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate()
     }, {
       input: 'tomorrow evening at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow night at 9',
       output: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow morning at noon',
       length: 0
@@ -460,18 +464,22 @@ describe('DateTime', () => {
     }, {
       input: 'tomorrow morning at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow afternoon at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow at 9 in the afternoon',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate()
     }, {
       input: 'tomorrow evening at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow night at 9',
       output: moment.utc({year: 1990, month: 9, day: 12, hour: 13}).toDate(),
+      length: 2
     }, {
       input: 'tomorrow morning at noon',
       length: 0
