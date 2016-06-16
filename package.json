@@ -36,8 +36,8 @@
     "phrase",
     "time"
   ],
-  "engines" : {
-    "node" : ">=4.0.0"
+  "engines": {
+    "node": ">=4.0.0"
   },
   "license": "MIT",
   "name": "elliptical-datetime",
@@ -57,7 +57,7 @@
     "clean": "rimraf lib-browser lib-node lib-es",
     "prepublish": "npm run clean && npm run build"
   },
-  "version": "1.0.0-rc4",
+  "version": "1.0.0",
   "babel": {
     "plugins": [
       "transform-react-jsx"
