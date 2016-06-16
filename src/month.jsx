@@ -11,7 +11,7 @@ export const Month = {
       <label text={props.argument}>
         <list items={[
           {text: 'January', value: 0},
-          {text: 'Feburary', value: 1},
+          {text: 'February', value: 1},
           {text: 'March', value: 2},
           {text: 'April', value: 3},
           {text: 'May', value: 4},
