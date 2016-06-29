@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.9.2",
-    "elliptical": "^1.0.0-rc10",
+    "elliptical": "^1.0.0-rc16",
     "elliptical-number": "^1.0.0-rc2",
     "lodash": "^4.9.0",
     "moment": "^2.12.0"

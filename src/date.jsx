@@ -22,19 +22,19 @@ export const Day = {
     return (
       <choice>
         {props.recurse ? (
-          <label text='day'>
+          <placeholder text='day'>
             <RecursiveDay />
-          </label>
+          </placeholder>
         ) : null}
 
         <sequence>
           {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <label text='day' merge>
+          <placeholder text='day' merge>
             <choice>
               <AmbiguousAbsoluteDay />
               <AmbiguousAbsoluteNamedMonth />
             </choice>
-          </label>
+          </placeholder>
         </sequence>
       </choice>
     )
@@ -90,7 +90,7 @@ export const InternalDate = {
 
     return (
       <choice>
-        <label text='date'>
+        <placeholder text='date'>
           <choice>
             <RelativeNamed />
             <RelativeNumbered prepositions={props.prepositions} />
@@ -98,16 +98,16 @@ export const InternalDate = {
             <RelativeAdjacent />
             {props.recurse ? <RecursiveDate /> : null }
           </choice>
-        </label>
+        </placeholder>
 
         <sequence>
           {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <label text='date' merge>
+          <placeholder text='date' merge>
             <choice>
               <RelativeWeekday />
               <AbsoluteDay />
             </choice>
-          </label>
+          </placeholder>
         </sequence>
       </choice>
     )
@@ -148,10 +148,10 @@ const ExtraDateDuration = {
   describe() {
     return (
       <sequence>
-        <label argument={false} text='number'>
+        <placeholder text='number'>
           <literal text='the ' />
-        </label>
-        <label argument={false} text='time period' merge>
+        </placeholder>
+        <placeholder text='time period' merge>
           <list items={[
             {text: 'day', value: {type: 'days'}},
             {text: 'fortnight', value: {type: 'days', multiplier: 14}},
@@ -159,7 +159,7 @@ const ExtraDateDuration = {
             {text: 'month', value: {type: 'months'}},
             {text: 'year', value: {type: 'years'}}
           ]} />
-        </label>
+        </placeholder>
       </sequence>
     )
   }
@@ -177,7 +177,7 @@ const RecursiveDay = {
   describe() {
     return (
       <sequence>
-        <label text='offset' merge>
+        <placeholder text='offset' merge>
           <sequence>
             <choice id='duration'>
               <ExtraDateDuration />
@@ -189,11 +189,11 @@ const RecursiveDay = {
               {text: ' from', value: 1}
             ]} limit={2} />
           </sequence>
-        </label>
+        </placeholder>
         <literal text=' ' />
-        <label argument={false} text='day' id='day'>
+        <placeholder text='day' id='day'>
           <Day recurse={false} prepositions={false} />
-        </label>
+        </placeholder>
       </sequence>
     )
   }
@@ -213,7 +213,7 @@ const RecursiveDate = {
   describe () {
     return (
       <sequence>
-        <label text='offset' merge>
+        <placeholder text='offset' merge>
           <sequence>
             <choice id='duration'>
               <ExtraDateDuration />
@@ -225,7 +225,7 @@ const RecursiveDate = {
               {text: ' from', value: 1}
             ]} limit={2} />
           </sequence>
-        </label>
+        </placeholder>
         <literal text=' ' />
         <InternalDate id='date' recurse={false} prepositions={false} />
       </sequence>
@@ -289,21 +289,21 @@ const RelativeAdjacent = {
 
   describe() {
     return (
-      <label text='time period'>
+      <placeholder text='time period'>
         <sequence>
           <list id='num' items={[
             {text: 'next ', value: 1},
             {text: 'last ', value: -1}
           ]} />
-          <label argument={false} text='time period' merge>
+          <placeholder text='time period' merge>
             <list items={[
               {text: 'week', value: {type: 'days', multiplier: 7}},
               {text: 'month', value: {type: 'months'}},
               {text: 'year', value: {type: 'years'}}
             ]} />
-          </label>
+          </placeholder>
         </sequence>
-      </label>
+      </placeholder>
     )
   }
 }
@@ -341,7 +341,7 @@ const RelativeWeekday = {
         </sequence>
         <sequence>
           <literal text='the ' />
-          <label text='relative weekday' merge>
+          <placeholder text='relative weekday' merge>
             <sequence>
               <Weekday id='weekday' />
               <list id='distance' items={[
@@ -351,7 +351,7 @@ const RelativeWeekday = {
                 {text: ' before last', value: -2}
               ]} />
             </sequence>
-          </label>
+          </placeholder>
         </sequence>
       </choice>
     )

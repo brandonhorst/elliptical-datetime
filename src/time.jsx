@@ -11,7 +11,7 @@ import {TimeDuration} from './duration'
 export const TimeOfDay = {
   describe () {
     return (
-      <label text='time of day'>
+      <placeholder text='time of day'>
         <list items={[
           {text: 'early morning', value: {default: 6, impliedAMPM: 'am'}},
           {text: 'morning', value: {default: 8, impliedAMPM: 'am'}},
@@ -21,7 +21,7 @@ export const TimeOfDay = {
           {text: 'evening', value: {default: 17, impliedAMPM: 'pm'}},
           {text: 'night', value: {default: 20, impliedAMPM: 'pm'}}
         ]} />
-      </label>
+      </placeholder>
     )
   }
 }
@@ -41,21 +41,21 @@ export const Time = {
       <choice>
         <sequence>
           {props.prepositions ? <list items={['at ', 'from ']} limit={1} category='conjunction' optional preferred limited /> : null}
-          <label text={props.argument} merge>
+          <placeholder text={props.argument} merge>
             <choice>
               <AbsoluteNumeric />
               <AbsoluteRelativeHour />
               <AbsoluteNamed />
             </choice>
-          </label>
+          </placeholder>
         </sequence>
-        <label text={props.argument}>
+        <placeholder text={props.argument}>
           <choice>
             {props.named ? <RelativeNamed /> : null}
             {props.relative ? <RelativeTime /> : null}
             {props.recurse ? <RecursiveTime /> : null}
           </choice>
-        </label>
+        </placeholder>
       </choice>
     )
   }
@@ -194,7 +194,7 @@ const BaseAbsoluteRelativeHour = {
   describe () {
     return (
       <sequence>
-        <label text='number' id='duration'>
+        <placeholder text='number' id='duration'>
           <choice>
             <list id='minutes' items={[
               {text: 'quarter', value: 15},
@@ -202,7 +202,7 @@ const BaseAbsoluteRelativeHour = {
             ]} />
             <Integer id='minutes' min={1} max={59} merge limit={1} />
           </choice>
-        </label>
+        </placeholder>
         <list limit={2} id='direction' items={[
           {text: ' past ', value: 1},
           {text: ' to ', value: -1},
@@ -211,12 +211,12 @@ const BaseAbsoluteRelativeHour = {
           {text: ' before ', value: -1},
           {text: ' from ', value: -1}
         ]} />
-        <label argument={false} text='hour' id='absolute'>
+        <placeholder text='hour' id='absolute'>
           <choice>
             <AbsoluteNumeric minutes={false} />
             <AbsoluteNamed />
           </choice>
-        </label>
+        </placeholder>
       </sequence>
     )
   }

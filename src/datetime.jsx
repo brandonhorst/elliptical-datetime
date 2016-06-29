@@ -142,7 +142,7 @@ export const InternalDateTime = {
 
   describe ({props}) {
     return (
-      <label argument={false} text='date and time'>
+      <placeholder text='date and time'>
         <filter outbound={filterInternalDateTime} skipIncomplete>
           <choice>
             <sequence unique>
@@ -182,9 +182,9 @@ export const InternalDateTime = {
                   <literal id='relativeDate' text='this ' value={{day: 0}} />
                   <TimeOfDay id='timeOfDay' />
                 </sequence>
-                <label text='date'>
+                <placeholder text='date'>
                   <literal text='tonight' value={{relativeDate: {day: 0}, time: {hour: 20}}} />
-                </label>
+                </placeholder>
               </choice>
 
               <sequence id='timeOfDay' optional limited ellipsis>
@@ -204,7 +204,7 @@ export const InternalDateTime = {
             </sequence>
           </choice>
         </filter>
-      </label>
+      </placeholder>
     )
   }
 }

@@ -22,18 +22,15 @@ const BaseDuration = {
 
   describe ({props, children}) {
     return (
-      <label text={props.argument}>
+      <placeholder text={props.name}>
         <filter outbound={filterBase} skipIncomplete>
           <repeat separator={<list items={[', ', ' and ', ', and ']} limit={1} category='conjunction' />}>
             {children}
           </repeat>
         </filter>
-      </label>
+      </placeholder>
     )
   }
-}
-
-function mapInternalDuration (option) {
 }
 
 const InternalDuration = {
@@ -76,16 +73,16 @@ const InternalDuration = {
         <sequence>
           <Integer max={1} min={1} id='num' limit={1} />
           <literal text=' ' />
-          <label text='time period' merge>
+          <placeholder text='time period' merge>
             <list items={singularDurations} />
-          </label>
+          </placeholder>
         </sequence>
         <sequence>
           <Integer id='num' min={2} limit={1} />
           <literal text=' ' />
-          <label text='time period' merge>
+          <placeholder text='time period' merge>
             <list items={pluralDurations} />
-          </label>
+          </placeholder>
         </sequence>
       </choice>
     )
@@ -98,7 +95,7 @@ export const DateDuration = {
   },
   describe ({props}) {
     return (
-      <BaseDuration argument={props.argument}>
+      <BaseDuration name={props.argument}>
         <InternalDuration type='date' seconds={props.seconds} />
       </BaseDuration>
     )
@@ -113,7 +110,7 @@ export const TimeDuration = {
 
   describe ({props}) {
     return (
-      <BaseDuration argument={props.argument}>
+      <BaseDuration name={props.argument}>
         <InternalDuration type='time' seconds={props.seconds} />
       </BaseDuration>
     )
@@ -127,7 +124,7 @@ export const Duration = {
   },
   describe ({props}) {
     return (
-      <BaseDuration argument={props.argument}>
+      <BaseDuration name={props.argument}>
         <InternalDuration seconds={props.seconds} />
       </BaseDuration>
     )

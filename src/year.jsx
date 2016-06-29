@@ -19,7 +19,7 @@ function mapResult (result) {
 
 function describe () {
   return (
-    <label suppressWhen={suppressYear} text='year'>
+    <placeholder suppressWhen={suppressYear} text='year'>
       <choice limit={1}>
         <sequence>
           <literal text={'\''} optional limited />
@@ -28,7 +28,7 @@ function describe () {
 
         <DigitString minLength={4} maxLength={4} id='fourDigitYear' />
       </choice>
-    </label>
+    </placeholder>
   )
 }
 

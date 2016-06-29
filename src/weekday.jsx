@@ -9,7 +9,7 @@ export const Weekday = {
 
   describe ({props}) {
     return (
-      <label text={props.argument}>
+      <placeholder text={props.argument}>
         <list items={[
           {text: 'Sunday', value: 0},
           {text: 'Monday', value: 1},
@@ -19,7 +19,7 @@ export const Weekday = {
           {text: 'Friday', value: 5},
           {text: 'Saturday', value: 6}
         ]} />
-      </label>
+      </placeholder>
     )
   }
 }

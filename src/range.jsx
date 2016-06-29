@@ -122,7 +122,7 @@ export const Range = {
 
   describe ({props}) {
     return (
-      <label argument={false} text={props.argument}>
+      <placeholder text={props.argument}>
         <map outbound={(option) => mapRangeOptions(option, props)} limit={1}>
           <filter outbound={filterRangeOption}>
             <sequence unique>
@@ -149,7 +149,7 @@ export const Range = {
             </sequence>
           </filter>
         </map>
-      </label>
+      </placeholder>
     )
   }
 }

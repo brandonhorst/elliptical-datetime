@@ -8,7 +8,7 @@ export const Month = {
   },
   describe ({props}) {
     return (
-      <label text={props.argument}>
+      <placeholder text={props.argument}>
         <list items={[
           {text: 'January', value: 0},
           {text: 'February', value: 1},
@@ -23,7 +23,7 @@ export const Month = {
           {text: 'November', value: 10},
           {text: 'December', value: 11}
         ]} />
-      </label>
+      </placeholder>
     )
   }
 }
