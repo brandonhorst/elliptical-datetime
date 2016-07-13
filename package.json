@@ -7,26 +7,26 @@
   },
   "dependencies": {
     "babel-runtime": "^6.9.2",
-    "elliptical": "^1.0.0-rc16",
-    "elliptical-number": "^1.0.0-rc2",
-    "lodash": "^4.9.0",
-    "moment": "^2.12.0"
+    "elliptical": "^1.0.0",
+    "elliptical-number": "^1.0.0",
+    "lodash": "^4.13.1",
+    "moment": "^2.14.1"
   },
   "description": "Elliptical phrases to handle natural language dates and times",
   "devDependencies": {
-    "babel-cli": "^6.6.5",
-    "babel-plugin-transform-react-jsx": "^6.6.5",
+    "babel-cli": "^6.10.1",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.9.0",
-    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-es2015": "^6.9.0",
     "babel-preset-es2015-native-modules": "^6.6.0",
-    "babel-preset-es2015-node": "^4.0.0",
-    "babel-register": "^6.6.5",
+    "babel-preset-es2015-node": "^6.1.0",
+    "babel-register": "^6.9.0",
     "chai": "^3.5.0",
     "chai-datetime": "^1.4.1",
-    "cross-env": "^1.0.8",
-    "lolex": "^1.4.0",
-    "mocha": "^2.4.5",
-    "rimraf": "^2.5.2"
+    "cross-env": "^2.0.0",
+    "lolex": "^1.5.0",
+    "mocha": "^2.5.3",
+    "rimraf": "^2.5.3"
   },
   "homepage": "https://github.com/laconalabs/elliptical-datetime",
   "keywords": [

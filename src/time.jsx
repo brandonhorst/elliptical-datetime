@@ -11,7 +11,7 @@ import {TimeDuration} from './duration'
 export const TimeOfDay = {
   describe () {
     return (
-      <placeholder text='time of day'>
+      <placeholder label='time of day'>
         <list items={[
           {text: 'early morning', value: {default: 6, impliedAMPM: 'am'}},
           {text: 'morning', value: {default: 8, impliedAMPM: 'am'}},
@@ -33,7 +33,7 @@ export const Time = {
     relative: true,
     prepositions: false,
     seconds: false,
-    argument: 'time'
+    label: 'time'
   },
 
   describe ({props}) {
@@ -41,7 +41,10 @@ export const Time = {
       <choice>
         <sequence>
           {props.prepositions ? <list items={['at ', 'from ']} limit={1} category='conjunction' optional preferred limited /> : null}
-          <placeholder text={props.argument} merge>
+          <placeholder
+            label={props.label}
+            arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
+            merge>
             <choice>
               <AbsoluteNumeric />
               <AbsoluteRelativeHour />
@@ -49,7 +52,9 @@ export const Time = {
             </choice>
           </placeholder>
         </sequence>
-        <placeholder text={props.argument}>
+        <placeholder
+          label={props.label}
+          arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
           <choice>
             {props.named ? <RelativeNamed /> : null}
             {props.relative ? <RelativeTime /> : null}
@@ -194,7 +199,7 @@ const BaseAbsoluteRelativeHour = {
   describe () {
     return (
       <sequence>
-        <placeholder text='number' id='duration'>
+        <placeholder label='number' id='duration'>
           <choice>
             <list id='minutes' items={[
               {text: 'quarter', value: 15},
@@ -211,7 +216,7 @@ const BaseAbsoluteRelativeHour = {
           {text: ' before ', value: -1},
           {text: ' from ', value: -1}
         ]} />
-        <placeholder text='hour' id='absolute'>
+        <placeholder label='hour' id='absolute'>
           <choice>
             <AbsoluteNumeric minutes={false} />
             <AbsoluteNamed />

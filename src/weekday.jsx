@@ -4,12 +4,14 @@ import {createElement} from 'elliptical'
 
 export const Weekday = {
   defaultProps: {
-    argument: 'day of the week'
+    label: 'day of the week'
   },
 
   describe ({props}) {
     return (
-      <placeholder text={props.argument}>
+      <placeholder
+        label={props.label}
+        arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <list items={[
           {text: 'Sunday', value: 0},
           {text: 'Monday', value: 1},

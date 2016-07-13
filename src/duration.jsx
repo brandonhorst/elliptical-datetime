@@ -22,7 +22,9 @@ const BaseDuration = {
 
   describe ({props, children}) {
     return (
-      <placeholder text={props.name}>
+      <placeholder
+        label={props.label}
+        arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <filter outbound={filterBase} skipIncomplete>
           <repeat separator={<list items={[', ', ' and ', ', and ']} limit={1} category='conjunction' />}>
             {children}
@@ -73,14 +75,14 @@ const InternalDuration = {
         <sequence>
           <Integer max={1} min={1} id='num' limit={1} />
           <literal text=' ' />
-          <placeholder text='time period' merge>
+          <placeholder label='time period' merge>
             <list items={singularDurations} />
           </placeholder>
         </sequence>
         <sequence>
           <Integer id='num' min={2} limit={1} />
           <literal text=' ' />
-          <placeholder text='time period' merge>
+          <placeholder label='time period' merge>
             <list items={pluralDurations} />
           </placeholder>
         </sequence>
@@ -91,11 +93,14 @@ const InternalDuration = {
 
 export const DateDuration = {
   defaultProps: {
-    argument: 'date duration'
+    label: 'date duration'
   },
   describe ({props}) {
     return (
-      <BaseDuration name={props.argument}>
+      <BaseDuration
+        label={props.label}
+        phraseArguments={props.phraseArguments}
+        phraseArgument={props.phraseArgument}>
         <InternalDuration type='date' seconds={props.seconds} />
       </BaseDuration>
     )
@@ -105,12 +110,15 @@ export const DateDuration = {
 export const TimeDuration = {
   defaultProps: {
     seconds: true,
-    argument: 'time duration'
+    label: 'time duration'
   },
 
   describe ({props}) {
     return (
-      <BaseDuration name={props.argument}>
+      <BaseDuration
+        label={props.label}
+        phraseArguments={props.phraseArguments}
+        phraseArgument={props.phraseArgument}>
         <InternalDuration type='time' seconds={props.seconds} />
       </BaseDuration>
     )
@@ -120,11 +128,14 @@ export const TimeDuration = {
 export const Duration = {
   defaultProps: {
     seconds: false,
-    argument: 'duration'
+    label: 'duration'
   },
   describe ({props}) {
     return (
-      <BaseDuration name={props.argument}>
+      <BaseDuration
+        label={props.label}
+        phraseArguments={props.phraseArguments}
+        phraseArgument={props.phraseArgument}>
         <InternalDuration seconds={props.seconds} />
       </BaseDuration>
     )

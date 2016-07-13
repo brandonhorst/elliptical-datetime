@@ -75,7 +75,8 @@ export const DateTime = {
     defaultTime: {hour: 8, minute: 0, second: 0},
     past: true,
     future: true,
-    prepositions: false
+    prepositions: false,
+    label: 'date and time'
   },
 
   filterResult (result, {props}) {
@@ -118,6 +119,10 @@ function filterInternalDateTime (option) {
 }
 
 export const InternalDateTime = {
+  defaultProps: {
+    label: 'date and time'
+  },
+  
   mapResult (result) {
     let time = result.time
     if (result.timeOfDay && result.time && result.time._ambiguousAMPM) {
@@ -142,7 +147,9 @@ export const InternalDateTime = {
 
   describe ({props}) {
     return (
-      <placeholder text='date and time'>
+      <placeholder
+        label={props.label}
+        arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <filter outbound={filterInternalDateTime} skipIncomplete>
           <choice>
             <sequence unique>
@@ -182,7 +189,7 @@ export const InternalDateTime = {
                   <literal id='relativeDate' text='this ' value={{day: 0}} />
                   <TimeOfDay id='timeOfDay' />
                 </sequence>
-                <placeholder text='date'>
+                <placeholder label='date'>
                   <literal text='tonight' value={{relativeDate: {day: 0}, time: {hour: 20}}} />
                 </placeholder>
               </choice>

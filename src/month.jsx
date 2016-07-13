@@ -4,11 +4,13 @@ import {createElement} from 'elliptical'
 
 export const Month = {
   defaultProps: {
-    argument: 'month'
+    label: 'month'
   },
   describe ({props}) {
     return (
-      <placeholder text={props.argument}>
+      <placeholder
+        label={props.label}
+        arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <list items={[
           {text: 'January', value: 0},
           {text: 'February', value: 1},

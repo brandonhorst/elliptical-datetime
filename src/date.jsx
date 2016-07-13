@@ -13,7 +13,8 @@ import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validate
 
 export const Day = {
   defaultProps: {
-    recurse: true
+    recurse: true,
+    label: 'day'
   },
 
   describe ({props}) {
@@ -22,14 +23,19 @@ export const Day = {
     return (
       <choice>
         {props.recurse ? (
-          <placeholder text='day'>
-            <RecursiveDay />
+          <placeholder
+            label={props.label}
+            arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
+            <RecursiveDay label={props.label} />
           </placeholder>
         ) : null}
 
         <sequence>
           {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <placeholder text='day' merge>
+          <placeholder
+            label={props.label}
+            arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
+            merge>
             <choice>
               <AmbiguousAbsoluteDay />
               <AmbiguousAbsoluteNamedMonth />
@@ -53,7 +59,8 @@ export const Date = {
     prepositions: false,
     nullify: false,
     past: true,
-    future: true
+    future: true,
+    label: 'date'
   },
 
   filterResult (result, {props}) {
@@ -82,7 +89,8 @@ export const InternalDate = {
     prepositions: false,
     nullify: false,
     past: true,
-    future: true
+    future: true,
+    label: 'date'
   },
 
   describe ({props}) {
@@ -90,19 +98,24 @@ export const InternalDate = {
 
     return (
       <choice>
-        <placeholder text='date'>
+        <placeholder
+          label={props.label}
+          arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
           <choice>
             <RelativeNamed />
             <RelativeNumbered prepositions={props.prepositions} />
             <DayWithYear prepositions={props.prepositions} />
             <RelativeAdjacent />
-            {props.recurse ? <RecursiveDate /> : null }
+            {props.recurse ? <RecursiveDate label={props.label} /> : null }
           </choice>
         </placeholder>
 
         <sequence>
           {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
-          <placeholder text='date' merge>
+          <placeholder
+            label={props.label}
+            arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
+            merge>
             <choice>
               <RelativeWeekday />
               <AbsoluteDay />
@@ -148,10 +161,10 @@ const ExtraDateDuration = {
   describe() {
     return (
       <sequence>
-        <placeholder text='number'>
+        <placeholder label='number'>
           <literal text='the ' />
         </placeholder>
-        <placeholder text='time period' merge>
+        <placeholder label='time period' merge>
           <list items={[
             {text: 'day', value: {type: 'days'}},
             {text: 'fortnight', value: {type: 'days', multiplier: 14}},
@@ -174,10 +187,10 @@ const RecursiveDay = {
     return relativeDay(duration, result.day)
   },
 
-  describe() {
+  describe ({props}) {
     return (
       <sequence>
-        <placeholder text='offset' merge>
+        <placeholder label='offset' merge>
           <sequence>
             <choice id='duration'>
               <ExtraDateDuration />
@@ -191,8 +204,8 @@ const RecursiveDay = {
           </sequence>
         </placeholder>
         <literal text=' ' />
-        <placeholder text='day' id='day'>
-          <Day recurse={false} prepositions={false} />
+        <placeholder label='day' id='day'>
+          <Day recurse={false} prepositions={false} label={props.label} />
         </placeholder>
       </sequence>
     )
@@ -210,10 +223,10 @@ const RecursiveDate = {
     })
   },
 
-  describe () {
+  describe ({props}) {
     return (
       <sequence>
-        <placeholder text='offset' merge>
+        <placeholder label='offset' merge>
           <sequence>
             <choice id='duration'>
               <ExtraDateDuration />
@@ -227,7 +240,7 @@ const RecursiveDate = {
           </sequence>
         </placeholder>
         <literal text=' ' />
-        <InternalDate id='date' recurse={false} prepositions={false} />
+        <InternalDate id='date' label={props.label} recurse={false} prepositions={false} />
       </sequence>
     )
   }
@@ -289,13 +302,13 @@ const RelativeAdjacent = {
 
   describe() {
     return (
-      <placeholder text='time period'>
+      <placeholder label='time period'>
         <sequence>
           <list id='num' items={[
             {text: 'next ', value: 1},
             {text: 'last ', value: -1}
           ]} />
-          <placeholder text='time period' merge>
+          <placeholder label='time period' merge>
             <list items={[
               {text: 'week', value: {type: 'days', multiplier: 7}},
               {text: 'month', value: {type: 'months'}},
@@ -341,7 +354,7 @@ const RelativeWeekday = {
         </sequence>
         <sequence>
           <literal text='the ' />
-          <placeholder text='relative weekday' merge>
+          <placeholder label='relative weekday' merge>
             <sequence>
               <Weekday id='weekday' />
               <list id='distance' items={[

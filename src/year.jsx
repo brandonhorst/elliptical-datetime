@@ -17,9 +17,16 @@ function mapResult (result) {
   }
 }
 
-function describe () {
+const defaultProps = {
+  label: 'year'
+}
+
+function describe ({props}) {
   return (
-    <placeholder suppressWhen={suppressYear} text='year'>
+    <placeholder
+      suppressWhen={suppressYear}
+      label={props.label}
+      arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
       <choice limit={1}>
         <sequence>
           <literal text={'\''} optional limited />
@@ -32,4 +39,4 @@ function describe () {
   )
 }
 
-export const Year = {mapResult, describe}
+export const Year = {mapResult, describe, defaultProps}

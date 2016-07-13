@@ -103,7 +103,7 @@ export const Range = {
     defaultDuration: {hours: 1},
     future: true,
     past: true,
-    argument: 'period of time'
+    label: 'period of time'
   },
   
   filterResult (result, {props}) {
@@ -122,7 +122,9 @@ export const Range = {
 
   describe ({props}) {
     return (
-      <placeholder text={props.argument}>
+      <placeholder
+        label={props.label}
+        arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <map outbound={(option) => mapRangeOptions(option, props)} limit={1}>
           <filter outbound={filterRangeOption}>
             <sequence unique>
