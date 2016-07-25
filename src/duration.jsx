@@ -73,14 +73,14 @@ const InternalDuration = {
     return (
       <choice limit={1}>
         <sequence>
-          <Integer max={1} min={1} id='num' limit={1} />
+          <Integer allowWordForm allowIndefiniteArticles max={1} min={1} id='num' limit={1} />
           <literal text=' ' />
           <placeholder label='time period' merge>
             <list items={singularDurations} />
           </placeholder>
         </sequence>
         <sequence>
-          <Integer id='num' min={2} limit={1} />
+          <Integer allowWordForm allowIndefiniteArticles id='num' min={2} limit={1} />
           <literal text=' ' />
           <placeholder label='time period' merge>
             <list items={pluralDurations} />

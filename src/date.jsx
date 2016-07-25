@@ -377,12 +377,12 @@ function leapYear (year) {
 
 const MonthNumber = {
   mapResult: (result) => parseInt(result, 10) - 1,
-  describe: () => <DigitString maxLength={2} max={12} min={1} argument='mm' />
+  describe: () => <DigitString maxLength={2} max={12} min={1} label='mm' />
 }
 
 const DayNumber = {
   mapResult: (result) => parseInt(result, 10),
-  describe: () => <DigitString maxLength={2} max={31} min={1} argument='dd'/>
+  describe: () => <DigitString maxLength={2} max={31} min={1} label='dd'/>
 }
 
 const AbsoluteDay = {
@@ -436,15 +436,15 @@ const AmbiguousAbsoluteNamedMonth = {
           <Month id='month' />
           <list items={[' ', ' the ']} limit={1} />
           <choice id='day' limit={1}>
-            <Integer max={31} min={1} limit={1} />
-            <Ordinal max={31} limit={1} />
+            <Integer allowWordForm max={31} min={1} limit={1} />
+            <Ordinal allowWordForm max={31} limit={1} />
           </choice>
         </sequence>
         <sequence>
           <literal text='the ' />
           <choice id='day' limit={1}>
-            <Integer max={31} min={1} limit={1} />
-            <Ordinal max={31} limit={1} />
+            <Integer allowWordForm max={31} min={1} limit={1} />
+            <Ordinal allowWordForm max={31} limit={1} />
           </choice>
           <list items={[' of ', ' ']} limit={1} />
           <Month id='month' />

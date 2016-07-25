@@ -30,10 +30,10 @@ function describe ({props}) {
       <choice limit={1}>
         <sequence>
           <literal text={'\''} optional limited />
-          <DigitString minLength={2} maxLength={2} id='twoDigitYear' />
+          <DigitString minLength={2} maxLength={2} id='twoDigitYear' label='yy' />
         </sequence>
 
-        <DigitString minLength={4} maxLength={4} id='fourDigitYear' />
+        <DigitString minLength={4} maxLength={4} id='fourDigitYear' label='yyyy' />
       </choice>
     </placeholder>
   )

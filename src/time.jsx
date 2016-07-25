@@ -205,7 +205,7 @@ const BaseAbsoluteRelativeHour = {
               {text: 'quarter', value: 15},
               {text: 'half', value: 30}
             ]} />
-            <Integer id='minutes' min={1} max={59} merge limit={1} />
+            <Integer allowWordForm id='minutes' min={1} max={59} merge limit={1} />
           </choice>
         </placeholder>
         <list limit={2} id='direction' items={[
@@ -261,7 +261,7 @@ const MinutesOrSeconds = {
   },
 
   describe () {
-    return <DigitString argument='minutes' max={59} minLength={2} maxLength={2} />
+    return <DigitString label='minutes' max={59} minLength={2} maxLength={2} />
   }
 }
 
@@ -271,6 +271,6 @@ const Hour = {
   },
 
   describe () {
-    return <DigitString argument='hour' min={1} max={12} allowLeadingZeros={false} />
+    return <DigitString label='hour' min={1} max={12} allowLeadingZeros={false} />
   }
 }
