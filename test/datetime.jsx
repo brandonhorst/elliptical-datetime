@@ -43,6 +43,9 @@ describe('DateTime', () => {
       input: '2:00pm 2/3/2003',
       output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
     }, {
+      input: 'today at 12pm',
+      output: moment({year: 1990, month: 9, day: 11, hour: 12}).toDate()
+    }, {
       input: '2/3/2003 at 2pm',
       output: moment({year: 2003, month: 1, day: 3, hour: 14}).toDate()
     }, {

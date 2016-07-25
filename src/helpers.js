@@ -37,7 +37,11 @@ export function ambiguousTime (ambiguousTime, ampm) {
 
 function ampmHourToHour (hour, ampm) {
   if (ampm) {
-    return ampm === 'am' ? (hour === 12 ? 0 : hour) : hour + 12
+    if (hour === 12) {
+      return ampm === 'am' ? 0 : 12
+    } else {
+      return ampm === 'am' ? hour : hour + 12
+    }
   } else {
     return hour
   }
