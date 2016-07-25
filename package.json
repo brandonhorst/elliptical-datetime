@@ -57,7 +57,7 @@
     "clean": "rimraf lib-browser lib-node lib-es",
     "prepublish": "npm run clean && npm run build"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "babel": {
     "plugins": [
       "transform-react-jsx"
