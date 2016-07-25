@@ -112,7 +112,7 @@ export const Range = {
 
     if (endMoment.isBefore(startMoment)) return false
 
-    const currentMoment = result.allDay ? moment({}) : moment()
+    const currentMoment = result.allDay ? moment().startOf('day') : moment()
     if (!props.past && currentMoment.isAfter(startMoment)) return false
     if (!props.future && currentMoment.isBefore(endMoment)) return false
 
