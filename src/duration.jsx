@@ -92,6 +92,8 @@ const InternalDuration = {
 }
 
 export const DateDuration = {
+  id: 'elliptical-datetime:DateDuration',
+
   defaultProps: {
     label: 'date duration'
   },
@@ -108,6 +110,8 @@ export const DateDuration = {
 }
 
 export const TimeDuration = {
+  id: 'elliptical-datetime:TimeDuration',
+
   defaultProps: {
     seconds: true,
     label: 'time duration'
@@ -126,6 +130,8 @@ export const TimeDuration = {
 }
 
 export const Duration = {
+  id: 'elliptical-datetime:Duration',
+
   defaultProps: {
     seconds: false,
     label: 'duration'

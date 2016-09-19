@@ -27,6 +27,8 @@ export const TimeOfDay = {
 }
 
 export const Time = {
+  id: 'elliptical-datetime:Time',
+  
   defaultProps: {
     named: true,
     recurse: true,

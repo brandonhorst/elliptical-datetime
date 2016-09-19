@@ -71,6 +71,8 @@ function * getDateTimeOptions (option, props) {
 }
 
 export const DateTime = {
+  id: 'elliptical-datetime:DateTime',
+  
   defaultProps: {
     defaultTime: {hour: 8, minute: 0, second: 0},
     past: true,

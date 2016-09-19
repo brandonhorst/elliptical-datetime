@@ -12,6 +12,8 @@ import { Weekday } from './weekday'
 import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validateDay, possibleDates } from './helpers'
 
 export const Day = {
+  id: 'elliptical-datetime:Day',
+
   defaultProps: {
     recurse: true,
     label: 'day'
@@ -54,6 +56,8 @@ function * mapDate (option) {
 }
 
 export const Date = {
+  id: 'elliptical-datetime:Date',
+  
   defaultProps: {
     recurse: true,
     prepositions: false,

@@ -96,6 +96,8 @@ function filterRangeOption (option) {
 }
 
 export const Range = {
+  id: 'elliptical-datetime:Range',
+  
   defaultProps: {
     prepositions: false,
     seconds: true,
