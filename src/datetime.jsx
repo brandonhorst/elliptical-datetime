@@ -104,10 +104,10 @@ export const DateTime = {
 }
 
 function filterInternalDateTime (option) {
-  if (option.result.time && option.result.time._ambiguousAMPM &&
+  /*if (option.result.time && option.result.time._ambiguousAMPM &&
       !option.result.timeOfDay) {
     return false
-  } else if (option.result.time && option.result.timeOfDay &&
+  } else */if (option.result.time && option.result.timeOfDay &&
       isNoonOrMidnight(option.result.time)) {
     return false
   } else if (option.result.time && option.result.timeOfDay &&

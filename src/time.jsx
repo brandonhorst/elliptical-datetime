@@ -144,11 +144,31 @@ const AbsoluteNamed = {
 
 const AbsoluteNumeric = {
   mapResult (result) {
-    if (result.ampm) {
-      return ambiguousTime(result, result.ampm)
+    const trueHour = parseInt(result.hour, 10)
+    const trueResult = _.assign({}, result, {hour: trueHour})
+
+    if (trueResult.ampm) {
+      return ambiguousTime(trueResult, trueResult.ampm)
     } else {
-      return _.assign({}, result, {_ambiguousAMPM: true})
+      if (trueResult.hour > 12) {
+        return ambiguousTime(trueResult)
+      } else if (trueResult.hour === 0) {
+        return ambiguousTime(trueResult)
+      } else {
+        return _.assign({}, trueResult, {_ambiguousAMPM: true})
+      }
     }
+  },
+
+  filterResult (result) {
+    // console.log(result)
+    if (!result) {
+      return false
+    }
+    if (result.hour > 23) {
+      return false
+    }
+    return true
   },
 
   defaultProps: {
@@ -166,10 +186,24 @@ const AbsoluteNumeric = {
           <MinutesOrSeconds id='minute' />
         </sequence>
 
-        <choice id='ampm'>
-          <list items={[' am', 'am', ' a', 'a', ' a.m.', 'a.m.', ' a.m', 'a.m']} value='am' limit={1} />
-          <list items={[' pm', 'pm', ' p', 'p', ' p.m.', 'p.m.', ' p.m', 'p.m']} value='pm' limit={1} />
-        </choice>
+        <list unique id='ampm' limit={2} items={[
+          {text: ' am', value: 'am'},
+          {text: 'am', value: 'am'},
+          {text: ' a', value: 'am'},
+          {text: 'a', value: 'am'},
+          {text: ' a.m.', value: 'am'},
+          {text: 'a.m.', value: 'am'},
+          {text: ' a.m', value: 'am'},
+          {text: 'a.m', value: 'am'},
+          {text: ' pm', value: 'pm'},
+          {text: 'pm', value: 'pm'},
+          {text: ' p', value: 'pm'},
+          {text: 'p', value: 'pm'},
+          {text: ' p.m.', value: 'pm'},
+          {text: 'p.m.', value: 'pm'},
+          {text: ' p.m', value: 'pm'},
+          {text: 'p.m', value: 'pm'}
+        ]} />
       </sequence>
     )
   }
@@ -268,11 +302,7 @@ const MinutesOrSeconds = {
 }
 
 const Hour = {
-  mapResult (result) {
-    return parseInt(result, 10)
-  },
-
   describe () {
-    return <DigitString label='hour' min={1} max={12} allowLeadingZeros={false} />
+    return <DigitString label='hour' min={0} max={24} maxLength={2} minLength={1} allowLeadingZeros />
   }
 }

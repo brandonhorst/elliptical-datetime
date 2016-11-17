@@ -48,6 +48,30 @@ describe('Time', () => {
     output: {hour: 15, minute: 30, second: 0},
     input: 'half past 3pm'
   }, {
+    output: {hour: 15, minute: 0, second: 0},
+    input: '15'
+  }, {
+    output: {hour: 15, minute: 30, second: 0},
+    input: 'half past 15'
+  }, {
+    output: {hour: 15, minute: 20, second: 0},
+    input: '15:20'
+  }, {
+    output: {hour: 0, minute: 0, second: 0},
+    input: '24'
+  }, {
+    input: '24:01',
+    length: 0
+  }, {
+    input: '15pm',
+    length: 0
+  }, {
+    input: '0:34',
+    output: {hour: 0, minute: 34, second: 0}
+  }, {
+    input: '0:34pm',
+    length: 0
+  }, {
     output: {hour: 21, minute: 0, second: 0},
     input: '9pm'
   }, {
@@ -91,6 +115,7 @@ describe('Time', () => {
   _.forEach(testCases, ({input, output, length = 1 }) => {
     it(input, () => {
       const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
+      // console.log(require('util').inspect(data, {depth: 999}))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)

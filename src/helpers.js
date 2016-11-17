@@ -30,7 +30,24 @@ export function absoluteTime (absolute) {
 }
 
 export function ambiguousTime (ambiguousTime, ampm) {
-  const hour = ampmHourToHour(ambiguousTime.hour, ampm)
+  // special case for 24:00
+  if (ambiguousTime.hour === 24 && (ampm || ambiguousTime.minute || ambiguousTime.second)) {
+    return null
+  }
+
+  // special case for 0:00
+  if (ambiguousTime.hour === 0 && ampm) {
+    return null
+  }
+
+  let hour = ampmHourToHour(ambiguousTime.hour, ampm)
+
+  if (
+    (ampm === 'am' && (hour > 12 || hour < 0)) ||
+    (ampm === 'pm' && (hour < 12 || hour > 23))
+  ) {
+    return null
+  }
 
   return {hour, minute: ambiguousTime.minute || 0, second: ambiguousTime.second || 0}
 }
@@ -43,7 +60,11 @@ function ampmHourToHour (hour, ampm) {
       return ampm === 'am' ? hour : hour + 12
     }
   } else {
-    return hour
+    if (hour === 24) {
+      return 0
+    } else {
+      return hour
+    }
   }
 }
 
