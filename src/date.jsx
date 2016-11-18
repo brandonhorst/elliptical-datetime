@@ -74,6 +74,9 @@ export const Date = {
     if (!props.future && moment(result).isAfter(moment())) {
       return false
     }
+    if (result._ambiguousMonth) {
+      return false
+    }
 
     return true
   },
@@ -106,6 +109,7 @@ export const InternalDate = {
           label={props.label}
           arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
           <choice>
+            <DayAlone />
             <RelativeNamed />
             <RelativeNumbered prepositions={props.prepositions} />
             <DayWithYear prepositions={props.prepositions} />
@@ -410,6 +414,24 @@ const AbsoluteDay = {
         <list items={['/']} limit={1} />
         <Year id='year' />
       </sequence>
+    )
+  }
+}
+
+const DayAlone = {
+  mapResult (result) {
+    return {
+      date: moment({day: result}).toDate(),
+      _ambiguousMonth: true,
+      _ambiguousYear: true,
+    }
+  },
+  describe () {
+    return (
+      <choice limit={1}>
+        <Integer allowWordForm max={31} min={1} limit={1} />
+        <Ordinal allowWordForm max={31} limit={1} />
+      </choice>
     )
   }
 }

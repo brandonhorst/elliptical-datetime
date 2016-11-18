@@ -18,6 +18,7 @@ describe('Date', () => {
   function test ({input, output, length = 1 }) {
     it(input, () => {
       const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
+      // console.log(require('util').inspect(data, {depth: 999}))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(input)

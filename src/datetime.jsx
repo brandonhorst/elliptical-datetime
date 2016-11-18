@@ -1,7 +1,7 @@
 /** @jsx createElement */
 import _ from 'lodash'
 import {createElement} from 'elliptical'
-import { Time, TimeOfDay } from './time'
+import { InternalTime, TimeOfDay } from './time'
 import moment from 'moment'
 import { ambiguousTime, join, relativeDate } from './helpers'
 import { InternalDate, Date as DatePhrase } from './date'
@@ -70,6 +70,14 @@ function * getDateTimeOptions (option, props) {
   }
 }
 
+function filterDateTimeResult (result) {
+  if (result._ambiguousMonth) {
+    return false
+  }
+
+  return true
+}
+
 export const DateTime = {
   id: 'elliptical-datetime:DateTime',
   
@@ -95,24 +103,26 @@ export const DateTime = {
 
   describe ({props}) {
     return props.nullify ? null : (
-      <map outbound={(option) => getDateTimeOptions(option, props)} limit={1}
-        skipIncomplete>
-        <InternalDateTime {...props} _allowAmbiguity={false} />
+      <map outbound={(option) => getDateTimeOptions(option, props)} limit={1} skipIncomplete>
+        <filter outbound={option => filterDateTimeResult(option.result, props)} skipIncomplete>
+          <InternalDateTime {...props} />
+        </filter>
       </map>
     )
   }
 }
 
 function filterInternalDateTime (option) {
+  const result = option.result
   /*if (option.result.time && option.result.time._ambiguousAMPM &&
       !option.result.timeOfDay) {
     return false
-  } else */if (option.result.time && option.result.timeOfDay &&
-      isNoonOrMidnight(option.result.time)) {
+  } else */if (result.time && result.timeOfDay &&
+      isNoonOrMidnight(result.time)) {
     return false
-  } else if (option.result.time && option.result.timeOfDay &&
-    !option.result.time._ambiguousAMPM &&
-    !timeIsInAMPM(option.result.time, option.result.timeOfDay.impliedAMPM)
+  } else if (result.time && result.timeOfDay &&
+    !result.time._ambiguousAMPM &&
+    !timeIsInAMPM(result.time, result.timeOfDay.impliedAMPM)
   ) {
     return false 
   }
@@ -138,12 +148,16 @@ export const InternalDateTime = {
       date = relativeDate(result.relativeDate)
     }
 
+    // console.log(result)
     return {
       date,
       time,
       _ambiguousYear: result.date && result.date._ambiguousYear,
       _ambiguousCentury: result.date && result.date._ambiguousCentury,
-      _ambiguousWeek: result.date && result.date._ambiguousWeek
+      _ambiguousWeek: result.date && result.date._ambiguousWeek,
+      _ambiguousMonth: result.date && result.date._ambiguousMonth,
+      _ambiguousAMPM: result.time && result.time._ambiguousAMPM,
+      _specificAMPM: result.time && result.time._specificAMPM
     }
   },
 
@@ -156,7 +170,7 @@ export const InternalDateTime = {
           <choice>
             <sequence unique>
               <sequence merge>
-                <Time id='time' ellipsis prepositions={props.prepositions} seconds={false} />
+                <InternalTime id='time' ellipsis prepositions={props.prepositions} seconds={false} />
 
                 <sequence optional limited ellipsis merge>
                   <sequence id='timeOfDay' optional limited>
@@ -203,7 +217,7 @@ export const InternalDateTime = {
 
               <sequence id='time' ellipsis>
                 <literal text=' ' />
-                <Time merge prepositions seconds={false} />
+                <InternalTime merge prepositions seconds={false} />
               </sequence>
 
               <sequence id='timeOfDay'>

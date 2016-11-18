@@ -80,6 +80,13 @@ export function absoluteDate (absolute) {
   return moment(absolute).toDate()
 }
 
+export function absoluteDay (absolute) {
+  return {
+    month: absolute.month == null ? moment().month() : absolute.month,
+    day: absolute.day == null ? moment.day(): absolute.day
+  }
+}
+
 export function relativeDate (duration, now = {}) {
   return moment(now).add(moment.duration(duration)).toDate()
 }
@@ -118,4 +125,10 @@ export function * possibleDates(obj, referenceDate) {
       yield moment(referenceDate).add(i, 'days').toDate()
     }
   }
+}
+
+export function timeLessThan(a, b) {
+  return (a.hour < b.hour)
+    || (a.hour === b.hour && a.minute < b.minute)
+    || (a.hour === b.hour && a.minute === b.minute && a.second < b.second)
 }

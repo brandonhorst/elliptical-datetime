@@ -18,6 +18,7 @@ describe('Range', () => {
   function test({input, output, length = 1, suggestion }) {
     it(input, () => {
       const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
+      // console.log(require('util').inspect(data, {depth: 999}))
       expect(data).to.have.length(length)
       if (length > 0) {
         expect(text(data[0])).to.equal(suggestion || input)
@@ -236,6 +237,48 @@ describe('Range', () => {
         allDay: false
       }
     }, {
+      input: '8-9pm',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate(),
+        end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '8-21',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
+        end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: '8am-9pm',
+      output: {
+        start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
+        end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
+        allDay: false
+      }
+    }, {
+      input: 'November 1-3',
+      output: {
+        start: moment({year: 1990, month: 10, day: 1, hour: 0}).toDate(),
+        end: moment({year: 1990, month: 10, day: 3, hour: 0}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'November 1st-3rd',
+      output: {
+        start: moment({year: 1990, month: 10, day: 1, hour: 0}).toDate(),
+        end: moment({year: 1990, month: 10, day: 3, hour: 0}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'January 1-3',
+      output: {
+        start: moment({year: 1990, month: 0, day: 1, hour: 0}).toDate(),
+        end: moment({year: 1990, month: 0, day: 3, hour: 0}).toDate(),
+        allDay: true
+      }
+    }, {
       input: 'all day today to all day tomorrow',
       output: {
         start: moment({year: 1990, month: 9, day: 11}).toDate(),
@@ -362,6 +405,20 @@ describe('Range', () => {
       output: {
         start: moment({year: 1991, month: 0, day: 18}).toDate(),
         end: moment({year: 1991, month: 0, day: 18}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'November 1-3',
+      output: {
+        start: moment({year: 1990, month: 10, day: 1, hour: 0}).toDate(),
+        end: moment({year: 1990, month: 10, day: 3, hour: 0}).toDate(),
+        allDay: true
+      }
+    }, {
+      input: 'January 1-3',
+      output: {
+        start: moment({year: 1991, month: 0, day: 1, hour: 0}).toDate(),
+        end: moment({year: 1991, month: 0, day: 3, hour: 0}).toDate(),
         allDay: true
       }
     }, {

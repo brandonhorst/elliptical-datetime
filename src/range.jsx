@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import {createElement} from 'elliptical'
 
-import { join, relativeDate, possibleDates } from './helpers'
+import { join, relativeDate, possibleDates, ambiguousTime, timeLessThan } from './helpers'
 import { DateTime, InternalDateTime } from './datetime'
 import { Duration } from './duration'
 
@@ -79,16 +79,53 @@ function * mapRangeResults (result, props) {
   }
 }
 
+function preprocessRangeAmbiguity (result, props) {
+  if (result.start && result.end) {
+    if (result.end.date && result.end._ambiguousMonth) {
+      const trueEndDate = moment(result.end.date).month(moment(result.start.date).month()).toDate()
+      const end = _.assign({}, result.end, {date: trueEndDate})
+      return _.assign({}, result, {end})
+    }
+
+    if (result.start._ambiguousAMPM && result.end._specificAMPM) {
+      const start = _.clone(result.start)
+      start.time = ambiguousTime(result.start.time, result.end._specificAMPM)
+      return _.assign({}, result, {start})
+    }
+  }
+
+  return result
+}
+
 function * mapRangeOptions (option, props) {
-  for (let result of mapRangeResults(option.result, props)) {
+  const processedResult = preprocessRangeAmbiguity(option.result, props)
+  for (let result of mapRangeResults(processedResult, props)) {
     yield _.assign({}, option, {result})
   }
 }
 
 function filterRangeOption (option) {
-  if (option.result.allDay &&
-      (!option.result.start._ambiguousTime ||
-        (option.result.end && !option.result.end._ambiguousTime))) {
+  const result = option.result
+  // console.log(result)
+
+  // it doesn't make any sense to specify a "date to time" or "time to date"
+  if (result.start && result.end && (
+      (result.start.date && !result.start.time && !result.end.date && result.end.time) ||
+      (!result.start.date && result.start.time && result.end.date && !result.end.time)
+    )
+  ) {
+    return false
+  }
+
+  // both start and end cannot have month ambiguity
+  if (result.start && result.start._ambiguousMonth && result.end && result.end._ambiguousMonth) {
+    return false
+  }
+
+  // if we've specified a time, we can't be allday
+  if (result.allDay &&
+      (!result.start._ambiguousTime ||
+        (result.end && !result.end._ambiguousTime))) {
     return false
   }
 
@@ -127,8 +164,8 @@ export const Range = {
       <placeholder
         label={props.label}
         arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
-        <map outbound={(option) => mapRangeOptions(option, props)} limit={1}>
-          <filter outbound={filterRangeOption}>
+        <map outbound={(option) => mapRangeOptions(option, props)} limit={1} skipIncomplete>
+          <filter outbound={filterRangeOption} skipIncomplete>
             <sequence unique>
               <sequence id='duration' optional limited>
                 {props.prepositions ? <literal text='for ' optional limited preferred /> : null}
@@ -140,7 +177,7 @@ export const Range = {
 
               <choice merge>
                 <sequence id='end'>
-                  <list items={[' to ', ' - ', '-']} limit={1} category='conjunction' />
+                  <list items={[' to ', ' - ', '-', '- ', ' -']} limit={1} />
 
                   <TrueDateTime merge />
                 </sequence>

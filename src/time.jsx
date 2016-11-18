@@ -26,19 +26,42 @@ export const TimeOfDay = {
   }
 }
 
+function getTimeResult (result) {
+  return {hour: result.hour, minute: result.minute, second: result.second}
+}
+
+function getTimeOptions (option, props) {
+  return _.assign({}, option, {result: getTimeResult(option.result)})
+}
+
 export const Time = {
   id: 'elliptical-datetime:Time',
-  
+
   defaultProps: {
     named: true,
     recurse: true,
     relative: true,
     prepositions: false,
     seconds: false,
+    nullify: false,
     label: 'time'
   },
-
+  
   describe ({props}) {
+    if (props.nullify) return null
+
+    return (
+      <map outbound={(option) => getTimeOptions(option, props)} skipIncomplete>
+        <InternalTime {...props} />
+      </map>
+    )
+  }
+}
+
+export const InternalTime = {
+  describe ({props}) {
+    if (props.nullify) return null
+
     return (
       <choice>
         <sequence>
@@ -148,7 +171,8 @@ const AbsoluteNumeric = {
     const trueResult = _.assign({}, result, {hour: trueHour})
 
     if (trueResult.ampm) {
-      return ambiguousTime(trueResult, trueResult.ampm)
+      const actualTime = ambiguousTime(trueResult, trueResult.ampm)
+      return actualTime ? _.assign({}, actualTime, {_specificAMPM: trueResult.ampm}) : null
     } else {
       if (trueResult.hour > 12) {
         return ambiguousTime(trueResult)
