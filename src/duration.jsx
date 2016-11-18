@@ -26,7 +26,7 @@ const BaseDuration = {
         label={props.label}
         arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
         <filter outbound={filterBase} skipIncomplete>
-          <repeat separator={<list items={[', ', ' and ', ', and ']} limit={1} category='conjunction' />}>
+          <repeat separator={<list items={[', ', ' and ', ', and ']} limit={1} />}>
             {children}
           </repeat>
         </filter>

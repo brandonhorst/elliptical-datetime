@@ -168,7 +168,7 @@ export const Range = {
           <filter outbound={filterRangeOption} skipIncomplete>
             <sequence unique>
               <sequence id='duration' optional limited>
-                {props.prepositions ? <literal text='for ' optional limited preferred /> : null}
+                {props.prepositions ? <literal text='for ' decorate /> : null}
                 <Duration merge />
                 <list items={[' ', ' starting ']} limit={1} />
               </sequence>

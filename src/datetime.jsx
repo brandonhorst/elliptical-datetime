@@ -41,7 +41,15 @@ function * getDateTimeResults (result, props) {
     } else if (result._ambiguousCentury) {
       dates = _.map([0, 100, -100], (years) => moment(result.date).add(years, 'years').toDate())
     } else if (result._ambiguousYear) {
-      dates = _.map([0, 1, -1], (years) => moment(result.date).add(years, 'years').toDate())
+      if (result._ambiguousMonth) {
+        dates = _.flatMap([0, 1, -1], (y) => {
+          return _.map([0, 1, -1], (m) => {
+            return moment(result.date).add(y, 'years').add(m, 'months').toDate()
+          })
+        })
+      } else {
+        dates = _.map([0, 1, -1], (years) => moment(result.date).add(years, 'years').toDate())
+      }
     } else {
       dates = [result.date]
     }
@@ -70,13 +78,9 @@ function * getDateTimeOptions (option, props) {
   }
 }
 
-function filterDateTimeResult (result) {
-  if (result._ambiguousMonth) {
-    return false
-  }
-
-  return true
-}
+// function filterDateTimeResult (result) {
+//   return true
+// }
 
 export const DateTime = {
   id: 'elliptical-datetime:DateTime',
@@ -104,9 +108,9 @@ export const DateTime = {
   describe ({props}) {
     return props.nullify ? null : (
       <map outbound={(option) => getDateTimeOptions(option, props)} limit={1} skipIncomplete>
-        <filter outbound={option => filterDateTimeResult(option.result, props)} skipIncomplete>
+        {/*<filter outbound={option => filterDateTimeResult(option.result, props)} skipIncomplete>*/}
           <InternalDateTime {...props} />
-        </filter>
+        {/*</filter>*/}
       </map>
     )
   }

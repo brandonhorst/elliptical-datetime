@@ -11,9 +11,7 @@ import { Year } from './year'
 import { Weekday } from './weekday'
 import { absoluteDate, join, negateDuration, relativeDate, relativeDay, validateDay, possibleDates } from './helpers'
 
-export const Day = {
-  id: 'elliptical-datetime:Day',
-
+export const InternalDay = {
   defaultProps: {
     recurse: true,
     label: 'day'
@@ -33,12 +31,13 @@ export const Day = {
         ) : null}
 
         <sequence>
-          {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
+          {props.prepositions ? <literal text='on ' decorate /> : null}
           <placeholder
             label={props.label}
             arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
             merge>
             <choice>
+              <DayAlone />
               <AmbiguousAbsoluteDay />
               <AmbiguousAbsoluteNamedMonth />
             </choice>
@@ -46,6 +45,19 @@ export const Day = {
         </sequence>
       </choice>
     )
+  }
+}
+
+export const Day = {
+  id: 'elliptical-datetime:Day',
+
+  defaultProps: {
+    recurse: true,
+    label: 'day'
+  },
+
+  describe ({props}) {
+    return <InternalDay {...props} />
   }
 }
 
@@ -74,9 +86,9 @@ export const Date = {
     if (!props.future && moment(result).isAfter(moment())) {
       return false
     }
-    if (result._ambiguousMonth) {
-      return false
-    }
+    // if (result._ambiguousMonth) {
+    //   return false
+    // }
 
     return true
   },
@@ -109,7 +121,6 @@ export const InternalDate = {
           label={props.label}
           arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}>
           <choice>
-            <DayAlone />
             <RelativeNamed />
             <RelativeNumbered prepositions={props.prepositions} />
             <DayWithYear prepositions={props.prepositions} />
@@ -119,7 +130,7 @@ export const InternalDate = {
         </placeholder>
 
         <sequence>
-          {props.prepositions ? <literal text='on ' optional preferred limited category='conjunction' /> : null}
+          {props.prepositions ? <literal text='on ' decorate /> : null}
           <placeholder
             label={props.label}
             arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
@@ -144,7 +155,11 @@ const DayWithYear = {
       const date = absoluteDate(_.assign({year: year.year}, day))
       return {date, _ambiguousCentury: year._ambiguousCentury}
     } else {
-      return {date: absoluteDate(day), _ambiguousYear: true}
+      return {
+        date: absoluteDate(day),
+        _ambiguousMonth: day._ambiguousMonth,
+        _ambiguousYear: true
+      }
     }
   },
   describe ({props}) {
@@ -152,7 +167,7 @@ const DayWithYear = {
       <sequence>
         <Day prepositions={props.prepositions} id='day' recurse={false} ellipsis />
         <sequence merge>
-          <list items={[', ', ' in ', ' ']} category='conjunction' limit={1} />
+          <list items={[', ', ' in ', ' ']} limit={1} />
           <Year id='year' />
         </sequence>
       </sequence>
@@ -421,17 +436,20 @@ const AbsoluteDay = {
 const DayAlone = {
   mapResult (result) {
     return {
-      date: moment({day: result}).toDate(),
-      _ambiguousMonth: true,
-      _ambiguousYear: true,
+      month: moment().month(),
+      day: result,
+      _ambiguousMonth: true
     }
   },
   describe () {
     return (
-      <choice limit={1}>
-        <Integer allowWordForm max={31} min={1} limit={1} />
-        <Ordinal allowWordForm max={31} limit={1} />
-      </choice>
+      <sequence>
+        <literal text='the ' optional preferred limited />
+        <choice limit={1} merge>
+          <Integer allowWordForm max={31} min={1} limit={1} allowLeadingZero={false} />
+          <Ordinal allowWordForm max={31} limit={1} />
+        </choice>
+      </sequence>
     )
   }
 }

@@ -110,8 +110,16 @@ export function * possibleDates(obj, referenceDate) {
         yield moment(obj.date).add(i, 'days').toDate()
       }
     } else if (obj._ambiguousYear) {
-      for (let i of [0, 1, -1]) {
-        yield moment(obj.date).add(i, 'years').toDate()
+      if (obj._ambiguousMonth) {
+        for (let i of [0, 1, -1]) {
+          for (let j of [0, 1, -1]) {
+            yield moment(obj.date).add(i, 'years').add(j, 'months').toDate()
+          }
+        }
+      } else {
+        for (let i of [0, 1, -1]) {
+          yield moment(obj.date).add(i, 'years').toDate()
+        }
       }
     } else if (obj._ambiguousCentury) {
       for (let i of [0, 100, -100]) {

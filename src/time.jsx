@@ -59,13 +59,28 @@ export const Time = {
 }
 
 export const InternalTime = {
+  defaultProps: {
+    named: true,
+    recurse: true,
+    relative: true,
+    prepositions: false,
+    seconds: false,
+    nullify: false,
+    label: 'time'
+  },
+
   describe ({props}) {
     if (props.nullify) return null
 
     return (
       <choice>
         <sequence>
-          {props.prepositions ? <list items={['at ', 'from ']} limit={1} category='conjunction' optional preferred limited /> : null}
+          {props.prepositions ? (
+            <choice limit={1}>
+              <literal text='at ' decorate />
+              <literal text='from ' />
+            </choice>
+          ) : null}
           <placeholder
             label={props.label}
             arguments={props.phraseArguments || (props.phraseArguments ? [props.phraseArgument] : [props.label])}
@@ -144,7 +159,7 @@ const AbsoluteTimeOfDay = {
           <AmbiguousAbsoluteNumeric seconds={props.seconds} />
           <AmbiguousAbsoluteRelativeHour />
         </choice>
-        <literal text=' in the ' category='conjunction' />
+        <literal text=' in the ' />
         <TimeOfDay id='timeOfDay' />
       </sequence>
     )
@@ -168,7 +183,7 @@ const AbsoluteNamed = {
 const AbsoluteNumeric = {
   mapResult (result) {
     const trueHour = parseInt(result.hour, 10)
-    const trueResult = _.assign({}, result, {hour: trueHour})
+    const trueResult = _.assign({}, result, {hour: trueHour, minute: result.minute, second: result.second || 0})
 
     if (trueResult.ampm) {
       const actualTime = ambiguousTime(trueResult, trueResult.ampm)
@@ -200,15 +215,20 @@ const AbsoluteNumeric = {
     seconds: false
   },
 
-  describe () {
+  describe ({props}) {
     return (
       <sequence>
-        <Hour id='hour' ellipsis />
+        <Hour id='hour' />
 
-        <sequence ellipsis optional limited merge>
-          <literal text=':' />
-          <MinutesOrSeconds id='minute' />
-        </sequence>
+        <choice ellipsis id='minute' limit={1}>
+          <literal text=':00' decorate value={0} />
+          {props.minutes ? (
+            <sequence optional limited merge>
+              <literal text=':' />
+              <MinutesOrSeconds merge />
+            </sequence>
+          ) : null}
+        </choice>
 
         <list unique id='ampm' limit={2} items={[
           {text: ' am', value: 'am'},

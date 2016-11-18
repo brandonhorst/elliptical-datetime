@@ -121,6 +121,9 @@ describe('Date', () => {
     }, {
       output: moment({year: 1990, month: 4, day: 2}).toDate(),
       input: 'May 2, 1990'
+    }, {
+      output: moment({year: 1990, month: 9, day: 12}).toDate(),
+      input: 'the 12th'
     }]
 
     _.forEach(testCases, test)
@@ -203,6 +206,12 @@ describe('Date', () => {
     }, {
       input: 'May 2, 1991',
       output: moment({year: 1991, month: 4, day: 2}).toDate()
+    }, {
+      input: 'the 12th',
+      output: moment({year: 1990, month: 9, day: 12}).toDate()
+    }, {
+      input: 'the 10th',
+      output: moment({year: 1990, month: 10, day: 10}).toDate()
     }]
 
     _.forEach(testCases, test)
@@ -288,6 +297,12 @@ describe('Date', () => {
     }, {
       input: 'May 2, 1991',
       length: 0
+    }, {
+      input: 'the 12th',
+      output: moment({year: 1990, month: 8, day: 12}).toDate()
+    }, {
+      input: 'the 10th',
+      output: moment({year: 1990, month: 9, day: 10}).toDate()
     }]
 
     _.forEach(testCases, test)

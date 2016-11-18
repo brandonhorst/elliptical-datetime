@@ -31,6 +31,7 @@ describe('Time', () => {
     input: '3:31 pm'
   }, {
     output: {hour: 15, minute: 0, second: 0},
+    decorated: '3:00pm',
     input: '3pm'
   }, {
     output: {hour: 0, minute: 0, second: 0},
@@ -40,25 +41,30 @@ describe('Time', () => {
     input: 'noon'
   }, {
     output: {hour: 15, minute: 45, second: 0},
-    input: 'quarter to 4pm'
+    input: 'quarter to 4pm',
+    decorated: 'quarter to 4:00pm'
   }, {
     output: {hour: 23, minute: 45, second: 0},
     input: 'quarter to midnight'
   }, {
     output: {hour: 15, minute: 30, second: 0},
-    input: 'half past 3pm'
+    input: 'half past 3pm',
+    decorated: 'half past 3:00pm'
   }, {
     output: {hour: 15, minute: 0, second: 0},
-    input: '15'
+    input: '15',
+    decorated: '15:00'
   }, {
     output: {hour: 15, minute: 30, second: 0},
-    input: 'half past 15'
+    input: 'half past 15',
+    decorated: 'half past 15:00'
   }, {
     output: {hour: 15, minute: 20, second: 0},
     input: '15:20'
   }, {
     output: {hour: 0, minute: 0, second: 0},
-    input: '24'
+    input: '24',
+    decorated: '24:00'
   }, {
     input: '24:01',
     length: 0
@@ -73,13 +79,16 @@ describe('Time', () => {
     length: 0
   }, {
     output: {hour: 21, minute: 0, second: 0},
-    input: '9pm'
+    input: '9pm',
+    decorated: '9:00pm'
   }, {
     output: {hour: 15, minute: 50, second: 0},
-    input: '10 til 4pm'
+    input: '10 til 4pm',
+    decorated: '10 til 4:00pm'
   }, {
     output: {hour: 15, minute: 50, second: 0},
-    input: '10 minutes before 4pm'
+    input: '10 minutes before 4pm',
+    decorated: '10 minutes before 4:00pm'
   }, {
     output: {hour: 10, minute: 0, second: 0},
     input: '2 hours before noon'
@@ -112,13 +121,13 @@ describe('Time', () => {
     parse = compile(<Time />)
   })
 
-  _.forEach(testCases, ({input, output, length = 1 }) => {
+  _.forEach(testCases, ({input, output, decorated, length = 1 }) => {
     it(input, () => {
       const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       // console.log(require('util').inspect(data, {depth: 999}))
       expect(data).to.have.length(length)
       if (length > 0) {
-        expect(text(data[0])).to.equal(input)
+        expect(text(data[0])).to.equal(decorated || input)
         expect(data[0].result).to.eql(output)
       }
     })

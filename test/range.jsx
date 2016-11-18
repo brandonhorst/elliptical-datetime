@@ -15,13 +15,13 @@ chai.use(chaiDateTime)
 describe('Range', () => {
   let parse, clock
 
-  function test({input, output, length = 1, suggestion }) {
+  function test({input, output, decorated, length = 1 }) {
     it(input, () => {
       const data = _.filter(parse(input), output => !_.some(output.words, 'placeholder'))
       // console.log(require('util').inspect(data, {depth: 999}))
       expect(data).to.have.length(length)
       if (length > 0) {
-        expect(text(data[0])).to.equal(suggestion || input)
+        expect(text(data[0])).to.equal(decorated || input)
         if (output.allDay) {
           expect(data[0].result.start).to.equalDate(output.start)
           expect(data[0].result.end).to.equalDate(output.end)
@@ -50,6 +50,7 @@ describe('Range', () => {
 
     const testCases = [{
       input: 'today from 3pm to 6pm',
+      decorated: 'today from 3:00pm to 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
@@ -57,6 +58,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today from 3pm to 7am',
+      decorated: 'today from 3:00pm to 7:00am',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 7}).toDate(),
@@ -64,6 +66,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 3pm for 3 hours',
+      decorated: 'today at 3:00pm for 3 hours',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
@@ -71,6 +74,7 @@ describe('Range', () => {
       }
     }, {
       input: '3 hours today at 3pm',
+      decorated: '3 hours today at 3:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
@@ -78,6 +82,7 @@ describe('Range', () => {
       }
     }, {
       input: '3pm to 6pm today',
+      decorated: '3:00pm to 6:00pm today',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
@@ -85,6 +90,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 3pm to tomorrow at 6pm',
+      decorated: 'today at 3:00pm to tomorrow at 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 18}).toDate(),
@@ -92,6 +98,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today to tomorrow at 6pm',
+      decorated: 'today to tomorrow at 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 18}).toDate(),
@@ -99,6 +106,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 6pm to tomorrow',
+      decorated: 'today at 6:00pm to tomorrow',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate(),
@@ -113,6 +121,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 6pm to tomorrow afternoon',
+      decorated: 'today at 6:00pm to tomorrow afternoon',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 12}).toDate(),
@@ -120,6 +129,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm to 9pm',
+      decorated: '6:00pm to 9:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -127,6 +137,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm-9pm',
+      decorated: '6:00pm-9:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -134,6 +145,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm - 9pm',
+      decorated: '6:00pm - 9:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -141,6 +153,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Friday to 6p Saturday',
+      decorated: '10:00a on Friday to 6:00p on Saturday',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 13, hour: 18}).toDate(),
@@ -148,6 +161,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Monday to 6p Wednesday',
+      decorated: '10:00a on Monday to 6:00p on Wednesday',
       output: {
         start: moment({year: 1990, month: 9, day: 8, hour: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 10, hour: 18}).toDate(),
@@ -224,6 +238,7 @@ describe('Range', () => {
       }
     }, {
       input: 'tomorrow at 8pm',
+      decorated: 'tomorrow at 8:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
@@ -231,6 +246,7 @@ describe('Range', () => {
       }
     }, {
       input: '8pm',
+      decorated: '8:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -238,6 +254,7 @@ describe('Range', () => {
       }
     }, {
       input: '8-9pm',
+      decorated: '8:00-9:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -245,6 +262,7 @@ describe('Range', () => {
       }
     }, {
       input: '8-21',
+      decorated: '8:00-21:00',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -252,6 +270,7 @@ describe('Range', () => {
       }
     }, {
       input: '8am-9pm',
+      decorated: '8:00am-9:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -311,6 +330,7 @@ describe('Range', () => {
 
     const testCases = [{
       input: 'today from 3pm to 6pm',
+      decorated: 'today from 3:00pm to 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
@@ -318,6 +338,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today from 3pm to 7am',
+      decorated: 'today from 3:00pm to 7:00am',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 7}).toDate(),
@@ -331,6 +352,7 @@ describe('Range', () => {
       length: 0,
     }, {
       input: '3am to 6pm',
+      decorated: '3:00am to 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 3}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 18}).toDate(),
@@ -338,6 +360,7 @@ describe('Range', () => {
       }
     }, {
       input: '3pm to 6pm 11/20/2004',
+      decorated: '3:00pm to 6:00pm on 11/20/2004',
       output: {
         start: moment({year: 2004, month: 10, day: 20, hour: 15}).toDate(),
         end: moment({year: 2004, month: 10, day: 20, hour: 18}).toDate(),
@@ -345,6 +368,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 6pm to tomorrow afternoon',
+      decorated: 'today at 6:00pm to tomorrow afternoon',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 18}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 12}).toDate(),
@@ -423,6 +447,7 @@ describe('Range', () => {
       }
     }, {
       input: 'tomorrow at 8pm',
+      decorated: 'tomorrow at 8:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 21}).toDate(),
@@ -430,6 +455,7 @@ describe('Range', () => {
       }
     }, {
       input: '8pm',
+      decorated: '8:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 21}).toDate(),
@@ -437,6 +463,7 @@ describe('Range', () => {
       }
     }, {
       input: '8am',
+      decorated: '8:00am',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 12, hour: 9}).toDate(),
@@ -444,6 +471,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Friday to 6p Saturday',
+      decorated: '10:00a on Friday to 6:00p on Saturday',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 13, hour: 18}).toDate(),
@@ -451,6 +479,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Monday to 6p Wednesday',
+      decorated: '10:00a on Monday to 6:00p on Wednesday',
       output: {
         start: moment({year: 1990, month: 9, day: 15, hour: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 17, hour: 18}).toDate(),
@@ -458,6 +487,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Friday to 6p Monday',
+      decorated: '10:00a on Friday to 6:00p on Monday',
       output: {
         start: moment({year: 1990, month: 9, day: 12, hour: 10}).toDate(),
         end: moment({year: 1990, month: 9, day: 15, hour: 18}).toDate(),
@@ -487,6 +517,7 @@ describe('Range', () => {
       length: 0
     }, {
       input: '3pm to 7am',
+      decorated: '3:00pm to 7:00am',
       output: {
         start: moment({year: 1990, month: 9, day: 10, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 7}).toDate(),
@@ -494,6 +525,7 @@ describe('Range', () => {
       }
     }, {
       input: '3pm to 6pm',
+      decorated: '3:00pm to 6:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 10, hour: 15}).toDate(),
         end: moment({year: 1990, month: 9, day: 10, hour: 18}).toDate(),
@@ -501,6 +533,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 8am for 3 hours',
+      decorated: 'today at 8:00am for 3 hours',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 11}).toDate(),
@@ -566,6 +599,7 @@ describe('Range', () => {
       length: 0
     }, {
       input: '8pm',
+      decorated: '8:00pm',
       output: {
         start: moment({year: 1990, month: 9, day: 10, hour: 20}).toDate(),
         end: moment({year: 1990, month: 9, day: 10, hour: 21}).toDate(),
@@ -573,6 +607,7 @@ describe('Range', () => {
       }
     }, {
       input: '8am',
+      decorated: '8:00am',
       output: {
         start: moment({year: 1990, month: 9, day: 11, hour: 8}).toDate(),
         end: moment({year: 1990, month: 9, day: 11, hour: 9}).toDate(),
@@ -597,6 +632,7 @@ describe('Range', () => {
 
     const testCases = [{
       input: 'today from 3pm to 6pm',
+      decorated: 'today from 3:00pm to 6:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
@@ -604,6 +640,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today from 3pm to 7am',
+      decorated: 'today from 3:00pm to 7:00am',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 14}).toDate(),
@@ -611,6 +648,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 3pm for 3 hours',
+      decorated: 'today at 3:00pm for 3 hours',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
@@ -618,6 +656,7 @@ describe('Range', () => {
       }
     }, {
       input: '3 hours today at 3pm',
+      decorated: '3 hours today at 3:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
@@ -625,6 +664,7 @@ describe('Range', () => {
       }
     }, {
       input: '3pm to 6pm today',
+      decorated: '3:00pm to 6:00pm today',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
@@ -632,6 +672,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 3pm to tomorrow at 6pm',
+      decorated: 'today at 3:00pm to tomorrow at 6:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 22}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 13, hour: 1}).toDate(),
@@ -639,6 +680,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today to tomorrow at 6pm',
+      decorated: 'today to tomorrow at 6:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 11, hour: 15}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 13, hour: 1}).toDate(),
@@ -646,6 +688,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 6pm to tomorrow',
+      decorated: 'today at 6:00pm to tomorrow',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 15}).toDate(),
@@ -660,6 +703,7 @@ describe('Range', () => {
       }
     }, {
       input: 'today at 6pm to tomorrow afternoon',
+      decorated: 'today at 6:00pm to tomorrow afternoon',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 19}).toDate(),
@@ -667,6 +711,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm to 9pm',
+      decorated: '6:00pm to 9:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
@@ -674,6 +719,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm-9pm',
+      decorated: '6:00pm-9:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
@@ -681,6 +727,7 @@ describe('Range', () => {
       }
     }, {
       input: '6pm - 9pm',
+      decorated: '6:00pm - 9:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 1}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
@@ -688,6 +735,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Friday to 6p Saturday',
+      decorated: '10:00a on Friday to 6:00p on Saturday',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 17}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 14, hour: 1}).toDate(),
@@ -695,6 +743,7 @@ describe('Range', () => {
       }
     }, {
       input: '10a Monday to 6p Wednesday',
+      decorated: '10:00a on Monday to 6:00p on Wednesday',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 8, hour: 17}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 11, hour: 1}).toDate(),
@@ -771,6 +820,7 @@ describe('Range', () => {
       }
     }, {
       input: 'tomorrow at 8pm',
+      decorated: 'tomorrow at 8:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 13, hour: 3}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 13, hour: 4}).toDate(),
@@ -778,6 +828,7 @@ describe('Range', () => {
       }
     }, {
       input: '8pm',
+      decorated: '8:00pm',
       output: {
         start: moment.utc({year: 1990, month: 9, day: 12, hour: 3}).toDate(),
         end: moment.utc({year: 1990, month: 9, day: 12, hour: 4}).toDate(),
